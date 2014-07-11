@@ -1,0 +1,49 @@
+content#:#Inhalt
+info#:#Info
+settings#:#Einstellungen
+permissions#:#Rechte
+view#:#Zeigen
+manage#:#Verwalten
+success#:#Album erstellt!
+no_checkbox#:#Sie haben keine Auswahl getroffen!
+delete_album#:#Objekt(e) löschen?
+cancel#:#Abbrechen
+delete#:#Löschen
+msg_removed_album#:#Objekt(e) gelöscht!
+albumtitle#:#Albumtitel
+actions#:#Aktionen
+edit#:#Bearbeiten
+title#:#Titel
+description#:#Beschreibung
+create_album#:#Album Erstellen
+edit_album#:#Album Bearbeiten
+enter_date#:#Datum Angeben
+date#:#Datum
+save#:#Speichern
+cancel#:#Abbrechen
+success_edit#:#Änderung(en) gespeichert!
+upload_pic#:#Foto hochladen
+edit_pic#:#Foto bearbeiten
+pic_title#:#Fototitel
+pic#:#Foto
+select_preview#:#Als Vorschaubild festlegen
+add_pic#:#Hochladen
+back_to_gallery#:#Zurück zur Galerie
+success_pic#:#Foto erstellt!
+delete_pic#:#Objekte(e) löschen?
+msg_removed_pic#:#Objekte(e) gelöscht!
+add_new_pic#:#Neues Foto Hochladen
+back_to_pictures#:#Zurück zu Bildern
+exif_data#:#Exif Daten
+gallery_title#:#Galerietitel
+back_to_diashow#:#Zurück zur Diashow
+download#:#Herunterladen
+move#:#Verschieben
+take_pic_date#:#Aufnahmedatum übernehmen
+info_foto_date#:#Sofern die Fotos ein Aufnahmedatum liefern. Das Datum kann nachhträglich unter Foto bearbeiten geändert werden.
+pics#:#Bilder
+xpho_new#:#Neue Fotogalerie anlegen
+objs_xpho_duplicate#:#Fotogalerie kopieren
+objs_xpho#:#Fotogalerien
+xpho_add#:#Fotogalerien anlegen
+obj_xpho#:#Fotogalerie

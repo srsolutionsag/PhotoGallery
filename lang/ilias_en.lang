@@ -1,0 +1,49 @@
+content#:#Content
+info#:#Info
+settings#:#Settings
+permissions#:#Permissions
+view#:#View
+manage#:#Manage
+success#:#Album is created!
+no_checkbox#:#Please select at least one item!
+delete_album#:#Delete object(s)?
+cancel#:#Cancel
+delete#:#Delete
+msg_removed_album#:#Object(s) deleted!
+albumtitle#:#Album title
+actions#:#Actions
+edit#:#Edit
+title#:#Title
+description#:#Description
+create_album#:#Create album
+edit_album#:#Edit album
+enter_date#:#Select date
+date#:#Date
+save#:#Save
+cancel#:#Cancel
+success_edit#:#Changes saved!
+upload_pic#:#Upload picture
+edit_pic#:#Edit picture
+pic_title#:#Picture title
+pic#:#Picture
+select_preview#:#Set as preview picture
+add_pic#:#Upload
+back_to_gallery#:#Back to gallery
+success_pic#:#Picture is created!
+delete_pic#:#Delete object(s)?
+msg_removed_pic#:#Object(s) is deleted!
+add_new_pic#:#Add new picture
+back_to_pictures#:#Back to pictures
+exif_data#:#Exif data
+gallery_title#:#Gallery title
+back_to_diashow#:#Back to diashow
+download#:#Download
+move#:#Move
+take_pic_date#:#Take exposure date
+info_foto_date#:#As long as the pictures deliver a date. Otherwise it is possible to change the date over edit picture.
+pics#:#Pictures
+xpho_new#:#Create new Photo Gallery
+objs_xpho_duplicate#:#Copy Photo Gallery
+objs_xpho#:#Galleries
+xpho_add#:#Add Photo Gallery
+obj_xpho#:#Photo Gallery
