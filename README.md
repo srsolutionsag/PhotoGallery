@@ -1,5 +1,5 @@
 PhotoGallery
- ============
+============
 ###Installation
 ####Install ActiveRecord
 ILIAS 4.4 does not include ActiveRecord. Therefore please install the latest Version of ActiveRecord before you install the plugin:
