@@ -1,7 +1,7 @@
 <?php
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
-require_once('./Customizing/global/plugins/Libraries/ActiveRecord/class.srModelObjectTableGUI.php');
+require_once('class.atTableGUI.php');
 
 /**
  * TableGUI srModelObjectTableGUI
@@ -9,10 +9,10 @@ require_once('./Customizing/global/plugins/Libraries/ActiveRecord/class.srModelO
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
- * @version $Id:
  *
+ * @version $Id:
  */
-class ilObjPhotoGalleryTableGUI extends srModelObjectTableGUI {
+class ilObjPhotoGalleryTableGUI extends atTableGUI {
 
 	/**
 	 * @return bool

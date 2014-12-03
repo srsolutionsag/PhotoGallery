@@ -1,3 +1,4 @@
+<!-- language file start -->
 content#:#Inhalt
 info#:#Info
 settings#:#Einstellungen
@@ -45,5 +46,11 @@ pics#:#Bilder
 xpho_new#:#Neue Fotogalerie anlegen
 objs_xpho_duplicate#:#Fotogalerie kopieren
 objs_xpho#:#Fotogalerien
-xpho_add#:#Fotogalerien anlegen
 obj_xpho#:#Fotogalerie
+obj_title_create_new#:#Neue Fotogalerie anlegen
+xpho_add#:#Fotogalerien anlegen
+xpho_edit_permission#:#Rechte anpassen
+xpho_visible#:#Sichtbat
+xpho_read#:#Lesen
+xpho_write#:#Bearbeiten
+xpho_delete#:#Löschen

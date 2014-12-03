@@ -1,0 +1,56 @@
+part;var;de;en
+content;;Inhalt;Content
+info;;Info;Info
+settings;;Einstellungen;Settings
+permissions;;Rechte;Permissions
+view;;Zeigen;View
+manage;;Verwalten;Manage
+success;;Album erstellt!;Album is created!
+no_checkbox;;Sie haben keine Auswahl getroffen!;Please select at least one item!
+delete_album;;Objekt(e) löschen?;Delete object(s)?
+cancel;;Abbrechen;Cancel
+delete;;Löschen;Delete
+msg_removed_album;;Objekt(e) gelöscht!;Object(s) deleted!
+albumtitle;;Albumtitel;Album title
+actions;;Aktionen;Actions
+edit;;Bearbeiten;Edit
+title;;Titel;Title
+description;;Beschreibung;Description
+create_album;;Album Erstellen;Create album
+edit_album;;Album Bearbeiten;Edit album
+enter_date;;Datum Angeben;Select date
+date;;Datum;Date
+save;;Speichern;Save
+cancel;;Abbrechen;Cancel
+success_edit;;Änderung(en) gespeichert!;Changes saved!
+upload_pic;;Foto hochladen;Upload picture
+edit_pic;;Foto bearbeiten;Edit picture
+pic_title;;Fototitel;Picture title
+pic;;Foto;Picture
+select_preview;;Als Vorschaubild festlegen;Set as preview picture
+add_pic;;Hochladen;Upload
+back_to_gallery;;Zurück zur Galerie;Back to gallery
+success_pic;;Foto erstellt!;Picture is created!
+delete_pic;;Objekte(e) löschen?;Delete object(s)?
+msg_removed_pic;;Objekte(e) gelöscht!;Object(s) is deleted!
+add_new_pic;;Neues Foto Hochladen;Add new picture
+back_to_pictures;;Zurück zu Bildern;Back to pictures
+exif_data;;Exif Daten;Exif data
+gallery_title;;Galerietitel;Gallery title
+back_to_diashow;;Zurück zur Diashow;Back to diashow
+download;;Herunterladen;Download
+move;;Verschieben;Move
+take_pic_date;;Aufnahmedatum übernehmen;Take exposure date
+info_foto_date;;Sofern die Fotos ein Aufnahmedatum liefern. Das Datum kann nachhträglich unter Foto bearbeiten geändert werden.;As long as the pictures deliver a date. Otherwise it is possible to change the date over edit picture.
+pics;;Bilder;Pictures
+xpho_new;;Neue Fotogalerie anlegen;Create new Photo Gallery
+objs_xpho_duplicate;;Fotogalerie kopieren;Copy Photo Gallery
+objs_xpho;;Fotogalerien;Galleries
+obj_xpho;;Fotogalerie;Photo Gallery
+obj;title_create_new;Neue Fotogalerie anlegen;Create new Photogallery
+xpho;add;Fotogalerien anlegen;Add Photo Gallery
+xpho;edit_permission;Rechte anpassen;Edit Permission
+xpho;visible;Sichtbat;Visible
+xpho;read;Lesen;Read
+xpho;write;Bearbeiten;Edit
+xpho;delete;Löschen;Delete
