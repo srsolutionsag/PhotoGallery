@@ -31,8 +31,7 @@ include_once('./Services/Repository/classes/class.ilObjectPluginListGUI.php');
  * PLEASE do not create instances of larger classes here. Use the
  * ...Access class to get DB data and keep it small.
  *
- * @author        Alex Killing <alex.killing@gmx.de>
- * @author        Fabian Schmid <fabian.schmid@ilub.unibe.ch>
+ * @author        Fabian Schmid <fs@studer-raimann.ch>
  * @author        Martin Studer <ms@studer-raimann.ch>
  *
  */

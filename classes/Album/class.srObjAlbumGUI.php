@@ -181,7 +181,7 @@ class srObjAlbumGUI {
 				$tpl->parseCurrentBlock();
 			}
 			if ($this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
-				$tpl->setCurrentBlock('addnew');
+				$tpl->setCurrentBlock('add_new');
 				$tpl->setVariable('SRC_ADDNEW', './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/addnew.jpg');
 				$tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'add'));
 				$tpl->parseCurrentBlock();

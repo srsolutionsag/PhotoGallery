@@ -1,5 +1,5 @@
 <#1>
-    <?php
+<?php
     if (!$ilDB->tableExists('rep_robj_xpho_data')) {
     $fields = array(
         'id' => array(
@@ -21,12 +21,12 @@
 
 <#2>
 <?php
-require_once "Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php";
+require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php";
 srObjAlbum::installDB();
 ?>
 
 <#3>
 <?php
-require_once "Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php";
+require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php";
 srObjPicture::installDB();
 ?>

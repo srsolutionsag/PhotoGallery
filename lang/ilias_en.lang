@@ -1,3 +1,4 @@
+<!-- language file start -->
 content#:#Content
 info#:#Info
 settings#:#Settings
@@ -45,5 +46,11 @@ pics#:#Pictures
 xpho_new#:#Create new Photo Gallery
 objs_xpho_duplicate#:#Copy Photo Gallery
 objs_xpho#:#Galleries
-xpho_add#:#Add Photo Gallery
 obj_xpho#:#Photo Gallery
+obj_title_create_new#:#Create new Photogallery
+xpho_add#:#Add Photo Gallery
+xpho_edit_permission#:#Edit Permission
+xpho_visible#:#Visible
+xpho_read#:#Read
+xpho_write#:#Edit
+xpho_delete#:#Delete

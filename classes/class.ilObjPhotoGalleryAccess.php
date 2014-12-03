@@ -30,7 +30,6 @@ require_once('class.ilObjPhotoGallery.php');
  * Please do not create instances of large application classes (like ilObjPhotoGallery)
  * Write small methods within this class to determin the status.
  *
- * @author        Alex Killing <alex.killing@gmx.de>
  * @author        Fabian Schmid <fs@studer-raimann.ch>
  * @author        Martin Studer <ms@studer-raimann.ch>
  *
