@@ -65,7 +65,7 @@ class xpho {
 	 * @return bool
 	 */
 	public static function is44() {
-		return self::getILIASVersion() >= self::ILIAS_44;
+		return self::getILIASVersion() >= self::ILIAS_44 AND self::getILIASVersion() < self::ILIAS_50;
 	}
 
 
