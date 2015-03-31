@@ -73,7 +73,7 @@ class#ilMainMenuSearch {
 }
 
 .clearing-blackout {
-	z-index:   999 !important;
+	z-index:   1050 !important;
 	position:  absolute;
 	top:       0;
 	left:      0;
