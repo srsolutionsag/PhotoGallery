@@ -42,7 +42,7 @@ class ilObjPhotoGallery extends ilObjectPlugin {
 	/**
 	 * @param int $a_ref_id
 	 */
-	function __construct($a_ref_id = 0) {
+	public function __construct($a_ref_id = 0) {
 		global $ilDB;
 		/**
 		 * @var $ilDB ilDB
