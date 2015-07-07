@@ -141,6 +141,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 				$this->tabs_gui->setTabActive('permissions');
 				$perm_gui = new ilPermissionGUI($this);
 				$this->ctrl->forwardCommand($perm_gui);
+				$this->tpl->show();
 				break;
 			case 'ilinfoscreengui':
 				$this->setTabs();
