@@ -1,5 +1,6 @@
 <?php
-require_once('./Customizing/global/plugins/Libraries/ActiveRecord/class.ActiveRecord.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
+xpho::initAR();
 
 /**
  * srObjAlbum

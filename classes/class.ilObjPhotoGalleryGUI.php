@@ -33,6 +33,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php');
 require_once('class.ilObjPhotoGallery.php');
 require_once('class.ilObjPhotoGalleryTableGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
 
 /**
  * User Interface class for example repository object.
@@ -124,8 +125,15 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$this->setTitleAndDescription();
 		$this->setLocator();
 		//$this->pl->updateLanguageFiles();
-		$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '_b.png'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
-				. $this->getType()));
+
+		if(xpho::is50()) {
+			$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '.svg'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
+					. $this->getType()));
+		} else {
+			$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '_b.png'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
+					. $this->getType()));
+
+		}
 
 		switch ($next_class) {
 			case 'ilpermissiongui':
@@ -133,6 +141,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 				$this->tabs_gui->setTabActive('permissions');
 				$perm_gui = new ilPermissionGUI($this);
 				$this->ctrl->forwardCommand($perm_gui);
+				$this->tpl->show();
 				break;
 			case 'ilinfoscreengui':
 				$this->setTabs();

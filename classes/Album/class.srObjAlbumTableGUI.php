@@ -1,5 +1,6 @@
 <?php
-require_once('./Customizing/global/plugins/Libraries/ActiveRecord/class.srModelObjectTableGUI.php');
+//require_once('./Customizing/global/plugins/Libraries/ActiveRecord/class.srModelObjectTableGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.atTableGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 
@@ -13,7 +14,7 @@ require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvan
  * @version $Id:
  *
  */
-class srObjAlbumTableGUI extends srModelObjectTableGUI {
+class srObjAlbumTableGUI extends atTableGUI {
 
 	/**
 	 * @return bool

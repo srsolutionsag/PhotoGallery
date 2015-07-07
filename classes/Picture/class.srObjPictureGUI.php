@@ -252,7 +252,9 @@ class srObjPictureGUI {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		}
-
+		/**
+		 * @var $srObjPicture srObjPicture
+		 */
 		$srObjPicture = srObjPicture::find($_GET['picture_id']);
 
 		if (! isset($_SERVER["HTTPS"])) {
