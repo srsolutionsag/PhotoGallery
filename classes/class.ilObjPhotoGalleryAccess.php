@@ -72,6 +72,15 @@ class ilObjPhotoGalleryAccess extends ilObjectPluginAccess {
 	static function checkOnline($a_id) {
 		return true;
 	}
+
+	// The manage tab is only displayed for user with at least one of theese rights: rep_robj_xpho_download_images, write, delete
+	static function checkManageTabAccess($ref_id){
+		global $ilAccess;
+
+		return $ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id, '', '')
+	        || $ilAccess->checkAccess('write', '', $ref_id, '', '')
+			|| $ilAccess->checkAccess('delete', '',$ref_id, '', '');
+	}
 }
 
 ?>
