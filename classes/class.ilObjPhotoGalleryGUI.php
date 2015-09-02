@@ -274,7 +274,14 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 	protected function setSubTabsContent() {
 		$this->tabs_gui->addSubTab('list_albums', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
-		$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
+
+		// The manage tab is only displayed for user with at least one of theese rights: xpho_download_images, write, delete
+		if ($this->access->checkAccess('rep_robj_xpho_download_images', '', $this->object->ref_id, $a_type = "", $a_obj_id = "")
+			|| $this->access->checkAccess('write', '', $this->object->ref_id, $a_type = "", $a_obj_id = "")
+			|| $this->access->checkAccess('delete', '', $this->object->ref_id, $a_type = "", $a_obj_id = "")) {
+
+			$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
+		}
 	}
 
 
