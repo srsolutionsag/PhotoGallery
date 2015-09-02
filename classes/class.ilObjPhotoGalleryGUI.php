@@ -41,6 +41,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
  * @author            Fabian Schmid <fs@studer-raimann.ch>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
+ * @author            Gabriel Comte <gc@studer-raimann.ch>
  *
  * $Id$
  *
@@ -55,7 +56,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	const CMD_MANAGE_ALBUMS = 'manageAlbums';
 	const CMD_SHOW_CONTENT = 'showContent';
 	const CMD_SHOW_SUMMARY = 'showSummary';
-	const CMDEDIT = 'edit';
+	const CMDEDIT = 'editProperties';
 	const CMD_LIST_ALBUMS = 'listAlbums';
 	/**
 	 * @var ilObjPhotoGallery
@@ -132,7 +133,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		} else {
 			$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '_b.png'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
 					. $this->getType()));
-
 		}
 
 		switch ($next_class) {
@@ -162,6 +162,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 				$this->ctrl->forwardCommand($picture_gui);
 				$this->tpl->show();
 				break;
+			case 'ilcommonactiondispatchergui';
+				include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
+				$gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
+				$this->ctrl->forwardCommand($gui);
+				break;
 			case 'srobjphotogallerygui':
 			case '':
 				switch ($cmd) {
@@ -188,6 +193,17 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						$this->manageAlbums();
 						$this->tpl->show();
 						break;
+					case 'infoScreen':
+						$this->setTabs();
+
+						$this->ctrl->setCmd("showSummary");
+						$this->ctrl->setCmdClass("ilinfoscreengui");
+						$this->infoScreen();
+
+						$this->tabs_gui->setTabActive('info');
+
+						$this->tpl->show();
+						break;
 					case self::CMD_SHOW_CONTENT:
 					case self::CMD_LIST_ALBUMS:
 					case '':
@@ -202,7 +218,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 				break;
 		}
 	}
-
 
 	public function edit() {
 		$this->tabs_gui->activateTab('settings');
@@ -275,11 +290,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	protected function setSubTabsContent() {
 		$this->tabs_gui->addSubTab('list_albums', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
 
-		// The manage tab is only displayed for user with at least one of theese rights: xpho_download_images, write, delete
-		if ($this->access->checkAccess('rep_robj_xpho_download_images', '', $this->object->ref_id, $a_type = "", $a_obj_id = "")
-			|| $this->access->checkAccess('write', '', $this->object->ref_id, $a_type = "", $a_obj_id = "")
-			|| $this->access->checkAccess('delete', '', $this->object->ref_id, $a_type = "", $a_obj_id = "")) {
-
+		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->ref_id)) {
 			$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
 		}
 	}
