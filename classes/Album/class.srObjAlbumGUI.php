@@ -107,6 +107,9 @@ class srObjAlbumGUI {
 			case 'download':
 				$this->$cmd();
 				break;
+			case 'downloadAlbum':
+				$this->download();
+				break;
 			case '':
 			case 'listPictures':
 				self::setLocator($this->obj_album->getId());
