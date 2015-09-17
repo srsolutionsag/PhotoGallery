@@ -290,6 +290,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	protected function setSubTabsContent() {
 		$this->tabs_gui->addSubTab('list_albums', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
 
+		// show tab "manage" on level overview
 		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->ref_id)) {
 			$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
 		}

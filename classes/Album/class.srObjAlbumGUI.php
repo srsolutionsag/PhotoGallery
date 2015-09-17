@@ -131,7 +131,11 @@ class srObjAlbumGUI {
 	protected function setSubTabs() {
 		$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $this->obj_album->getId());
 		$this->tabs_gui->addSubTab('list_pictures', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, 'listPictures'));
-		$this->tabs_gui->addSubTab('manage_pictures', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, 'managePictures'));
+
+		// show tab "manage" on level album
+		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->parent_gui->object->ref_id)) {
+			$this->tabs_gui->addSubTab('manage_pictures', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, 'managePictures'));
+		}
 	}
 
 
