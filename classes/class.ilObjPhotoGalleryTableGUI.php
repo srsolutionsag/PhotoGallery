@@ -81,14 +81,21 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI {
 			$this->addMultiCommand('confirmDelete', $this->pl->txt('delete'));
 			$this->setSelectAllCheckbox('album_ids[]'); //add to checkbox in tpl
 		}
+
 		//TODO GET ersetzen
-		if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
+		// show Action "Download"
+		if (ilObjPhotoGalleryAccess::checkManageTabAccess($_GET['ref_id'])) {
+
 			//action list
 			$alist = new ilAdvancedSelectionListGUI();
 			$alist->setId($a_set['id']);
 			$alist->setListTitle($this->pl->txt("actions"));
-			$alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass("srObjAlbumGUI", 'edit'));
-			$alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass("srObjAlbumGUI", 'confirmDelete'));
+
+			if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
+				$alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass("srObjAlbumGUI", 'edit'));
+				$alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass("srObjAlbumGUI", 'confirmDelete'));
+			}
+
 			$alist->addItem($this->pl->txt('download'), 'download', $this->ctrl->getLinkTargetByClass("srObjAlbumGUI", 'downloadAlbum'));
 			$this->tpl->setVariable("ACTION", $alist->getHTML());
 		}
