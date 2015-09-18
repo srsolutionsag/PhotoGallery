@@ -101,15 +101,17 @@ class srObjAlbumTableGUI extends atTableGUI {
 		$this->tpl->parseCurrentBlock();
 
 		//TODO GET ersetzen
-		$alist = new ilAdvancedSelectionListGUI();
-		if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
-			$alist->setId($a_set['id']);
-			$alist->setListTitle($this->pl->txt('actions'));
-			$alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'edit'));
-			$alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'confirmDelete'));
+		if (ilObjPhotoGalleryAccess::checkManageTabAccess($_GET['ref_id'])) {
+			$alist = new ilAdvancedSelectionListGUI();
+			if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
+				$alist->setId($a_set['id']);
+				$alist->setListTitle($this->pl->txt('actions'));
+				$alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'edit'));
+				$alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'confirmDelete'));
+			}
+			$alist->addItem($this->pl->txt('download'), 'download', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'download'));
+			$this->tpl->setVariable('ACTION', $alist->getHTML());
 		}
-		$alist->addItem($this->pl->txt('download'), 'download', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'download'));
-		$this->tpl->setVariable('ACTION', $alist->getHTML());
 	}
 
 

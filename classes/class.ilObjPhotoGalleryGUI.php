@@ -105,6 +105,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		if ($_GET['rl'] == 'true') {
 			$this->pl->updateLanguageFiles();
 		}
+
+		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
+		if($this->object !== null){
+			$this->tpl->setPermanentLink($this->pl->getId(), $this->object->getRefId());
+		}
 	}
 
 
@@ -282,7 +287,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		if ($this->access->checkAccess('edit_permission', '', $this->object->getRefId())) {
 			$this->tabs_gui->addTab('permissions', $this->pl->txt('permissions'), $this->ctrl->getLinkTargetByClass('ilpermissiongui', 'perm'));
 		}
-
 		return true;
 	}
 
@@ -290,6 +294,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	protected function setSubTabsContent() {
 		$this->tabs_gui->addSubTab('list_albums', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
 
+		// show tab "manage" on level overview
 		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->ref_id)) {
 			$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
 		}
@@ -339,7 +344,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	public function manageAlbums() {
-		if (!$this->access->checkAccess('read', '', $this->object->getRefId())) {
+		if (!ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {
@@ -365,32 +370,47 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		if (!sizeof($arr_picture_ids)) {
 			ilUtil::sendFailure($pl->txt('no_checkbox'), true);
 			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
-		}
-		$zip = PATH_TO_ZIP;
-		$tmpdir = ilUtil::ilTempnam();
-		ilUtil::makeDir($tmpdir);
-		$zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
-		ilUtil::makeDir($zipbasedir);
-		$tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
-		foreach ($arr_picture_ids as $picture_id) {
+		}else if(sizeof($arr_picture_ids) == 1){
+			// only one picture ==> do not make a .zip !
+			$picture_id = $arr_picture_ids[0];
+
 			$picture = srObjPicture::find($picture_id);
 			$title = $picture->getTitle();
 			$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-			$newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilUtil::getASCIIFilename($title . '_' . $picture->getId() . '.'
-					. $picture->getSuffix());
-			// copy to temporal directory
-			if (!copy($oldPictureFilename, $newPictureFilename)) {
-				throw new ilFileException('Could not copy ' . $oldPictureFilename . ' to ' . $newPictureFilename);
+
+			try {
+				ilUtil::deliverFile($oldPictureFilename, $title, '', false, true);
+			} catch (ilFileException $e) {
+				ilUtil::sendInfo($e->getMessage(), true);
 			}
-			touch($newPictureFilename, filectime($oldPictureFilename));
-		}
-		try {
-			ilUtil::zip($zipbasedir, $tmpzipfile);
-			rename($tmpzipfile, $zipfile = ilUtil::ilTempnam());
-			ilUtil::delDir($tmpdir);
-			ilUtil::deliverFile($zipfile, 'pictures.zip', '', false, true);
-		} catch (ilFileException $e) {
-			ilUtil::sendInfo($e->getMessage(), true);
+
+		}else {
+			$zip = PATH_TO_ZIP;
+			$tmpdir = ilUtil::ilTempnam();
+			ilUtil::makeDir($tmpdir);
+			$zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
+			ilUtil::makeDir($zipbasedir);
+			$tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
+			foreach ($arr_picture_ids as $picture_id) {
+				$picture = srObjPicture::find($picture_id);
+				$title = $picture->getTitle();
+				$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
+				$newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilUtil::getASCIIFilename($title . '_' . $picture->getId() . '.'
+						. $picture->getSuffix());
+				// copy to temporal directory
+				if (!copy($oldPictureFilename, $newPictureFilename)) {
+					throw new ilFileException('Could not copy ' . $oldPictureFilename . ' to ' . $newPictureFilename);
+				}
+				touch($newPictureFilename, filectime($oldPictureFilename));
+			}
+			try {
+				ilUtil::zip($zipbasedir, $tmpzipfile);
+				rename($tmpzipfile, $zipfile = ilUtil::ilTempnam());
+				ilUtil::delDir($tmpdir);
+				ilUtil::deliverFile($zipfile, 'pictures.zip', '', false, true);
+			} catch (ilFileException $e) {
+				ilUtil::sendInfo($e->getMessage(), true);
+			}
 		}
 	}
 }

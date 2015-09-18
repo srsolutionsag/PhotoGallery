@@ -50,8 +50,10 @@ obj_xpho#:#Fotogalerie
 obj_title_create_new#:#Neue Fotogalerie anlegen
 xpho_add#:#Fotogalerien anlegen
 xpho_edit_permission#:#Rechte anpassen
-xpho_visible#:#Sichtbat
+xpho_visible#:#Sichtbar
 xpho_read#:#Lesen
 xpho_write#:#Bearbeiten
 xpho_delete#:#Löschen
 download_images#:#Bilder herunterladen
+xpho_rep_robj_xpho_download_images#:#Bilder herunterladen
+permission_denied#:#Zugriff verweigert. Sie besitzen die benötigten Rechte nicht.
