@@ -50,7 +50,7 @@ obj_xpho;;Fotogalerie;Photo Gallery
 obj;title_create_new;Neue Fotogalerie anlegen;Create new Photogallery
 xpho;add;Fotogalerien anlegen;Add Photo Gallery
 xpho;edit_permission;Rechte anpassen;Edit Permission
-xpho;visible;Sichtbat;Visible
+xpho;visible;Sichtbar;Visible
 xpho;read;Lesen;Read
 xpho;write;Bearbeiten;Edit
 xpho;delete;Löschen;Delete

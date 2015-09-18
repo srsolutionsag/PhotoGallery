@@ -107,7 +107,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		}
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
-		$this->tpl->setPermanentLink($this->pl->getId(), $this->object->getRefId());
+		if($this->object !== null){
+			$this->tpl->setPermanentLink($this->pl->getId(), $this->object->getRefId());
+		}
 	}
 
 
