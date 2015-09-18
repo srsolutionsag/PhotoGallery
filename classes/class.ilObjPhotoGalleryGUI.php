@@ -342,7 +342,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	public function manageAlbums() {
-		if (!$this->access->checkAccess('read', '', $this->object->getRefId())) {
+		if (!ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {

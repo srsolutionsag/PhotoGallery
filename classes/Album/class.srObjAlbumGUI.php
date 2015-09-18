@@ -202,7 +202,7 @@ class srObjAlbumGUI {
 
 
 	public function managePictures() {
-		if (! $this->access->checkAccess('read', '', $this->parent_gui->object->getRefId())) {
+		if (!ilObjPhotoGalleryAccess::checkManageTabAccess($this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {
