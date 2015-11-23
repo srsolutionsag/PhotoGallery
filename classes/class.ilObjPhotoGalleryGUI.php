@@ -413,6 +413,22 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 			}
 		}
 	}
+
+	/**
+	 * @param ilObjPhotoGallery $gallery
+	 */
+	function afterSave(ilObjPhotoGallery $gallery)
+	{
+		global $ilAppEventHandler;
+		/** @var $ilAppEventHandler ilAppEventHandler */
+		$ilAppEventHandler->raise(
+			'Services/Object',
+			'afterSave',
+			array('object' => $gallery, 'obj_id' => $gallery->getId(), 'obj_type' => $gallery->getType()));
+
+		parent::afterSave($gallery);
+	}
+
 }
 
 ?>
