@@ -1,6 +1,6 @@
 <?php
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
-xpho::initAR();
+require_once('./Services/ActiveRecord/class.ActiveRecord.php');
 require_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
 
 /**
@@ -232,8 +232,8 @@ class srObjPicture extends ActiveRecord {
 	public function uploadPicture($tmp_path) {
 		$destination_path = $this->getPicturePath();
 		$this->recursiveMkdir($destination_path);
-		$this->cropImage($tmp_path,
-			$destination_path . '/' . self::TITLE_PREVIEW . '.' . $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW, true);
+		$this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_PREVIEW . '.'
+			. $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW, true);
 		$this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_MOSAIC . '.' . $this->getSuffix(), self::SIZE_MOSAIC, self::SIZE_MOSAIC);
 		$this->resizeImage($tmp_path, $destination_path . '/' . self::TITLE_PRESENTATION . '.'
 			. $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, true, self::DPI);
@@ -252,13 +252,13 @@ class srObjPicture extends ActiveRecord {
 		$dirs = explode(DIRECTORY_SEPARATOR, $path);
 		$count = count($dirs);
 		$path = '';
-		for ($i = 0; $i < $count; ++$i) {
+		for ($i = 0; $i < $count; ++ $i) {
 			if ($path != '/') {
 				$path .= DIRECTORY_SEPARATOR . $dirs[$i];
 			} else {
 				$path .= $dirs[$i];
 			}
-			if (! is_dir($path)) {
+			if (!is_dir($path)) {
 				ilUtil::makeDir(($path));
 			}
 		}

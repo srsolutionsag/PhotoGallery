@@ -101,10 +101,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$this->ctrl = $ilCtrl;
 		$this->tabs_gui = $ilTabs;
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
-//		$this->pl->updateLanguageFiles();
-		if ($_GET['rl'] == 'true') {
-			$this->pl->updateLanguageFiles();
-		}
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
 		if($this->object !== null){
@@ -413,6 +409,22 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 			}
 		}
 	}
+
+	/**
+	 * @param ilObjPhotoGallery $gallery
+	 */
+	function afterSave(ilObjPhotoGallery $gallery)
+	{
+		global $ilAppEventHandler;
+		/** @var $ilAppEventHandler ilAppEventHandler */
+		$ilAppEventHandler->raise(
+			'Services/Object',
+			'afterSave',
+			array('object' => $gallery, 'obj_id' => $gallery->getId(), 'obj_type' => $gallery->getType()));
+
+		parent::afterSave($gallery);
+	}
+
 }
 
 ?>

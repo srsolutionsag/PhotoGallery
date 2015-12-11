@@ -1,6 +1,6 @@
 <?php
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
-xpho::initAR();
+require_once('./Services/ActiveRecord/class.ActiveRecord.php');
 
 /**
  * srObjAlbum
@@ -81,8 +81,6 @@ class srObjAlbum extends ActiveRecord {
 	 * @db_is_notnull true
 	 */
 	protected $preview_id = 0;
-
-
 	//
 	// Setter & Getter
 	//
