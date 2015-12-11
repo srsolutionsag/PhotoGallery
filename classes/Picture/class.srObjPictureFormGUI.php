@@ -78,7 +78,12 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 				// TODO image type is missed
 				$file_input = new ilDragDropFileInputGUI($this->pl->txt('pic'), 'suffix');
 				$file_input->setRequired(true);
-				$file_input->setSuffixes(array( 'jpg', 'jpeg', 'png', 'gif' ));
+				$file_input->setSuffixes(array(
+					'jpg',
+					'jpeg',
+					'png',
+					'gif'
+				));
 				$file_input->setCommandButtonNames('create', 'redirectToAlbumListPictures');
 				$this->addItem($file_input);
 				$this->addCommandButton('create', $this->pl->txt('add_pic'));
@@ -107,12 +112,12 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 */
 	public function fillObject() {
 		global $ilUser;
-		if (! $this->checkInput()) {
+		if (!$this->checkInput()) {
 			return false;
 		}
 		$this->picture->setTitle($this->getInput('title'));
 		$this->picture->setDescription($this->getInput('description'));
-		if (! $this->picture->getId()) {
+		if (!$this->picture->getId()) {
 			$this->picture->setAlbumId($_GET['album_id']);
 		}
 		$this->picture->setUserId($ilUser->getId());
@@ -126,7 +131,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 
 
 	public function saveObject() {
-		if (! $this->fillObject()) {
+		if (!$this->fillObject()) {
 			return false;
 		}
 		if ($this->picture->getId()) {
@@ -139,7 +144,9 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		} else {
 			$ext = strtolower(end(explode('.', $_FILES['upload_files']['name'])));
 			$this->picture->setSuffix($ext);
-			$exif = exif_read_data($_FILES['upload_files']['tmp_name'], 0, true);
+			if (function_exists('exif_read_data')) {
+				$exif = exif_read_data($_FILES['upload_files']['tmp_name'], 0, true);
+			}
 			if (isset($exif["EXIF"]["DateTimeOriginal"])) {
 				//TODO Refactoring
 				$exifPieces = explode(" ", $exif["EXIF"]["DateTimeOriginal"]);
