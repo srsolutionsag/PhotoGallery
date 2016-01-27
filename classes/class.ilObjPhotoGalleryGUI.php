@@ -33,7 +33,6 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php');
 require_once('class.ilObjPhotoGallery.php');
 require_once('class.ilObjPhotoGalleryTableGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
 
 /**
  * User Interface class for example repository object.

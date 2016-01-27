@@ -1,5 +1,4 @@
 <?php
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
 require_once('./Services/ActiveRecord/class.ActiveRecord.php');
 require_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
 
