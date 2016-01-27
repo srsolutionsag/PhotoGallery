@@ -12,14 +12,26 @@ require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvan
  */
 class srObjExifFormGUI extends ilPropertyFormGUI {
 
-	/** @var  srObjExif */
+	/**
+	 * @var  srObjExif
+	 */
 	protected $exif;
-	/** @var  srObjExifGUI */
+	/**
+	 * @var  srObjExifGUI
+	 */
 	protected $parent_gui;
-	/** @var  ilCtrl */
+	/**
+	 * @var  ilCtrl
+	 */
 	protected $ctrl;
-	/** @var ilTemplate */
+	/**
+	 * @var ilTemplate
+	 */
 	protected $tpl;
+	/**
+	 * @var srObjPicture
+	 */
+	protected $picture;
 
 
 	public function __construct(srObjExifGUI $parent_gui, srObjExif $exif) {

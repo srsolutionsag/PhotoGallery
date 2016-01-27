@@ -33,7 +33,6 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php');
 require_once('class.ilObjPhotoGallery.php');
 require_once('class.ilObjPhotoGalleryTableGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.xpho.php');
 
 /**
  * User Interface class for example repository object.
@@ -56,7 +55,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	const CMD_MANAGE_ALBUMS = 'manageAlbums';
 	const CMD_SHOW_CONTENT = 'showContent';
 	const CMD_SHOW_SUMMARY = 'showSummary';
-	const CMDEDIT = 'editProperties';
+	const CMDEDIT = 'edit';
 	const CMD_LIST_ALBUMS = 'listAlbums';
 	/**
 	 * @var ilObjPhotoGallery
@@ -103,7 +102,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
-		if($this->object !== null){
+		if ($this->object !== null) {
 			$this->tpl->setPermanentLink($this->pl->getId(), $this->object->getRefId());
 		}
 	}
@@ -126,16 +125,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$this->tpl->getStandardTemplate();
 		$this->setTitleAndDescription();
 		$this->setLocator();
-		//$this->pl->updateLanguageFiles();
 
-		if(xpho::is50()) {
-			$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '.svg'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
-					. $this->getType()));
-		} else {
-			$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '_b.png'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
-					. $this->getType()));
-		}
-
+		$this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '.svg'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
+				. $this->getType()));
 		switch ($next_class) {
 			case 'ilpermissiongui':
 				$this->setTabs();
@@ -176,7 +168,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						$this->create();
 						break;
 					case 'save':
-						$this->save();
+						$this->saveObject();
+						$this->tpl->show();
 						break;
 					case self::CMDEDIT:
 						$this->setTabs();
@@ -220,9 +213,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		}
 	}
 
+
 	public function edit() {
 		$this->tabs_gui->activateTab('settings');
-
 		$form = new ilPropertyFormGUI();
 		$form->setTitle($this->pl->txt('edit'));
 		// title
@@ -233,15 +226,13 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$form->addItem($ti);
 		// description
 		$ta = new ilTextAreaInputGUI($this->pl->txt('description'), 'desc');
-		$ta->setCols(40);
 		$ta->setRows(2);
 		$form->addItem($ta);
 		$ta->setValue($this->object->getDescription());
 		$ti->setValue($this->object->getTitle());
+		$form->setFormAction($this->ctrl->getFormAction($this));
 		$form->addCommandButton('update', $this->pl->txt('save'));
-		$form->setFormAction($this->ctrl->getFormAction($this, 'update'));
 		$form->addCommandButton(self::CMD_SHOW_CONTENT, $this->pl->txt('cancel'));
-		$form->setFormAction($this->ctrl->getFormAction($this, self::CMD_SHOW_CONTENT));
 		$this->tpl->setContent($form->getHTML());
 	}
 
@@ -253,6 +244,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		} else {
 			$this->object->update();
 		}
+		$this->ctrl->redirect($this->parent, '');
 
 		return true;
 	}
@@ -366,65 +358,66 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		if (!sizeof($arr_picture_ids)) {
 			ilUtil::sendFailure($pl->txt('no_checkbox'), true);
 			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
-		}else if(sizeof($arr_picture_ids) == 1){
-			// only one picture ==> do not make a .zip !
-			$picture_id = $arr_picture_ids[0];
+		} else {
+			if (sizeof($arr_picture_ids) == 1) {
+				// only one picture ==> do not make a .zip !
+				$picture_id = $arr_picture_ids[0];
 
-			$picture = srObjPicture::find($picture_id);
-			$title = $picture->getTitle();
-			$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-
-			try {
-				ilUtil::deliverFile($oldPictureFilename, $title, '', false, true);
-			} catch (ilFileException $e) {
-				ilUtil::sendInfo($e->getMessage(), true);
-			}
-
-		}else {
-			$zip = PATH_TO_ZIP;
-			$tmpdir = ilUtil::ilTempnam();
-			ilUtil::makeDir($tmpdir);
-			$zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
-			ilUtil::makeDir($zipbasedir);
-			$tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
-			foreach ($arr_picture_ids as $picture_id) {
 				$picture = srObjPicture::find($picture_id);
 				$title = $picture->getTitle();
 				$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-				$newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilUtil::getASCIIFilename($title . '_' . $picture->getId() . '.'
-						. $picture->getSuffix());
-				// copy to temporal directory
-				if (!copy($oldPictureFilename, $newPictureFilename)) {
-					throw new ilFileException('Could not copy ' . $oldPictureFilename . ' to ' . $newPictureFilename);
+
+				try {
+					ilUtil::deliverFile($oldPictureFilename, $title, '', false, true);
+				} catch (ilFileException $e) {
+					ilUtil::sendInfo($e->getMessage(), true);
 				}
-				touch($newPictureFilename, filectime($oldPictureFilename));
-			}
-			try {
-				ilUtil::zip($zipbasedir, $tmpzipfile);
-				rename($tmpzipfile, $zipfile = ilUtil::ilTempnam());
-				ilUtil::delDir($tmpdir);
-				ilUtil::deliverFile($zipfile, 'pictures.zip', '', false, true);
-			} catch (ilFileException $e) {
-				ilUtil::sendInfo($e->getMessage(), true);
+			} else {
+				$zip = PATH_TO_ZIP;
+				$tmpdir = ilUtil::ilTempnam();
+				ilUtil::makeDir($tmpdir);
+				$zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
+				ilUtil::makeDir($zipbasedir);
+				$tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
+				foreach ($arr_picture_ids as $picture_id) {
+					$picture = srObjPicture::find($picture_id);
+					$title = $picture->getTitle();
+					$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
+					$newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilUtil::getASCIIFilename($title . '_' . $picture->getId() . '.'
+							. $picture->getSuffix());
+					// copy to temporal directory
+					if (!copy($oldPictureFilename, $newPictureFilename)) {
+						throw new ilFileException('Could not copy ' . $oldPictureFilename . ' to ' . $newPictureFilename);
+					}
+					touch($newPictureFilename, filectime($oldPictureFilename));
+				}
+				try {
+					ilUtil::zip($zipbasedir, $tmpzipfile);
+					rename($tmpzipfile, $zipfile = ilUtil::ilTempnam());
+					ilUtil::delDir($tmpdir);
+					ilUtil::deliverFile($zipfile, 'pictures.zip', '', false, true);
+				} catch (ilFileException $e) {
+					ilUtil::sendInfo($e->getMessage(), true);
+				}
 			}
 		}
 	}
 
+
 	/**
 	 * @param ilObjPhotoGallery $gallery
 	 */
-	function afterSave(ilObjPhotoGallery $gallery)
-	{
+	function afterSave(ilObjPhotoGallery $gallery) {
 		global $ilAppEventHandler;
 		/** @var $ilAppEventHandler ilAppEventHandler */
-		$ilAppEventHandler->raise(
-			'Services/Object',
-			'afterSave',
-			array('object' => $gallery, 'obj_id' => $gallery->getId(), 'obj_type' => $gallery->getType()));
+		$ilAppEventHandler->raise('Services/Object', 'afterSave', array(
+				'object' => $gallery,
+				'obj_id' => $gallery->getId(),
+				'obj_type' => $gallery->getType()
+			));
 
 		parent::afterSave($gallery);
 	}
-
 }
 
 ?>
