@@ -168,7 +168,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						$this->create();
 						break;
 					case 'save':
-						$this->saveObject();
+						$this->save();
 						$this->tpl->show();
 						break;
 					case self::CMDEDIT:
@@ -178,6 +178,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						break;
 					case 'update':
 						parent::update();
+						$this->tpl->show();
 						break;
 					case self::CMD_MANAGE_ALBUMS:
 						$this->setTabs();
@@ -411,10 +412,10 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		global $ilAppEventHandler;
 		/** @var $ilAppEventHandler ilAppEventHandler */
 		$ilAppEventHandler->raise('Services/Object', 'afterSave', array(
-				'object' => $gallery,
-				'obj_id' => $gallery->getId(),
-				'obj_type' => $gallery->getType()
-			));
+			'object' => $gallery,
+			'obj_id' => $gallery->getId(),
+			'obj_type' => $gallery->getType()
+		));
 
 		parent::afterSave($gallery);
 	}
