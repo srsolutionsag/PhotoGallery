@@ -232,11 +232,12 @@ class srObjPicture extends ActiveRecord {
 		$destination_path = $this->getPicturePath();
 		$this->recursiveMkdir($destination_path);
 		$this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_PREVIEW . '.'
-			. $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW, true);
+		                            . $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW, true);
 		$this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_MOSAIC . '.' . $this->getSuffix(), self::SIZE_MOSAIC, self::SIZE_MOSAIC);
 		$this->resizeImage($tmp_path, $destination_path . '/' . self::TITLE_PRESENTATION . '.'
-			. $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, true, self::DPI);
-		move_uploaded_file($tmp_path, $destination_path . '/' . self::TITLE_ORIGINAL . '.' . $this->getSuffix());
+		                              . $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, true, self::DPI);
+
+		ilUtil::moveUploadedFile($tmp_path, $destination_path . '/' . self::TITLE_ORIGINAL . '.' . $this->getSuffix());
 
 		return true;
 	}
