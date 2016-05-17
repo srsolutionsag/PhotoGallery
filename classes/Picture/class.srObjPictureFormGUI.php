@@ -145,7 +145,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 			$ext = strtolower(end(explode('.', $_FILES['upload_files']['name'])));
 			$this->picture->setSuffix($ext);
 			if (function_exists('exif_read_data')) {
-				$exif = exif_read_data($_FILES['upload_files']['tmp_name'], 0, true);
+				$exif = @exif_read_data($_FILES['upload_files']['tmp_name'], 0, true);
 			}
 			if (isset($exif["EXIF"]["DateTimeOriginal"])) {
 				//TODO Refactoring

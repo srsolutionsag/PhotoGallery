@@ -62,7 +62,7 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 		$this->addItem($desc);
 
 		//TODO LATER Original.jpg ersetzen.
-		$arr_exif = exif_read_data($this->parent_gui->picture->getPicturePath() . "/presentation.jpg");
+		$arr_exif = @exif_read_data($this->parent_gui->picture->getPicturePath() . "/presentation.jpg");
 		foreach ($arr_exif as $key => $value) {
 			$exif_field = new ilNonEditableValueGUI($key, $key);
 			$exif_field->setValue($value);
