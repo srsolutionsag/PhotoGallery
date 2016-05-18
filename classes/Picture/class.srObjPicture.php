@@ -237,7 +237,8 @@ class srObjPicture extends ActiveRecord {
 		$this->resizeImage($tmp_path, $destination_path . '/' . self::TITLE_PRESENTATION . '.'
 		                              . $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, true, self::DPI);
 
-		ilUtil::moveUploadedFile($tmp_path, $destination_path . '/' . self::TITLE_ORIGINAL . '.' . $this->getSuffix());
+		$name = self::TITLE_ORIGINAL . '.' . $this->getSuffix();
+		ilUtil::moveUploadedFile($tmp_path, $name, $destination_path . '/' . $name);
 
 		return true;
 	}
@@ -300,6 +301,7 @@ class srObjPicture extends ActiveRecord {
 		} else {
 			$size = " -resize " . $a_width . "x" . $a_height . "! ";
 		}
+		$density = '';
 		if ($dpi) {
 			$density = " -density " . $dpi . " ";
 		}
