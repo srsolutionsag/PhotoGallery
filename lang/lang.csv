@@ -54,3 +54,9 @@ xpho;visible;Sichtbar;Visible
 xpho;read;Lesen;Read
 xpho;write;Bearbeiten;Edit
 xpho;delete;Löschen;Delete
+grp_create_xpho;;Fotogalerie anlegen;Create Photogallery
+crs_create_xpho;;Fotogalerie anlegen;Create Photogallery
+cat_create_xpho;;Fotogalerie anlegen;Create Photogallery
+root_create_xpho;;Fotogalerie anlegen;Create Photogallery
+fold_create_xpho;;Fotogalerie anlegen;Create Photogallery
+rbac_create_xpho;;Fotogalerie anlegen;Create Photogallery
