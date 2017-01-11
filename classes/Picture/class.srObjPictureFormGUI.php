@@ -66,7 +66,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 				$date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
 				$date_input->setDate(new ilDate($this->picture->getCreateDate(), IL_CAL_DATE));
 				$this->addItem($date_input);
-				$vorschau = new ilCheckboxInputGUI($this->pl->txt('select_preview'), 'vorschau');
+				$vorschau = new ilCheckboxInputGUI($this->pl->txt('select_preview'), 'preview');
 				$vorschau->setValue(1);
 				$this->addItem($vorschau);
 				$this->addCommandButton('update', $this->pl->txt('save'));
@@ -98,10 +98,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		$array = array(
 			'title' => $this->picture->getTitle(),
 			'description' => $this->picture->getDescription(),
-			'checkbox' => $this->picture->getCreateDate() != NULL,
+			'preview' => $this->album->getPreviewId() == $this->picture->getId(),
 			'suffix' => $this->picture->getSuffix(),
 		);
-		$this->setValuesByArray($array);
+		$this->setValuesByArray($array, true);
 	}
 
 
@@ -122,9 +122,15 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		}
 		$this->picture->setUserId($ilUser->getId());
 		$date_array = $this->getInput('create_date');
-		$date = $date_array['date']['y'] . '-' . $date_array['date']['m'] . '-' . $date_array['date']['d'];
+		if (is_array($date_array)) {
+			$date = $date_array['date']['y'] . '-' . $date_array['date']['m'] . '-' . $date_array['date']['d'];
+		} else {
+			$date = date('Y-m-d', strtotime($date_array));
+		}
 		$this->picture->setCreateDate($date); // TODO bei MultipleFileUpload Exif-Daten verwenden
-		$this->album->setPreviewId($_GET['picture_id']);
+		if ($this->getInput('preview') == 1) {
+			$this->album->setPreviewId($_GET['picture_id']);
+		}
 
 		return true;
 	}
@@ -141,6 +147,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 				$this->picture->setSuffix($ext);
 			}
 			$this->picture->update();
+			$this->album->update();
 		} else {
 			$ext = strtolower(end(explode('.', $_FILES['upload_files']['name'])));
 			$this->picture->setSuffix($ext);
@@ -156,8 +163,6 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 			}
 			$this->picture->create();
 			$this->picture->uploadPicture($_FILES['upload_files']['tmp_name']);
-			$this->album->setPreviewId($this->picture->getId());
-			$this->album->update();
 			// create answer object
 			$response = new stdClass();
 			$response->fileName = $_FILES['upload_files']['name'];

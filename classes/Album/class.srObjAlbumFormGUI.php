@@ -80,7 +80,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 			'title' => $this->album->getTitle(),
 			'description' => $this->album->getDescription(),
 		);
-		$this->setValuesByArray($array);
+		$this->setValuesByArray($array, true);
 	}
 
 
