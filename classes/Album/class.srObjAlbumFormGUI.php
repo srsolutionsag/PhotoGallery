@@ -80,7 +80,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 			'title' => $this->album->getTitle(),
 			'description' => $this->album->getDescription(),
 		);
-		$this->setValuesByArray($array);
+		$this->setValuesByArray($array, true);
 	}
 
 
@@ -97,7 +97,11 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$this->album->setTitle($this->getInput('title'));
 		$this->album->setDescription($this->getInput('description'));
 		$date_array = $this->getInput('create_date');
-		$date = $date_array['date']['y'] . '-' . $date_array['date']['m'] . '-' . $date_array['date']['d'];
+		if (is_array($date_array)) {
+			$date = $date_array['date']['y'] . '-' . $date_array['date']['m'] . '-' . $date_array['date']['d'];
+		} else {
+			$date = date('Y-m-d', strtotime($date_array));
+		}
 		$this->album->setCreateDate($date);
 		$this->album->setObjectId(ilObject::_lookupObjectId($_GET['ref_id']));
 		$this->album->setUserId($ilUser->getId());
