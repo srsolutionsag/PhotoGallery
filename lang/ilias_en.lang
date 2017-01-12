@@ -58,3 +58,9 @@ download_images#:#Download Images
 xpho_rep_robj_xpho_download_images#:#Download Images
 permission_denied#:#Access Denied. You do not have the necessary rights.
 wrong_filetype#:#One or more files contained a wrong datatype. Allowed filetypes: .jpg, .jpeg, .png, .gif
+grp_create_xpho#:#Create Photogallery
+crs_create_xpho#:#Create Photogallery
+cat_create_xpho#:#Create Photogallery
+root_create_xpho#:#Create Photogallery
+fold_create_xpho#:#Create Photogallery
+rbac_create_xpho#:#Create Photogallery

@@ -58,3 +58,9 @@ download_images#:#Bilder herunterladen
 xpho_rep_robj_xpho_download_images#:#Bilder herunterladen
 permission_denied#:#Zugriff verweigert. Sie besitzen die benötigten Rechte nicht.
 wrong_filetype#:#Eine oder mehrere der hochgeladenen Dateien entsprachen einem falschen Dateitypen. Erlaubt sind folgende Dateiendungen: .jpg, .jpeg, .png, .gif
+grp_create_xpho#:#Fotogalerie anlegen
+crs_create_xpho#:#Fotogalerie anlegen
+cat_create_xpho#:#Fotogalerie anlegen
+root_create_xpho#:#Fotogalerie anlegen
+fold_create_xpho#:#Fotogalerie anlegen
+rbac_create_xpho#:#Fotogalerie anlegen
