@@ -57,3 +57,4 @@ xpho_delete#:#Delete
 download_images#:#Download Images
 xpho_rep_robj_xpho_download_images#:#Download Images
 permission_denied#:#Access Denied. You do not have the necessary rights.
+wrong_filetype#:#One or more files contained a wrong datatype. Allowed filetypes: .jpg, .jpeg, .png, .gif

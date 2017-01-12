@@ -57,3 +57,4 @@ xpho_delete#:#Löschen
 download_images#:#Bilder herunterladen
 xpho_rep_robj_xpho_download_images#:#Bilder herunterladen
 permission_denied#:#Zugriff verweigert. Sie besitzen die benötigten Rechte nicht.
+wrong_filetype#:#Eine oder mehrere der hochgeladenen Dateien entsprachen einem falschen Dateitypen. Erlaubt sind folgende Dateiendungen: .jpg, .jpeg, .png, .gif

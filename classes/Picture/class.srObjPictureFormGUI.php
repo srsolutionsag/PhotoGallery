@@ -55,9 +55,11 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		} else {
 			$this->setTitle($this->pl->txt('edit_pic'));
 		}
-		switch ($this->ctrl->getCmd()) {
+		$cmd = ($this->ctrl->getCmd() == 'post') ? $_GET['fallbackCmd'] : $this->ctrl->getCmd();
+		switch ($cmd) {
 			//			case 'update':
 			case 'edit':
+			case 'update':
 				$title = new ilTextInputGUI($this->pl->txt('pic_title'), 'title');
 				$title->setRequired(true);
 				$this->addItem($title);
@@ -74,6 +76,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 				$this->setFormAction($this->ctrl->getFormActionByClass('srObjPictureGUI', 'update'));
 				break;
 			case 'add':
+			case 'create':
 				$this->setMultipart(true);
 				// TODO image type is missed
 				$file_input = new ilDragDropFileInputGUI($this->pl->txt('pic'), 'suffix');

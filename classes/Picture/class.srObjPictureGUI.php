@@ -126,6 +126,9 @@ class srObjPictureGUI {
 			$form = new srObjPictureFormGUI($this, new srObjPicture());
 			$form->setValuesByPost();
 			$response = $form->saveObject();
+			if ($response === false) {
+				ilUtil::sendFailure($this->pl->txt('wrong_filetype'), true);
+			}
 		}
 		header('Vary: Accept');
 		header('Content-type: text/plain');
