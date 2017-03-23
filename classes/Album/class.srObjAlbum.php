@@ -19,6 +19,10 @@ class srObjAlbum extends ActiveRecord {
 		return 'sr_obj_pg_album';
 	}
 
+	const SORT_TYPE_CREATE_DATE = 'create_date';
+	const SORT_TYPE_TITLE = 'title';
+	const SORT_TYPE_DIRECTION_ASC = 'asc';
+	const SORT_TYPE_DIRECTION_DESC = 'desc';
 
 	/**
 	 * @var string
@@ -80,6 +84,35 @@ class srObjAlbum extends ActiveRecord {
 	 * @db_is_notnull true
 	 */
 	protected $preview_id = 0;
+
+	/**
+	 * @var string
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  text
+	 * @db_length     16
+	 * @db_is_notnull true
+	 */
+	protected $sort_type = self::SORT_TYPE_CREATE_DATE;
+
+	/**
+	 * @var string
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  text
+	 * @db_length     16
+	 * @db_is_notnull true
+	 */
+	protected $sort_direction = self::SORT_TYPE_DIRECTION_ASC;
+
+	/**
+	 * @var array
+	 */
+	public static $sort_types = array(
+		self::SORT_TYPE_CREATE_DATE,
+		self::SORT_TYPE_TITLE,
+	);
+
 	//
 	// Setter & Getter
 	//
@@ -230,7 +263,7 @@ class srObjAlbum extends ActiveRecord {
 	 * @return srObjPicture[]
 	 */
 	public function getPictureObjects() {
-		return srObjPicture::where(array( 'album_id' => $this->getId() ))->orderBy('create_date')->get();
+		return srObjPicture::where(array( 'album_id' => $this->getId() ))->orderBy($this->getSortType(), $this->getSortDirection())->get();
 	}
 
 
@@ -247,6 +280,34 @@ class srObjAlbum extends ActiveRecord {
 	 */
 	public function getAlbumPath() {
 		return CLIENT_WEB_DIR . '/xpho/album_' . $this->getId();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSortType() {
+		return $this->sort_type;
+	}
+
+	/**
+	 * @param string $sort_type
+	 */
+	public function setSortType($sort_type) {
+		$this->sort_type = $sort_type;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSortDirection() {
+		return $this->sort_direction;
+	}
+
+	/**
+	 * @param string $sort_direction
+	 */
+	public function setSortDirection($sort_direction) {
+		$this->sort_direction = $sort_direction;
 	}
 
 

@@ -40,8 +40,8 @@ class ilObjPhotoGalleryAccess extends ilObjectPluginAccess {
 	/**
 	 * @param string $a_cmd
 	 * @param string $a_permission
-	 * @param int    $a_ref_id
-	 * @param int    $a_obj_id
+	 * @param int $a_ref_id
+	 * @param int $a_obj_id
 	 * @param string $a_user_id
 	 *
 	 * @return bool
@@ -53,7 +53,7 @@ class ilObjPhotoGalleryAccess extends ilObjectPluginAccess {
 		}
 		switch ($a_permission) {
 			case 'read':
-				if (! ilObjPhotoGalleryAccess::checkOnline($a_obj_id) AND ! $ilAccess->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)
+				if (!ilObjPhotoGalleryAccess::checkOnline($a_obj_id) AND !$ilAccess->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)
 				) {
 					return true;
 				}
@@ -74,13 +74,11 @@ class ilObjPhotoGalleryAccess extends ilObjectPluginAccess {
 	}
 
 	// The manage tab is only displayed for user with at least one of theese rights: rep_robj_xpho_download_images, write, delete
-	static function checkManageTabAccess($ref_id){
+	static function checkManageTabAccess($ref_id) {
 		global $ilAccess;
 
 		return $ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id, '', '')
-	        || $ilAccess->checkAccess('write', '', $ref_id, '', '')
-			|| $ilAccess->checkAccess('delete', '',$ref_id, '', '');
+			|| $ilAccess->checkAccess('write', '', $ref_id, '', '')
+			|| $ilAccess->checkAccess('delete', '', $ref_id, '', '');
 	}
 }
-
-?>

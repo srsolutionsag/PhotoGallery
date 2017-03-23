@@ -116,7 +116,13 @@ class srObjAlbumTableGUI extends atTableGUI {
 
 
 	protected function initTableData() {
-		$this->setData(srObjPicture::where(array( 'album_id' => $_GET['album_id'] ), '=')->getArray());
+		/** @var srObjAlbum $album */
+		$album = srObjAlbum::find((int)$_GET['album_id']);
+		$this->setData(srObjPicture::where(array(
+			'album_id' => (int)$_GET['album_id']), '='
+		)
+			->orderBy($album->getSortType(), $album->getSortDirection())
+			->getArray());
 	}
 
 

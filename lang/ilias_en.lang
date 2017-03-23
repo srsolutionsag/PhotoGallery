@@ -64,3 +64,12 @@ cat_create_xpho#:#Create Photogallery
 root_create_xpho#:#Create Photogallery
 fold_create_xpho#:#Create Photogallery
 rbac_create_xpho#:#Create Photogallery
+sorting#:#Sorting
+sort_type#:#Sort type
+sort_type_create_date#:#Upload date
+sort_type_title#:#Title
+album_sort_type_info#:#Controls how pictures in this album are sorted, either by upload date or title
+sort_direction#:#Sort direction
+sort_direction_asc#:#Ascending
+sort_direction_desc#:#Descending
+album_sort_direction_info#:#Influences the sort direction of the sort type selected above

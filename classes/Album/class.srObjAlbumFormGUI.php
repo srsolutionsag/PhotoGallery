@@ -30,11 +30,12 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @param srObjAlbum $album
 	 */
 	public function __construct($parent_gui, srObjAlbum $album) {
-		global $ilCtrl;
+		global $ilCtrl, $lng;
 		$this->album = $album;
 		$this->parent_gui = $parent_gui;
 		$this->ctrl = $ilCtrl;
 		$this->pl = new ilPhotoGalleryPlugin();
+		$this->lng = $lng;
 		$this->ctrl->saveParameter($parent_gui, 'album_id');
 		$this->initForm();
 	}
@@ -65,6 +66,26 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 				$this->addItem($date_input);
 				break;
 		}
+
+		$header = new ilFormSectionHeaderGUI();
+		$header->setTitle($this->lng->txt('settings'));
+		$this->addItem($header);
+
+		$item = new ilRadioGroupInputGUI($this->pl->txt('sort_type'), 'sort_type');
+		$item->setRequired(true);
+		$item->setInfo($this->pl->txt('album_sort_type_info'));
+		foreach (srObjAlbum::$sort_types as $type) {
+			$item->addOption(new ilRadioOption($this->pl->txt("sort_type_$type"), $type));
+		}
+		$this->addItem($item);
+
+		$item = new ilRadioGroupInputGUI($this->pl->txt('sort_direction'), 'sort_direction');
+		$item->setRequired(true);
+		$item->setInfo($this->pl->txt('album_sort_direction_info'));
+		$item->addOption(new ilRadioOption($this->pl->txt('sort_direction_asc'), 'asc'));
+		$item->addOption(new ilRadioOption($this->pl->txt('sort_direction_desc'), 'desc'));
+		$this->addItem($item);
+
 		if ($this->album->getId() == 0) {
 			$this->addCommandButton('create', $this->pl->txt('create_album'));
 			$this->addCommandButton('redirectToGalleryListAlbums', $this->pl->txt('cancel'));
@@ -79,6 +100,8 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$array = array(
 			'title' => $this->album->getTitle(),
 			'description' => $this->album->getDescription(),
+			'sort_type' => $this->album->getSortType(),
+			'sort_direction' => $this->album->getSortDirection(),
 		);
 		$this->setValuesByArray($array, true);
 	}
@@ -91,7 +114,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 */
 	public function fillObject() {
 		global $ilUser;
-		if (! $this->checkInput()) {
+		if (!$this->checkInput()) {
 			return false;
 		}
 		$this->album->setTitle($this->getInput('title'));
@@ -105,7 +128,8 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$this->album->setCreateDate($date);
 		$this->album->setObjectId(ilObject::_lookupObjectId($_GET['ref_id']));
 		$this->album->setUserId($ilUser->getId());
-
+		$this->album->setSortType($this->getInput('sort_type'));
+		$this->album->setSortDirection($this->getInput('sort_direction'));
 		return true;
 	}
 
@@ -114,7 +138,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function saveObject() {
-		if (! $this->fillObject()) {
+		if (!$this->fillObject()) {
 			return false;
 		}
 		if ($this->album->getId()) {
