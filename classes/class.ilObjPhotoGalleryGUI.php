@@ -407,9 +407,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	/**
-	 * @param ilObjPhotoGallery $gallery
+	 * @param ilObject $gallery
 	 */
-	function afterSave(ilObjPhotoGallery $gallery) {
+	function afterSave(ilObject $gallery) {
 		global $ilAppEventHandler;
 		/** @var $ilAppEventHandler ilAppEventHandler */
 		$ilAppEventHandler->raise('Services/Object', 'afterSave', array(
@@ -421,5 +421,3 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		parent::afterSave($gallery);
 	}
 }
-
-?>

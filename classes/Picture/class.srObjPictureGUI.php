@@ -122,18 +122,21 @@ class srObjPictureGUI {
 		$response = '';
 		if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
-		} else {
-			$form = new srObjPictureFormGUI($this, new srObjPicture());
-			$form->setValuesByPost();
-			$response = $form->saveObject();
-			if ($response === false) {
-				ilUtil::sendFailure($this->pl->txt('wrong_filetype'), true);
-			}
+			$this->ctrl->redirect($this->parent);
 		}
-		header('Vary: Accept');
-		header('Content-type: text/plain');
-		echo ilJsonUtil::encode($response);
-		exit;
+		$form = new srObjPictureFormGUI($this, new srObjPicture());
+		$form->setValuesByPost();
+		$response = $form->saveObject();
+//			if ($response === false) {
+//				ilUtil::sendFailure($this->pl->txt('wrong_filetype'), true);
+//			}
+		if ($response !== false) {
+			header('Vary: Accept');
+			header('Content-type: text/plain');
+			echo ilJsonUtil::encode($response);
+			exit;
+		}
+		$this->tpl->setContent($form->getHTML());
 	}
 
 

@@ -64,3 +64,12 @@ cat_create_xpho#:#Fotogalerie anlegen
 root_create_xpho#:#Fotogalerie anlegen
 fold_create_xpho#:#Fotogalerie anlegen
 rbac_create_xpho#:#Fotogalerie anlegen
+sorting#:#Sortierung
+sort_type#:#Sortierungs-Typ
+sort_type_create_date#:#Upload Datum
+sort_type_title#:#Titel
+album_sort_type_info#:#Bilder in diesem Album können nach Upload Datum oder Titel sortiert werden
+sort_direction#:#Sortierungs-Reihenfolge
+sort_direction_asc#:#Aufsteigend
+sort_direction_desc#:#Absteigend
+album_sort_direction_info#:#Die Sortierung wird aufsteigend oder absteigend vorgenommen

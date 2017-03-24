@@ -79,7 +79,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 			case 'create':
 				$this->setMultipart(true);
 				// TODO image type is missed
-				$file_input = new ilDragDropFileInputGUI($this->pl->txt('pic'), 'suffix');
+				$file_input = new ilDragDropFileInputGUI($this->pl->txt('pic'), 'upload_files');
 				$file_input->setRequired(true);
 				$file_input->setSuffixes(array(
 					'jpg',

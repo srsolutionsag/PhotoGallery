@@ -72,6 +72,11 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI {
 		$this->tpl->setVariable('LINK_TITLE', $this->ctrl->getLinkTargetByClass('srObjAlbumGUI', 'managePictures'));
 		$this->tpl->setVariable('DESCRIPTION', $a_set['description']);
 		$this->tpl->setVariable('DATE', date('d.m.Y', strtotime($a_set['create_date'])));
+		$sortings = array(
+			$this->pl->txt('sort_type_' . $srObjAlbum->getSortType()),
+			$this->pl->txt('sort_direction_' . $srObjAlbum->getSortDirection()),
+		);
+		$this->tpl->setVariable('SORTING', implode(', ', $sortings));
 		if ($this->parent_cmd == 'manage') {
 			$this->tpl->setCurrentBlock("edit_checkbox");
 			$this->tpl->setVariable("ID", $a_set["id"]);
@@ -107,7 +112,7 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI {
 	 * @description $this->setData(Your Array of Data)
 	 */
 	protected function initTableData() {
-		$this->setData(srObjAlbum::where(array( 'object_id' => ilObject::_lookupObjectId($_GET['ref_id']) ), '=')->getArray());
+		$this->setData(srObjAlbum::where(array('object_id' => ilObject::_lookupObjectId($_GET['ref_id'])), '=')->getArray());
 	}
 
 
@@ -121,6 +126,7 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI {
 		$this->addColumn($this->pl->txt('title'));
 		$this->addColumn($this->pl->txt('description'));
 		$this->addColumn($this->pl->txt('date'));
+		$this->addColumn($this->pl->txt('sorting'));
 		$this->addColumn($this->pl->txt('actions'), '', '1');
 	}
 
