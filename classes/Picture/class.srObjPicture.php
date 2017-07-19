@@ -230,9 +230,9 @@ class srObjPicture extends ActiveRecord {
 	 */
 	public function uploadPicture($tmp_path) {
 		$destination_path = $this->getPicturePath();
-		$this->recursiveMkdir($destination_path);
+		ilUtil::makeDirParents($destination_path);
 		$this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_PREVIEW . '.'
-		                            . $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW, true);
+		                            . $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW);
 		$this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_MOSAIC . '.' . $this->getSuffix(), self::SIZE_MOSAIC, self::SIZE_MOSAIC);
 		$this->resizeImage($tmp_path, $destination_path . '/' . self::TITLE_PRESENTATION . '.'
 		                              . $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, true, self::DPI);
@@ -242,31 +242,6 @@ class srObjPicture extends ActiveRecord {
 
 		return true;
 	}
-
-
-	/**
-	 * @param $path
-	 *
-	 * @return bool
-	 */
-	protected function recursiveMkdir($path) {
-		$dirs = explode(DIRECTORY_SEPARATOR, $path);
-		$count = count($dirs);
-		$path = '';
-		for ($i = 0; $i < $count; ++ $i) {
-			if ($path != '/') {
-				$path .= DIRECTORY_SEPARATOR . $dirs[$i];
-			} else {
-				$path .= $dirs[$i];
-			}
-			if (!is_dir($path)) {
-				ilUtil::makeDir(($path));
-			}
-		}
-
-		return true;
-	}
-
 
 	public function delete() {
 		parent::delete();
