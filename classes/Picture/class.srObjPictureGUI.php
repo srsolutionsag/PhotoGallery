@@ -158,7 +158,6 @@ class srObjPictureGUI {
 			$this->ctrl->redirect($this, '');
 		} else {
 			$form = new srObjPictureFormGUI($this, $this->obj_picture);
-			$form->setValuesByPost();
 
 			if ($form->saveObject()) {
 				ilUtil::sendSuccess($this->pl->txt('success_edit'), true);
@@ -167,6 +166,7 @@ class srObjPictureGUI {
 				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $this->obj_picture->getAlbumId());
 				$this->ctrl->redirectByClass('srObjAlbumGUI', 'managePictures');
 			} else {
+				$form->setValuesByPost();
 				$this->tpl->setContent($form->getHTML());
 			}
 		}
