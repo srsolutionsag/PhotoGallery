@@ -126,7 +126,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		$this->picture->setUserId($ilUser->getId());
 		$date_array = $this->getInput('create_date');
 		if (is_array($date_array)) {
-			$date = $date_array['date']['y'] . '-' . $date_array['date']['m'] . '-' . $date_array['date']['d'];
+			$date = $date_array['date'];
 		} else {
 			$date = date('Y-m-d', strtotime($date_array));
 		}
