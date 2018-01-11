@@ -117,8 +117,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	public function executeCommand() {
-		if ($this->access->checkAccess('read', '', $_GET['ref_id'])) {
-			$this->history->addItem($_GET['ref_id'], $this->ctrl->getLinkTarget($this, $this->getStandardCmd()), $this->getType(), '');
+		if ($this->access->checkAccess('read', '', $this->ref_id)) {
+			$this->history->addItem($this->ref_id, $this->ctrl->getLinkTarget($this, $this->getStandardCmd()), $this->getType(), '');
 		}
 		$cmd = $this->ctrl->getCmd();
 		$next_class = $this->ctrl->getNextClass($this);
