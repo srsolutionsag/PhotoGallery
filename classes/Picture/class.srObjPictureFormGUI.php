@@ -36,6 +36,8 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 * @param srObjPicture $picture
 	 */
 	public function __construct($parent_gui, srObjPicture $picture) {
+		parent::__construct();
+
 		global $ilCtrl, $ilLog;
 		$this->picture = $picture;
 		$this->parent_gui = $parent_gui;
