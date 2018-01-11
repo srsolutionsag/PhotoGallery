@@ -171,6 +171,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						$this->save();
 						$this->tpl->show();
 						break;
+					case "cancel":
+						$this->cancel();
+						break;
 					case self::CMDEDIT:
 					case 'editProperties':
 						$this->setTabs();
