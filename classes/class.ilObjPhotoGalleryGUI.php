@@ -373,7 +373,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 				$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
 
 				try {
-					ilUtil::deliverFile($oldPictureFilename, $title, '', false, true);
+					ilUtil::deliverFile($oldPictureFilename, $title, '', false, false);
 				} catch (ilFileException $e) {
 					ilUtil::sendInfo($e->getMessage(), true);
 				}
