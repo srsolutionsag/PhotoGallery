@@ -34,6 +34,10 @@ abstract class atTableGUI extends ilTable2GUI {
 	 * @var ilObjUser
 	 */
     protected $usr;
+	/**
+	 * @var ilAccessHandler
+	 */
+	protected $access;
 
 	/**
 	 * @param        $a_parent_obj
@@ -42,6 +46,7 @@ abstract class atTableGUI extends ilTable2GUI {
 	public function __construct($a_parent_obj, $a_parent_cmd) {
 		global $DIC;
 		$this->usr = $DIC->user();
+		$this->access = $DIC->access();
 		if ($this->initLanguage() === false) {
 			$this->lng = $DIC->language();
 		}
