@@ -30,7 +30,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @param srObjAlbum $album
 	 */
 	public function __construct($parent_gui, srObjAlbum $album) {
-		global $DIC;
+		parent::__construct();
 		$this->album = $album;
 		$this->parent_gui = $parent_gui;
 		$this->pl = ilPhotoGalleryPlugin::getInstance();

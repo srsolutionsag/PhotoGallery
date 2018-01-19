@@ -34,14 +34,14 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	public function __construct($parent_gui, srObjPicture $picture) {
 		parent::__construct();
 
-		global $DIC, $ilLog;
+		global $DIC;
 		$this->picture = $picture;
 		$this->parent_gui = $parent_gui;
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->ctrl->saveParameter($parent_gui, 'picture_id');
 		$this->album = new srObjAlbum($_GET['album_id']);
 		$this->initForm();
-		$this->log = $ilLog;
+		$this->log = $DIC["ilLog"];
 	}
 
 

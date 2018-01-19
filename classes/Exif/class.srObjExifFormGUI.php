@@ -35,6 +35,8 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 
 
 	public function __construct(srObjExifGUI $parent_gui, srObjExif $exif) {
+		parent::__construct();
+
 		global $DIC;
 
 		$this->tpl = $DIC->ui()->mainTemplate();
