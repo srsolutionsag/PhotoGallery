@@ -25,7 +25,14 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 * @var ilLog
 	 */
 	protected $log;
-
+	/**
+	 * @var ilCtrl
+	 */
+	protected $ctrl;
+	/**
+	 * @var ilObjUser
+	 */
+	protected $user;
 
 	/**
 	 * @param              $parent_gui
@@ -33,8 +40,9 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 */
 	public function __construct($parent_gui, srObjPicture $picture) {
 		parent::__construct();
-
 		global $DIC;
+		$this->ctrl = $DIC->ctrl();
+		$this->user = $DIC->user();
 		$this->picture = $picture;
 		$this->parent_gui = $parent_gui;
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
