@@ -62,7 +62,7 @@ class srObjPictureGUI {
 		$this->toolbar = $DIC->toolbar();
 		$this->tabs_gui = $DIC->tabs();
 		$this->obj_picture = srObjPicture::find($_GET['picture_id']);
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 
 		$this->ctrl->setParameterByClass('srObjPictureGUI', 'album_id', $_GET['album_id']);
 		srObjAlbumGUI::setLocator($_GET['album_id']);

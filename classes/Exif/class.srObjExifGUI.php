@@ -45,7 +45,7 @@ class srObjExifGUI {
 		$this->ctrl = $DIC->ctrl();
 		$this->parent = $parent_gui;
 		$this->toolbar = $DIC->toolbar();
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->tabs_gui = $this->parent->tabs_gui;
 		$this->lng = $DIC->language();
 

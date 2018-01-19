@@ -163,7 +163,7 @@ class srObjAlbumTableGUI extends atTableGUI {
 	 * @description returns false, if global language is needed; implement your own language by setting $this->pl
 	 */
 	protected function initLanguage() {
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 	}
 }
 

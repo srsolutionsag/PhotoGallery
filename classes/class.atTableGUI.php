@@ -27,26 +27,13 @@ abstract class atTableGUI extends ilTable2GUI {
 	 */
 	protected $filter_array = array();
 	/**
-	 * @var ilCtrl
-	 */
-	protected $ctrl;
-	/**
-	 * @var ilTabsGUI
-	 */
-	protected $tabs;
-	/**
-	 * @var ilAccessHandler
-	 */
-	protected $access;
-	/**
-	 * @var ilObjUser
-	 */
-	protected $user;
-	/**
 	 * @var int
 	 */
 	static $num = 0;
-
+	/**
+	 * @var ilObjUser
+	 */
+    protected $usr;
 
 	/**
 	 * @param        $a_parent_obj
@@ -54,10 +41,7 @@ abstract class atTableGUI extends ilTable2GUI {
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd) {
 		global $DIC;
-		$this->ctrl = $DIC->ctrl();
-		$this->tabs = $DIC->tabs();
-		$this->access = $DIC->access();
-		$this->user = $DIC->user();
+		$this->usr = $DIC->user();
 		if ($this->initLanguage() === false) {
 			$this->lng = $DIC->language();
 		}
@@ -240,7 +224,7 @@ abstract class atTableGUI extends ilTable2GUI {
 	 * @return array
 	 */
 	public function getNavigationParametersAsArray() {
-		$hits = $this->user->getPref('hits_per_page');
+		$hits = $this->usr->getPref('hits_per_page');
 		$parameters = explode(':', $_GET[$this->getNavParameter()]);
 		$return_values = array(
 			'from' => $parameters[2] ? $parameters[2] : 0,

@@ -22,17 +22,9 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 */
 	protected $parent_gui;
 	/**
-	 * @var  ilCtrl
-	 */
-	protected $ctrl;
-	/**
 	 * @var ilLog
 	 */
 	protected $log;
-	/**
-	 * @var ilObjUser
-	 */
-	protected $user;
 
 
 	/**
@@ -45,13 +37,11 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		global $DIC, $ilLog;
 		$this->picture = $picture;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $DIC->ctrl();
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->ctrl->saveParameter($parent_gui, 'picture_id');
 		$this->album = new srObjAlbum($_GET['album_id']);
 		$this->initForm();
 		$this->log = $ilLog;
-		$this->user = $DIC->user();
 	}
 
 

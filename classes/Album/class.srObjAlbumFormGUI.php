@@ -19,6 +19,10 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @var srObjAlbumGUI
 	 */
 	protected $parent_gui;
+	/**
+	 * @var ilPhotoGalleryPlugin
+	 */
+	protected $pl;
 
 
 	/**
@@ -29,10 +33,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		global $DIC;
 		$this->album = $album;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $DIC->ctrl();
-		$this->pl = new ilPhotoGalleryPlugin();
-		$this->lng = $DIC->language();
-		$this->user = $DIC->user();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->ctrl->saveParameter($parent_gui, 'album_id');
 		$this->initForm();
 	}
