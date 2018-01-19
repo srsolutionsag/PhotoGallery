@@ -157,7 +157,7 @@ class srObjAlbumGUI {
 		 * @var $srObjAlbum srObjAlbum
 		 */
 		$srObjAlbum = srObjAlbum::find($album_id);
-		$ilCtrl>setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
+		$ilCtrl->setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
 		$ilLocator->addItem($srObjAlbum->getTitle(), $ilCtrl->getLinkTargetByClass("srObjAlbumGUI", "listPictures"));
 		$DIC->ui()->mainTemplate()->setLocator();
 	}
