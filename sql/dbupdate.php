@@ -22,13 +22,13 @@
 <#2>
 <?php
 require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php";
-srObjAlbum::installDB();
+srObjAlbum::updateDB();
 ?>
 
 <#3>
 <?php
 require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php";
-srObjPicture::installDB();
+srObjPicture::updateDB();
 ?>
 <#4>
 <?php

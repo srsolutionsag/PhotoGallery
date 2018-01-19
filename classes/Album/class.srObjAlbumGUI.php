@@ -115,14 +115,14 @@ class srObjAlbumGUI {
 				self::setLocator($this->obj_album->getId());
 				$this->setTabs();
 				$this->setSubTabs();
-				$this->tabs_gui->setSubTabActive('list_pictures');
+				$this->tabs_gui->activateSubTab('list_pictures');
 				$this->listPictures();
 				break;
 			case 'managePictures':
 				self::setLocator($this->obj_album->getId());
 				$this->setTabs();
 				$this->setSubTabs();
-				$this->tabs_gui->setSubTabActive('manage_pictures');
+				$this->tabs_gui->activateSubTab('manage_pictures');
 				$this->$cmd();
 				break;
 		}

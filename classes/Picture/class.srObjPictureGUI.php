@@ -133,7 +133,7 @@ class srObjPictureGUI {
 		if ($response !== false) {
 			header('Vary: Accept');
 			header('Content-type: text/plain');
-			echo ilJsonUtil::encode($response);
+			echo json_encode($response);
 			exit;
 		}
 		$this->tpl->setContent($form->getHTML());

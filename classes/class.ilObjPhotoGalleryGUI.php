@@ -131,21 +131,21 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		switch ($next_class) {
 			case 'ilpermissiongui':
 				$this->setTabs();
-				$this->tabs_gui->setTabActive('permissions');
+				$this->tabs_gui->activateTab('permissions');
 				$perm_gui = new ilPermissionGUI($this);
 				$this->ctrl->forwardCommand($perm_gui);
 				$this->tpl->show();
 				break;
 			case 'ilinfoscreengui':
 				$this->setTabs();
-				$this->tabs_gui->setTabActive('info');
+				$this->tabs_gui->activateTab('info');
 				$info_gui = new ilInfoScreenGUI($this);
 				$this->ctrl->forwardCommand($info_gui);
 				$this->tpl->show();
 				break;
 			case 'srobjalbumgui':
 				$this->setTabs();
-				$this->tabs_gui->setTabActive('content');
+				$this->tabs_gui->activateTab('content');
 				$album_gui = new srObjAlbumGUI($this);
 				$this->ctrl->forwardCommand($album_gui);
 				$this->tpl->show();
@@ -186,9 +186,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						break;
 					case self::CMD_MANAGE_ALBUMS:
 						$this->setTabs();
-						$this->tabs_gui->setTabActive('content');
+						$this->tabs_gui->activateTab('content');
 						$this->setSubTabsContent();
-						$this->tabs_gui->setSubTabActive('manage_albums');
+						$this->tabs_gui->activateSubTab('manage_albums');
 						$this->manageAlbums();
 						$this->tpl->show();
 						break;
@@ -199,7 +199,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						$this->ctrl->setCmdClass("ilinfoscreengui");
 						$this->infoScreen();
 
-						$this->tabs_gui->setTabActive('info');
+						$this->tabs_gui->activateTab('info');
 
 						$this->tpl->show();
 						break;
@@ -207,9 +207,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 					case self::CMD_LIST_ALBUMS:
 					case '':
 						$this->setTabs();
-						$this->tabs_gui->setTabActive('content');
+						$this->tabs_gui->activateTab('content');
 						$this->setSubTabsContent();
-						$this->tabs_gui->setSubTabActive('list_albums');
+						$this->tabs_gui->activateSubTab('list_albums');
 						$this->listAlbums();
 						$this->tpl->show();
 						break;
