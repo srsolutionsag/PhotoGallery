@@ -152,12 +152,13 @@ class srObjAlbumGUI {
 	 */
 	public static function setLocator($album_id) {
 		global $DIC, $ilLocator;
+		$ilCtrl = $DIC->ctrl();
 		/**
 		 * @var $srObjAlbum srObjAlbum
 		 */
 		$srObjAlbum = srObjAlbum::find($album_id);
-		$DIC->ctrl()->setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
-		$ilLocator->addItem($srObjAlbum->getTitle(), $DIC->ctrl()->getLinkTargetByClass("srObjAlbumGUI", "listPictures"));
+		$ilCtrl>setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
+		$ilLocator->addItem($srObjAlbum->getTitle(), $ilCtrl->getLinkTargetByClass("srObjAlbumGUI", "listPictures"));
 		$DIC->ui()->mainTemplate()->setLocator();
 	}
 

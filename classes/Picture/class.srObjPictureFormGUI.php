@@ -29,6 +29,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 * @var ilLog
 	 */
 	protected $log;
+	/**
+	 * @var ilObjUser
+	 */
+	protected $user;
 
 
 	/**
@@ -47,6 +51,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		$this->album = new srObjAlbum($_GET['album_id']);
 		$this->initForm();
 		$this->log = $ilLog;
+		$this->user = $DIC->user();
 	}
 
 
@@ -116,7 +121,6 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function fillObject() {
-		global $DIC;
 		if (!$this->checkInput()) {
 			return false;
 		}
@@ -125,7 +129,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		if (!$this->picture->getId()) {
 			$this->picture->setAlbumId($_GET['album_id']);
 		}
-		$this->picture->setUserId($DIC->user()->getId());
+		$this->picture->setUserId($this->user->getId());
 		$date_array = $this->getInput('create_date');
 		if (is_array($date_array)) {
 			$date = $date_array['date'];

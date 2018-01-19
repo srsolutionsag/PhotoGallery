@@ -113,7 +113,6 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function fillObject() {
-		global $DIC;
 		if (!$this->checkInput()) {
 			return false;
 		}
@@ -127,7 +126,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		}
 		$this->album->setCreateDate($date);
 		$this->album->setObjectId(ilObject::_lookupObjectId($_GET['ref_id']));
-		$this->album->setUserId($DIC->user()->getId());
+		$this->album->setUserId($this->user->getId());
 		$this->album->setSortType($this->getInput('sort_type'));
 		$this->album->setSortDirection($this->getInput('sort_direction'));
 		return true;

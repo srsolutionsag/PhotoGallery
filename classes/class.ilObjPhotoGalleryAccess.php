@@ -76,8 +76,8 @@ class ilObjPhotoGalleryAccess extends ilObjectPluginAccess {
 	// The manage tab is only displayed for user with at least one of theese rights: rep_robj_xpho_download_images, write, delete
 	static function checkManageTabAccess($ref_id) {
 		global $DIC;
-
 		$ilAccess = $DIC->access();
+
 		return $ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id, '', '')
 			|| $ilAccess->checkAccess('write', '', $ref_id, '', '')
 			|| $ilAccess->checkAccess('delete', '', $ref_id, '', '');

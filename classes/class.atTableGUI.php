@@ -39,6 +39,10 @@ abstract class atTableGUI extends ilTable2GUI {
 	 */
 	protected $access;
 	/**
+	 * @var ilObjUser
+	 */
+	protected $user;
+	/**
 	 * @var int
 	 */
 	static $num = 0;
@@ -53,6 +57,7 @@ abstract class atTableGUI extends ilTable2GUI {
 		$this->ctrl = $DIC->ctrl();
 		$this->tabs = $DIC->tabs();
 		$this->access = $DIC->access();
+		$this->user = $DIC->user();
 		if ($this->initLanguage() === false) {
 			$this->lng = $DIC->language();
 		}
@@ -235,8 +240,7 @@ abstract class atTableGUI extends ilTable2GUI {
 	 * @return array
 	 */
 	public function getNavigationParametersAsArray() {
-		global $DIC;
-		$hits = $DIC->user()->getPref('hits_per_page');
+		$hits = $this->user->getPref('hits_per_page');
 		$parameters = explode(':', $_GET[$this->getNavParameter()]);
 		$return_values = array(
 			'from' => $parameters[2] ? $parameters[2] : 0,

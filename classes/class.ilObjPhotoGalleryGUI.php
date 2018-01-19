@@ -89,6 +89,10 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @var ilAccessHandler
 	 */
 	public $access;
+	/**
+	 * @var ilAppEventHandler
+	 */
+	protected $event;
 
 
 	protected function afterConstructor() {
@@ -100,6 +104,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$this->ctrl = $DIC->ctrl();
 		$this->tabs_gui = $DIC->tabs();
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
+		$this->event = $DIC->event();
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
 		if ($this->object !== null) {
@@ -354,15 +359,16 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 */
 	public static function executeDownload($arr_picture_ids) {
 		global $DIC;
+		$ilCtrl = $DIC->ctrl();
 		$pl = ilPhotoGalleryPlugin::getInstance();
 		//TODO bringen wir hier das GET weg?
 		if (!$DIC->access()->checkAccess('read', '', $_GET['ref_id'])) {
 			ilUtil::sendFailure($pl->txt('permission_denied'), true);
-			$DIC->ctrl()->redirectByClass('ilObjPhotoGalleryGUI', '');
+			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
 		}
 		if (!sizeof($arr_picture_ids)) {
 			ilUtil::sendFailure($pl->txt('no_checkbox'), true);
-			$DIC->ctrl()->redirectByClass('ilObjPhotoGalleryGUI', '');
+			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
 		} else {
 			if (sizeof($arr_picture_ids) == 1) {
 				// only one picture ==> do not make a .zip !
@@ -413,8 +419,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @param ilObject $gallery
 	 */
 	function afterSave(ilObject $gallery) {
-		global $DIC;
-		$DIC->event()->raise('Services/Object', 'afterSave', array(
+		$this->event->raise('Services/Object', 'afterSave', array(
 			'object' => $gallery,
 			'obj_id' => $gallery->getId(),
 			'obj_type' => $gallery->getType()
