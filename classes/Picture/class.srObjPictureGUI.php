@@ -54,13 +54,13 @@ class srObjPictureGUI {
 	 * @param $parent_gui
 	 */
 	public function __construct($parent_gui) {
-		global $tpl, $ilCtrl, $ilToolbar, $ilTabs, $ilAccess;
-		$this->tpl = $tpl;
-		$this->access = $ilAccess;
-		$this->ctrl = $ilCtrl;
+		global $DIC;
+		$this->tpl = $DIC->ui()->mainTemplate();
+		$this->access = $DIC->access();
+		$this->ctrl = $DIC->ctrl();
 		$this->parent = $parent_gui;
-		$this->toolbar = $ilToolbar;
-		$this->tabs_gui = $ilTabs;
+		$this->toolbar = $DIC->toolbar();
+		$this->tabs_gui = $DIC->tabs();
 		$this->obj_picture = srObjPicture::find($_GET['picture_id']);
 		$this->pl = new ilPhotoGalleryPlugin();
 

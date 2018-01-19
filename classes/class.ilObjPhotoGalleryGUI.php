@@ -92,13 +92,13 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	protected function afterConstructor() {
-		global $tpl, $ilCtrl, $ilAccess, $ilNavigationHistory, $ilTabs;
+		global $DIC, $ilNavigationHistory;
 
-		$this->tpl = $tpl;
+		$this->tpl = $DIC->ui()->mainTemplate();
 		$this->history = $ilNavigationHistory;
-		$this->access = $ilAccess;
-		$this->ctrl = $ilCtrl;
-		$this->tabs_gui = $ilTabs;
+		$this->access = $DIC->access();
+		$this->ctrl = $DIC->ctrl();
+		$this->tabs_gui = $DIC->tabs();
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
@@ -353,16 +353,16 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @throws ilFileException
 	 */
 	public static function executeDownload($arr_picture_ids) {
-		global $ilCtrl, $ilAccess;
+		global $DIC;
 		$pl = ilPhotoGalleryPlugin::getInstance();
 		//TODO bringen wir hier das GET weg?
-		if (!$ilAccess->checkAccess('read', '', $_GET['ref_id'])) {
+		if (!$DIC->access()->checkAccess('read', '', $_GET['ref_id'])) {
 			ilUtil::sendFailure($pl->txt('permission_denied'), true);
-			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
+			$DIC->ctrl()->redirectByClass('ilObjPhotoGalleryGUI', '');
 		}
 		if (!sizeof($arr_picture_ids)) {
 			ilUtil::sendFailure($pl->txt('no_checkbox'), true);
-			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
+			$DIC->ctrl()->redirectByClass('ilObjPhotoGalleryGUI', '');
 		} else {
 			if (sizeof($arr_picture_ids) == 1) {
 				// only one picture ==> do not make a .zip !
@@ -413,9 +413,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @param ilObject $gallery
 	 */
 	function afterSave(ilObject $gallery) {
-		global $ilAppEventHandler;
-		/** @var $ilAppEventHandler ilAppEventHandler */
-		$ilAppEventHandler->raise('Services/Object', 'afterSave', array(
+		global $DIC;
+		$DIC->event()->raise('Services/Object', 'afterSave', array(
 			'object' => $gallery,
 			'obj_id' => $gallery->getId(),
 			'obj_type' => $gallery->getType()

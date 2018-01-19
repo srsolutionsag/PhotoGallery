@@ -35,12 +35,12 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 
 
 	public function __construct(srObjExifGUI $parent_gui, srObjExif $exif) {
-		global $ilCtrl, $tpl, $ilLocator;
+		global $DIC, $ilLocator;
 
-		$this->tpl = $tpl;
+		$this->tpl = $DIC->ui()->mainTemplate();
 		$this->exif = $exif;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $ilCtrl;
+		$this->ctrl = $DIC->ctrl();
 		$this->ilLocator = $ilLocator;
 
 		$this->ctrl->saveParameter($parent_gui, 'picture_id');

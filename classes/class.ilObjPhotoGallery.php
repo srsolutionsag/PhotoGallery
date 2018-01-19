@@ -43,12 +43,12 @@ class ilObjPhotoGallery extends ilObjectPlugin {
 	 * @param int $a_ref_id
 	 */
 	public function __construct($a_ref_id = 0) {
-		global $ilDB;
+		global $DIC;
 		/**
 		 * @var $ilDB ilDB
 		 */
 		parent::__construct($a_ref_id);
-		$this->db = $ilDB;
+		$this->db = $DIC->database();
 	}
 
 

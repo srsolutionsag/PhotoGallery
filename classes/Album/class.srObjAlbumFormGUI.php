@@ -30,12 +30,12 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @param srObjAlbum $album
 	 */
 	public function __construct($parent_gui, srObjAlbum $album) {
-		global $ilCtrl, $lng;
+		global $DIC;
 		$this->album = $album;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $ilCtrl;
+		$this->ctrl = $DIC->ctrl();
 		$this->pl = new ilPhotoGalleryPlugin();
-		$this->lng = $lng;
+		$this->lng = $DIC->language();
 		$this->ctrl->saveParameter($parent_gui, 'album_id');
 		$this->initForm();
 	}
@@ -113,7 +113,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function fillObject() {
-		global $ilUser;
+		global $DIC;
 		if (!$this->checkInput()) {
 			return false;
 		}
@@ -127,7 +127,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		}
 		$this->album->setCreateDate($date);
 		$this->album->setObjectId(ilObject::_lookupObjectId($_GET['ref_id']));
-		$this->album->setUserId($ilUser->getId());
+		$this->album->setUserId($DIC->user()->getId());
 		$this->album->setSortType($this->getInput('sort_type'));
 		$this->album->setSortDirection($this->getInput('sort_direction'));
 		return true;

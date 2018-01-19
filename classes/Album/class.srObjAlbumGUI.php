@@ -63,14 +63,14 @@ class srObjAlbumGUI {
 	 * @param $parent_gui
 	 */
 	public function __construct($parent_gui) {
-		global $tpl, $ilCtrl, $ilToolbar, $ilAccess, $ilTabs, $ilLocator;
-		$this->tpl = $tpl;
-		$this->access = $ilAccess;
-		$this->ctrl = $ilCtrl;
+		global $DIC, $ilLocator;
+		$this->tpl = $DIC->ui()->mainTemplate();
+		$this->access = $DIC->access();
+		$this->ctrl = $DIC->ctrl();
 		$this->parent_gui = $parent_gui;
 		$this->locator = $ilLocator;
-		//$this->toolbar = $ilToolbar;
-		$this->tabs_gui = $ilTabs;
+		//$this->toolbar = $DIC->toolbar();
+		$this->tabs_gui = $DIC->tabs();
 		$this->tabs_gui->clearTargets();
 
 		$this->obj_album = srObjAlbum::find($_GET['album_id']);
@@ -151,14 +151,14 @@ class srObjAlbumGUI {
 	 * @param int $album_id
 	 */
 	public static function setLocator($album_id) {
-		global $ilCtrl, $ilLocator, $tpl;
+		global $DIC, $ilLocator;
 		/**
 		 * @var $srObjAlbum srObjAlbum
 		 */
 		$srObjAlbum = srObjAlbum::find($album_id);
-		$ilCtrl->setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
-		$ilLocator->addItem($srObjAlbum->getTitle(), $ilCtrl->getLinkTargetByClass("srObjAlbumGUI", "listPictures"));
-		$tpl->setLocator();
+		$DIC->ctrl()->setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
+		$ilLocator->addItem($srObjAlbum->getTitle(), $DIC->ctrl()->getLinkTargetByClass("srObjAlbumGUI", "listPictures"));
+		$DIC->ui()->mainTemplate()->setLocator();
 	}
 
 

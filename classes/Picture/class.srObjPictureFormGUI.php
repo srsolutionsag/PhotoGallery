@@ -38,10 +38,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	public function __construct($parent_gui, srObjPicture $picture) {
 		parent::__construct();
 
-		global $ilCtrl, $ilLog;
+		global $DIC, $ilLog;
 		$this->picture = $picture;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $ilCtrl;
+		$this->ctrl = $DIC->ctrl();
 		$this->pl = new ilPhotoGalleryPlugin();
 		$this->ctrl->saveParameter($parent_gui, 'picture_id');
 		$this->album = new srObjAlbum($_GET['album_id']);
@@ -116,7 +116,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function fillObject() {
-		global $ilUser;
+		global $DIC;
 		if (!$this->checkInput()) {
 			return false;
 		}
@@ -125,7 +125,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		if (!$this->picture->getId()) {
 			$this->picture->setAlbumId($_GET['album_id']);
 		}
-		$this->picture->setUserId($ilUser->getId());
+		$this->picture->setUserId($DIC->user()->getId());
 		$date_array = $this->getInput('create_date');
 		if (is_array($date_array)) {
 			$date = $date_array['date'];
