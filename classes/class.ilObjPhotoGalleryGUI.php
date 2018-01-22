@@ -52,11 +52,19 @@ require_once('class.ilObjPhotoGalleryTableGUI.php');
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 	const XPHO = 'xpho';
+	const CMD_INFO_SCREEN = 'infoScreen';
 	const CMD_EDIT_PROPERTIES = 'editProperties';
-	const CMD_LIST_ALBUMS = 'listAlbums';
+	const CMD_LIST_ALBUMS = 'list_albums';
 	const CMD_MANAGE_ALBUMS = 'manageAlbums';
+	const CMD_PERM = 'perm';
 	const CMD_SHOW_CONTENT = 'showContent';
 	const CMD_SHOW_SUMMARY = 'showSummary';
+	const TAB_CONTENT = 'content';
+	const TAB_INFO = 'info';
+	const TAB_LIST_ALBUMS = 'list_albums';
+	const TAB_MANAGE_ALBUMS = 'manage_albums';
+	const TAB_PERMISSIONS = 'permissions';
+	const TAB_SETTINGS = 'settings';
 	/**
 	 * @var ilObjPhotoGallery
 	 */
@@ -136,21 +144,21 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		switch ($next_class) {
 			case 'ilpermissiongui':
 				$this->setTabs();
-				$this->tabs_gui->activateTab('permissions');
+				$this->tabs_gui->activateTab(self::TAB_PERMISSIONS);
 				$perm_gui = new ilPermissionGUI($this);
 				$this->ctrl->forwardCommand($perm_gui);
 				$this->tpl->show();
 				break;
 			case 'ilinfoscreengui':
 				$this->setTabs();
-				$this->tabs_gui->activateTab('info');
+				$this->tabs_gui->activateTab(self::TAB_INFO);
 				$info_gui = new ilInfoScreenGUI($this);
 				$this->ctrl->forwardCommand($info_gui);
 				$this->tpl->show();
 				break;
 			case 'srobjalbumgui':
 				$this->setTabs();
-				$this->tabs_gui->activateTab('content');
+				$this->tabs_gui->activateTab(self::TAB_CONTENT);
 				$album_gui = new srObjAlbumGUI($this);
 				$this->ctrl->forwardCommand($album_gui);
 				$this->tpl->show();
@@ -191,20 +199,20 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 						break;
 					case self::CMD_MANAGE_ALBUMS:
 						$this->setTabs();
-						$this->tabs_gui->activateTab('content');
+						$this->tabs_gui->activateTab(self::TAB_CONTENT);
 						$this->setSubTabsContent();
-						$this->tabs_gui->activateSubTab('manage_albums');
+						$this->tabs_gui->activateSubTab(self::TAB_MANAGE_ALBUMS);
 						$this->manageAlbums();
 						$this->tpl->show();
 						break;
-					case 'infoScreen':
+					case self::CMD_INFO_SCREEN:
 						$this->setTabs();
 
 						$this->ctrl->setCmd(self::CMD_SHOW_SUMMARY);
-						$this->ctrl->setCmdClass("ilinfoscreengui");
+						$this->ctrl->setCmdClass(ilInfoScreenGUI::class);
 						$this->infoScreen();
 
-						$this->tabs_gui->activateTab('info');
+						$this->tabs_gui->activateTab(self::TAB_INFO);
 
 						$this->tpl->show();
 						break;
@@ -212,9 +220,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 					case self::CMD_LIST_ALBUMS:
 					case '':
 						$this->setTabs();
-						$this->tabs_gui->activateTab('content');
+						$this->tabs_gui->activateTab(self::TAB_CONTENT);
 						$this->setSubTabsContent();
-						$this->tabs_gui->activateSubTab('list_albums');
+						$this->tabs_gui->activateSubTab(self::TAB_LIST_ALBUMS);
 						$this->listAlbums();
 						$this->tpl->show();
 						break;
@@ -225,7 +233,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	public function edit() {
-		$this->tabs_gui->activateTab('settings');
+		$this->tabs_gui->activateTab(self::TAB_SETTINGS);
 		$form = new ilPropertyFormGUI();
 		$form->setTitle($this->pl->txt('edit'));
 		// title
@@ -277,24 +285,24 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	protected function setTabs() {
-		$this->tabs_gui->addTab('content', $this->pl->txt('content'), $this->ctrl->getLinkTarget($this, self::CMD_SHOW_CONTENT));
-		$this->tabs_gui->addTab('info', $this->pl->txt('info'), $this->ctrl->getLinkTargetByClass(ilInfoScreenGUI::class, self::CMD_SHOW_SUMMARY));
+		$this->tabs_gui->addTab(self::TAB_CONTENT, $this->pl->txt('content'), $this->ctrl->getLinkTarget($this, self::CMD_SHOW_CONTENT));
+		$this->tabs_gui->addTab(self::TAB_INFO, $this->pl->txt('info'), $this->ctrl->getLinkTargetByClass(ilInfoScreenGUI::class, self::CMD_SHOW_SUMMARY));
 		if ($this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
-			$this->tabs_gui->addTab('settings', $this->pl->txt('settings'), $this->ctrl->getLinkTarget($this, atTableGUI::CMD_EDIT));
+			$this->tabs_gui->addTab(self::TAB_SETTINGS, $this->pl->txt('settings'), $this->ctrl->getLinkTarget($this, atTableGUI::CMD_EDIT));
 		}
 		if ($this->access->checkAccess('edit_permission', '', $this->object->getRefId())) {
-			$this->tabs_gui->addTab('permissions', $this->pl->txt('permissions'), $this->ctrl->getLinkTargetByClass(ilPermissionGUI::class, 'perm'));
+			$this->tabs_gui->addTab(self::TAB_PERMISSIONS, $this->pl->txt('permissions'), $this->ctrl->getLinkTargetByClass(ilPermissionGUI::class, self::CMD_PERM));
 		}
 		return true;
 	}
 
 
 	protected function setSubTabsContent() {
-		$this->tabs_gui->addSubTab('list_albums', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
+		$this->tabs_gui->addSubTab(self::TAB_LIST_ALBUMS, $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
 
 		// show tab "manage" on level overview
 		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->ref_id)) {
-			$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
+			$this->tabs_gui->addSubTab(self::TAB_MANAGE_ALBUMS, $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
 		}
 	}
 

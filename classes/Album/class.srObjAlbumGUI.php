@@ -20,6 +20,8 @@ class srObjAlbumGUI {
 	const CMD_MANAGE_PICTURES = 'managePictures';
 	const CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS = 'redirectToGalleryListAlbums';
 	const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
+	const TAB_LIST_PICTURES = 'list_pictures';
+	const TAB_MANAGE_PICTURES = 'manage_pictures';
 	/**
 	 * @var ilTabsGUI
 	 */
@@ -118,14 +120,14 @@ class srObjAlbumGUI {
 				self::setLocator($this->obj_album->getId());
 				$this->setTabs();
 				$this->setSubTabs();
-				$this->tabs_gui->activateSubTab('list_pictures');
+				$this->tabs_gui->activateSubTab(self::TAB_LIST_PICTURES);
 				$this->listPictures();
 				break;
 			case self::CMD_MANAGE_PICTURES:
 				self::setLocator($this->obj_album->getId());
 				$this->setTabs();
 				$this->setSubTabs();
-				$this->tabs_gui->activateSubTab('manage_pictures');
+				$this->tabs_gui->activateSubTab(self::TAB_MANAGE_PICTURES);
 				$this->$cmd();
 				break;
 		}
@@ -136,11 +138,11 @@ class srObjAlbumGUI {
 
 	protected function setSubTabs() {
 		$this->ctrl->setParameterByClass(self::class, 'album_id', $this->obj_album->getId());
-		$this->tabs_gui->addSubTab('list_pictures', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_PICTURES));
+		$this->tabs_gui->addSubTab(self::TAB_LIST_PICTURES, $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_PICTURES));
 
 		// show tab "manage" on level album
 		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->parent_gui->object->ref_id)) {
-			$this->tabs_gui->addSubTab('manage_pictures', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_PICTURES));
+			$this->tabs_gui->addSubTab(self::TAB_MANAGE_PICTURES, $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_PICTURES));
 		}
 	}
 
