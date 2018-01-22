@@ -50,5 +50,5 @@ if($offering_admin)
 global $DIC;
 require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php";
 srObjAlbum::updateDB();
-$DIC->database()->manipulate("UPDATE sr_obj_pg_album SET sort_type = " . $ilDB->quote(srObjAlbum::SORT_TYPE_CREATE_DATE, 'text') . ", sort_direction = " . $ilDB->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text'));
+$DIC->database()->manipulate("UPDATE " . srObjAlbum::TABLE_NAME . " SET sort_type = " . $ilDB->quote(srObjAlbum::SORT_TYPE_CREATE_DATE, 'text') . ", sort_direction = " . $ilDB->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text'));
 ?>

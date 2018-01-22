@@ -11,12 +11,12 @@ require_once('./Services/ActiveRecord/class.ActiveRecord.php');
  * @version 1
  */
 class srObjAlbum extends ActiveRecord {
-
+	const TABLE_NAME = 'sr_obj_pg_album';
 	/**
 	 * @return string
 	 */
 	public static function returnDbTableName() {
-		return 'sr_obj_pg_album';
+		return self::TABLE_NAME;
 	}
 
 	const SORT_TYPE_CREATE_DATE = 'create_date';

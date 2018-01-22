@@ -11,12 +11,12 @@ require_once('./Services/ActiveRecord/class.ActiveRecord.php');
  * delete this file ? is not used
  */
 class srObjExif extends ActiveRecord {
-
+	const TABLE_NAME = 'sr_obj_pg_exif_data';
 	/**
 	 * @return string
 	 */
 	public static function returnDbTableName() {
-		return 'sr_obj_pg_exif_data';
+		return self::TABLE_NAME;
 	}
 
 

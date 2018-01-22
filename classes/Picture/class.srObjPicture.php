@@ -12,7 +12,7 @@ require_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
  * @version 1
  */
 class srObjPicture extends ActiveRecord {
-
+	const TABLE_NAME = 'sr_obj_pg_pic';
 	const SIZE_PREVIEW = 70;
 	const SIZE_MOSAIC = 300;
 	const SIZE_PRESENTATION = 1000;
@@ -27,7 +27,7 @@ class srObjPicture extends ActiveRecord {
 	 * @return string
 	 */
 	public static function returnDbTableName() {
-		return 'sr_obj_pg_pic';
+		return self::TABLE_NAME;
 	}
 
 
