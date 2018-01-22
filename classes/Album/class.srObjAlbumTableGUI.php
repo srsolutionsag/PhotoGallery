@@ -82,9 +82,9 @@ class srObjAlbumTableGUI extends atTableGUI {
 	 */
 	protected function fillTableRow($a_set) {
 		$srObjPicture = srObjPicture::find($a_set['id']);
-		$this->ctrl->setParameterByClass('srObjExifGUI', 'picture_id', ($a_set['id']));
-		//$this->ctrl->setParameterByClass('srObjSliderGUI', 'album_id', ($_GET['album_id']));
-		//$this->ctrl->setParameterByClass('srObjSliderGUI', 'picture_id', ($a_set['id']));
+		$this->ctrl->setParameterByClass(srObjExifGUI::class, 'picture_id', ($a_set['id']));
+		//$this->ctrl->setParameterByClass(srObjSliderGUI::class, 'album_id', ($_GET['album_id']));
+		//$this->ctrl->setParameterByClass(srObjSliderGUI::class, 'picture_id', ($a_set['id']));
 		$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', ($a_set['id']));
 		$this->tpl->setVariable('TITLE', $a_set['title']);
 		$this->tpl->setVariable('DESCRIPTION', $a_set['description']);
