@@ -39,7 +39,7 @@ include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 
 	function initType() {
-		$this->setType('xpho');
+		$this->setType(ilObjPhotoGalleryGUI::XPHO);
 	}
 
 
