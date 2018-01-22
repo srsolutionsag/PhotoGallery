@@ -67,13 +67,13 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
 		$this->addItem($desc);
 		switch ($this->ctrl->getCmd()) {
-			//			case 'update':
-			case 'edit':
+			//			case srObjAlbumGUI::CMD_UPDATE:
+			case atTableGUI::CMD_EDIT:
 				$date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
 				$date_input->setDate(new ilDate($this->album->getCreateDate(), IL_CAL_DATE));
 				$this->addItem($date_input);
 				break;
-			case 'add':
+			case atTableGUI::CMD_ADD:
 				$date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
 				$date_input->setDate(new ilDate(date('Y-m-d'), IL_CAL_DATE));
 				$this->addItem($date_input);
@@ -100,11 +100,11 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$this->addItem($item);
 
 		if ($this->album->getId() == 0) {
-			$this->addCommandButton('create', $this->pl->txt('create_album'));
-			$this->addCommandButton('redirectToGalleryListAlbums', $this->pl->txt('cancel'));
+			$this->addCommandButton(atTableGUI::CMD_CREATE, $this->pl->txt('create_album'));
+			$this->addCommandButton(srObjAlbumGUI::CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS, $this->pl->txt('cancel'));
 		} else {
-			$this->addCommandButton('update', $this->pl->txt('save'));
-			$this->addCommandButton('redirectToGalleryManageAlbums', $this->pl->txt('cancel'));
+			$this->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
+			$this->addCommandButton(srObjAlbumGUI::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS, $this->pl->txt('cancel'));
 		}
 	}
 

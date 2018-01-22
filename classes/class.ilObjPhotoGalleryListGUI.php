@@ -22,6 +22,7 @@
 */
 
 include_once('./Services/Repository/classes/class.ilObjectPluginListGUI.php');
+include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.ilObjPhotoGalleryGUI.php');
 
 /**
  * ListGUI implementation for PhotoGallery object plugin. This one
@@ -43,7 +44,7 @@ class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 
 
 	function getGuiClass() {
-		return 'ilObjPhotoGalleryGUI';
+		return ilObjPhotoGalleryGUI::class;
 	}
 
 
@@ -51,12 +52,12 @@ class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 		return array(
 			array(
 				'permission' => 'read',
-				'cmd' => 'showContent',
+				'cmd' => ilObjPhotoGalleryGUI::CMD_SHOW_CONTENT,
 				'default' => true
 			),
 			array(
 				'permission' => 'write',
-				'cmd' => 'editProperties',
+				'cmd' => ilObjPhotoGalleryGUI::CMD_EDIT_PROPERTIES,
 				'txt' => $this->txt('edit'),
 				'default' => false
 			),

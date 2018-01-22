@@ -9,7 +9,16 @@ require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvan
  * @version 2.0.6
  */
 abstract class atTableGUI extends ilTable2GUI {
-
+	const CMD_ADD = 'add';
+	const CMD_CANCEL = 'cancel';
+	const CMD_CONFIRM_DELETE = 'confirmDelete';
+	const CMD_CREATE = 'create';
+	const CMD_DELETE = 'delete';
+	const CMD_EDIT = 'edit';
+	const CMD_DOWNLOAD = 'download';
+	const CMD_DOWNLOAD_ALBUM = 'downloadAlbum';
+	const CMD_SAVE = 'save';
+	const CMD_UPDATE = 'update';
 	/**
 	 * @var string
 	 */
@@ -42,6 +51,10 @@ abstract class atTableGUI extends ilTable2GUI {
 	 * @var ilCtrl
 	 */
 	protected $ctrl;
+	/**
+	 * @var ilPhotoGalleryPlugin
+	 */
+	protected $pl;
 
 	/**
 	 * @param        $a_parent_obj
@@ -179,8 +192,8 @@ abstract class atTableGUI extends ilTable2GUI {
 			$actions = new ilAdvancedSelectionListGUI();
 			$actions->setId('actions_' . self::$num);
 			$actions->setListTitle($this->lng->txt('actions'));
-			$actions->addItem($this->lng->txt('edit'), 'edit', $this->ctrl->getLinkTarget($this->parent_obj, 'edit'));
-			$actions->addItem($this->lng->txt('delete'), 'delete', $this->ctrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
+			$actions->addItem($this->lng->txt('edit'), 'edit', $this->ctrl->getLinkTarget($this->parent_obj, self::CMD_EDIT));
+			$actions->addItem($this->lng->txt('delete'), 'delete', $this->ctrl->getLinkTarget($this->parent_obj, self::CMD_CONFIRM_DELETE));
 			$this->tpl->setCurrentBlock('cell');
 			$this->tpl->setVariable('VALUE', $actions->getHTML());
 			$this->tpl->parseCurrentBlock();

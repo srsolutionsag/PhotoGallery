@@ -46,14 +46,14 @@ class srObjAlbumTableGUI extends atTableGUI {
 	protected function initFormActionsAndCmdButtons() {
 		$this->setFormAction($this->ctrl->getFormActionByClass('srobjpicturegui'));
 		if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
-			//$this->addHeaderCommand($this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'add'), $this->pl->txt('add_new_pic'));
+			//$this->addHeaderCommand($this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, self::CMD_ADD), $this->pl->txt('add_new_pic'));
 		}
 
 		$this->setSelectAllCheckbox('picture_ids[]'); //add to checkbox in tpl
-		$this->addMultiCommand('download', $this->pl->txt('download'));
+		$this->addMultiCommand(self::CMD_DOWNLOAD, $this->pl->txt('download'));
 
 		if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
-			$this->addMultiCommand('confirmDelete', $this->pl->txt('delete'));
+			$this->addMultiCommand(self::CMD_CONFIRM_DELETE, $this->pl->txt('delete'));
 		}
 	}
 
@@ -85,14 +85,14 @@ class srObjAlbumTableGUI extends atTableGUI {
 		$this->ctrl->setParameterByClass('srObjExifGUI', 'picture_id', ($a_set['id']));
 		//$this->ctrl->setParameterByClass('srObjSliderGUI', 'album_id', ($_GET['album_id']));
 		//$this->ctrl->setParameterByClass('srObjSliderGUI', 'picture_id', ($a_set['id']));
-		$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_id', ($a_set['id']));
+		$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', ($a_set['id']));
 		$this->tpl->setVariable('TITLE', $a_set['title']);
 		$this->tpl->setVariable('DESCRIPTION', $a_set['description']);
 		$this->tpl->setVariable('DATE', date('d.m.Y', strtotime($a_set['create_date'])));
 
-		$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_id', $srObjPicture->getId());
-		$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_type', srObjPicture::TITLE_PREVIEW);
-		$src_preview = $this->ctrl->getLinkTargetByClass("srObjPictureGUI", "sendFile");
+		$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
+		$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_PREVIEW);
+		$src_preview = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
 
 		$this->tpl->setVariable('IMAGE', ilUtil::img($src_preview));
 
@@ -106,10 +106,10 @@ class srObjAlbumTableGUI extends atTableGUI {
 			if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
 				$alist->setId($a_set['id']);
 				$alist->setListTitle($this->pl->txt('actions'));
-				$alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'edit'));
-				$alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'confirmDelete'));
+				$alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, self::CMD_EDIT));
+				$alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, self::CMD_CONFIRM_DELETE));
 			}
-			$alist->addItem($this->pl->txt('download'), 'download', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'download'));
+			$alist->addItem($this->pl->txt('download'), 'download', $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, self::CMD_DOWNLOAD));
 			$this->tpl->setVariable('ACTION', $alist->getHTML());
 		}
 	}

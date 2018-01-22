@@ -19,7 +19,9 @@ require_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
  *
  */
 class srObjPictureGUI {
-
+	const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
+	const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
+	const CMD_SEND_FILE = 'sendFile';
 	/**
 	 * @var ilAccessHandler
 	 */
@@ -64,7 +66,7 @@ class srObjPictureGUI {
 		$this->obj_picture = srObjPicture::find($_GET['picture_id']);
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
 
-		$this->ctrl->setParameterByClass('srObjPictureGUI', 'album_id', $_GET['album_id']);
+		$this->ctrl->setParameterByClass(self::class, 'album_id', $_GET['album_id']);
 		srObjAlbumGUI::setLocator($_GET['album_id']);
 	}
 
@@ -78,24 +80,24 @@ class srObjPictureGUI {
 		//$this->ctrl->saveParameter($this, 'picture_id');
 
 		switch ($cmd) {
-			case 'redirectToAlbumListPictures':
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'picutre_id', null);
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $_GET['album_id']);
-				$this->ctrl->redirectByClass('srObjAlbumGUI', 'listPictures');
+			case self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES:
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
+				$this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
 				break;
-			case 'redirectToAlbumManagePictures':
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'picutre_id', null);
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $_GET['album_id']);
-				$this->ctrl->redirectByClass('srObjAlbumGUI', 'managePictures');
+			case self::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES:
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
+				$this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
 				break;
-			case 'sendFile':
-			case 'add':
-			case 'create':
-			case 'edit':
-			case 'update':
-			case 'delete':
-			case 'confirmDelete':
-			case 'download':
+			case self::CMD_SEND_FILE:
+			case atTableGUI::CMD_ADD:
+			case atTableGUI::CMD_CREATE:
+			case atTableGUI::CMD_EDIT:
+			case atTableGUI::CMD_UPDATE:
+			case atTableGUI::CMD_DELETE:
+			case atTableGUI::CMD_CONFIRM_DELETE:
+			case atTableGUI::CMD_DOWNLOAD:
 				$this->$cmd();
 				break;
 		}
@@ -162,9 +164,9 @@ class srObjPictureGUI {
 			if ($form->saveObject()) {
 				ilUtil::sendSuccess($this->pl->txt('success_edit'), true);
 
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'picture_id', null);
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $this->obj_picture->getAlbumId());
-				$this->ctrl->redirectByClass('srObjAlbumGUI', 'managePictures');
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picture_id', null);
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $this->obj_picture->getAlbumId());
+				$this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
 			} else {
 				$form->setValuesByPost();
 				$this->tpl->setContent($form->getHTML());
@@ -188,10 +190,10 @@ class srObjPictureGUI {
 				$arr_picture_ids[] = $_GET['picture_id'];
 			}
 			$c_gui = new ilConfirmationGUI();
-			$c_gui->setFormAction($this->ctrl->getFormAction($this, 'delete'));
+			$c_gui->setFormAction($this->ctrl->getFormAction($this, atTableGUI::CMD_DELETE));
 			$c_gui->setHeaderText($this->pl->txt('delete_pic'));
-			$c_gui->setCancel($this->pl->txt('cancel'), 'redirectToAlbumManagePictures');
-			$c_gui->setConfirm($this->pl->txt('delete'), 'delete');
+			$c_gui->setCancel($this->pl->txt('cancel'), srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES);
+			$c_gui->setConfirm($this->pl->txt('delete'), atTableGUI::CMD_DELETE);
 			// add items to delete
 			include_once('./Services/News/classes/class.ilNewsItem.php');
 			foreach ($arr_picture_ids as $picture_id) {
@@ -227,8 +229,8 @@ class srObjPictureGUI {
 			} else {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 			}
-			$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $album_id);
-			$this->ctrl->redirectByClass('srObjAlbumGUI', 'managePictures');
+			$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $album_id);
+			$this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
 		}
 	}
 
