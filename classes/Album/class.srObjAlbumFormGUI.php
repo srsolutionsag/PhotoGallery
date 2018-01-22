@@ -67,7 +67,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
 		$this->addItem($desc);
 		switch ($this->ctrl->getCmd()) {
-			//			case srObjAlbumGUI::CMD_UPDATE:
+			//			case atTableGUI::CMD_UPDATE:
 			case atTableGUI::CMD_EDIT:
 				$date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
 				$date_input->setDate(new ilDate($this->album->getCreateDate(), IL_CAL_DATE));
