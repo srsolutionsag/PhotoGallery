@@ -104,10 +104,10 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	protected function afterConstructor() {
-		global $DIC, $ilNavigationHistory;
+		global $DIC;
 
 		$this->tpl = $DIC->ui()->mainTemplate();
-		$this->history = $ilNavigationHistory;
+		$this->history = $DIC["ilNavigationHistory"];
 		$this->access = $DIC->access();
 		$this->ctrl = $DIC->ctrl();
 		$this->tabs_gui = $DIC->tabs();
