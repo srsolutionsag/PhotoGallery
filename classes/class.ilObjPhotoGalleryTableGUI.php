@@ -112,7 +112,7 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI {
 	 * @description $this->setData(Your Array of Data)
 	 */
 	protected function initTableData() {
-		$this->setData(srObjAlbum::where(array('object_id' => ilObject::_lookupObjectId($_GET['ref_id'])), '=')->getArray());
+		$this->setData(srObjAlbum::where(array( 'object_id' => ilObject::_lookupObjectId($_GET['ref_id']) ), '=')->getArray());
 	}
 
 
@@ -144,7 +144,7 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI {
 	 * @description returns false, if dynamic template is needed, otherwise implement your own template by $this->setRowTemplate($a_template, $a_template_dir = "")
 	 */
 	protected function initTableRowTemplate() {
-		$this->setRowTemplate('tpl.gallery_row.html', 'Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery');
+		$this->setRowTemplate('tpl.gallery_row.html', $this->pl->getDirectory());
 	}
 
 

@@ -16,6 +16,7 @@ require_once('./Services/FileSystem/classes/class.ilFileSystemGUI.php');
  *
  */
 class srObjAlbumGUI {
+
 	const CMD_LIST_PICTURES = 'listPictures';
 	const CMD_MANAGE_PICTURES = 'managePictures';
 	const CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS = 'redirectToGalleryListAlbums';
@@ -169,9 +170,9 @@ class srObjAlbumGUI {
 
 
 	public function listPictures() {
-		$this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/libs/foundation-5.0.2/js/modernizr.js');
-		$this->tpl->addCss('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/clearing.css');
-		$tpl = new ilTemplate('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/Picture/tpl.clearing.html', false, true);
+		$this->tpl->addJavaScript($this->pl->getDirectory() . '/templates/libs/foundation-5.0.2/js/modernizr.js');
+		$this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
+		$tpl = new ilTemplate($this->pl->getDirectory() . '/templates/default/Picture/tpl.clearing.html', false, true);
 		/**
 		 * @var $srObjPicture srObjPicture
 		 */
@@ -195,7 +196,7 @@ class srObjAlbumGUI {
 			}
 			if ($this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 				$tpl->setCurrentBlock('add_new');
-				$tpl->setVariable('SRC_ADDNEW', './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/addnew.jpg');
+				$tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
 				$tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD));
 				$tpl->parseCurrentBlock();
 			}
@@ -219,7 +220,7 @@ class srObjAlbumGUI {
 
 
 	public function add() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -230,7 +231,7 @@ class srObjAlbumGUI {
 
 
 	public function create() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -247,7 +248,7 @@ class srObjAlbumGUI {
 
 
 	public function edit() {
-		if (! $this->access->checkAccess('write', '', $_GET['ref_id'])) {
+		if (!$this->access->checkAccess('write', '', $_GET['ref_id'])) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -259,7 +260,7 @@ class srObjAlbumGUI {
 
 
 	public function update() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -276,11 +277,11 @@ class srObjAlbumGUI {
 
 
 	public function confirmDelete() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
-			if (! sizeof($_POST['album_ids']) AND ! $_GET['album_id']) {
+			if (!sizeof($_POST['album_ids']) AND !$_GET['album_id']) {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 				$this->ctrl->redirect($this, '');
 			}
@@ -311,7 +312,7 @@ class srObjAlbumGUI {
 
 
 	public function delete() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -332,12 +333,12 @@ class srObjAlbumGUI {
 
 	public function download() {
 		$arr_album_id = array();
-		if (! $this->access->checkAccess('read', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('read', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {
 			//TODO album_ids ist der falsche Begriff
-			if (! sizeof($_POST['album_ids']) AND ! $_GET['album_id']) {
+			if (!sizeof($_POST['album_ids']) AND !$_GET['album_id']) {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 				$this->ctrl->redirect($this, '');
 			}

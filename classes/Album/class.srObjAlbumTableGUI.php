@@ -119,10 +119,8 @@ class srObjAlbumTableGUI extends atTableGUI {
 		/** @var srObjAlbum $album */
 		$album = srObjAlbum::find((int)$_GET['album_id']);
 		$this->setData(srObjPicture::where(array(
-			'album_id' => (int)$_GET['album_id']), '='
-		)
-			->orderBy($album->getSortType(), $album->getSortDirection())
-			->getArray());
+			'album_id' => (int)$_GET['album_id']
+		), '=')->orderBy($album->getSortType(), $album->getSortDirection())->getArray());
 	}
 
 
@@ -154,7 +152,7 @@ class srObjAlbumTableGUI extends atTableGUI {
 	 * @description returns false, if dynamic template is needed, otherwise implement your own template by $this->setRowTemplate($a_template, $a_template_dir = '')
 	 */
 	protected function initTableRowTemplate() {
-		$this->setRowTemplate('tpl.album_row.html', 'Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery');
+		$this->setRowTemplate('tpl.album_row.html', $this->pl->getDirectory());
 	}
 
 

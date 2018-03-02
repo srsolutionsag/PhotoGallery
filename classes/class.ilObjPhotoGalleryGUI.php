@@ -115,7 +115,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$this->event = $DIC->event();
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
-		if ($this->object !== null) {
+		if ($this->object !== NULL) {
 			$this->tpl->setPermanentLink($this->pl->getId(), $this->object->getRefId());
 		}
 	}
@@ -293,6 +293,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		if ($this->access->checkAccess('edit_permission', '', $this->object->getRefId())) {
 			$this->tabs_gui->addTab(self::TAB_PERMISSIONS, $this->pl->txt('permissions'), $this->ctrl->getLinkTargetByClass(ilPermissionGUI::class, self::CMD_PERM));
 		}
+
 		return true;
 	}
 
@@ -308,8 +309,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	public function listAlbums() {
-		$this->tpl->addCss('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/clearing.css');
-		$tpl = new ilTemplate('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/Album/tpl.clearing.html', true, true);
+		$this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
+		$tpl = new ilTemplate($this->pl->getDirectory() . '/templates/default/Album/tpl.clearing.html', true, true);
 
 		/**
 		 * @var $srObjAlbum srObjAlbum
@@ -329,7 +330,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 					$src_mosaic = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
 				} else {
 					//TODO Refactor
-					$src_mosaic = './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/nopreview.jpg';
+					$src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
 				}
 
 				$tpl->setVariable('SRC_PREVIEW', $src_mosaic);
@@ -337,7 +338,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 			}
 			if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
 				$tpl->setCurrentBlock('add_new');
-				$tpl->setVariable('SRC_ADDNEW', './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/addnew.jpg');
+				$tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
 				$tpl->setVariable('LINK_ADDNEW', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD));
 				$tpl->parseCurrentBlock();
 			}

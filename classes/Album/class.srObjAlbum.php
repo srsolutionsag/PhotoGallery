@@ -11,7 +11,10 @@ require_once('./Services/ActiveRecord/class.ActiveRecord.php');
  * @version 1
  */
 class srObjAlbum extends ActiveRecord {
+
 	const TABLE_NAME = 'sr_obj_pg_album';
+
+
 	/**
 	 * @return string
 	 */
@@ -19,11 +22,11 @@ class srObjAlbum extends ActiveRecord {
 		return self::TABLE_NAME;
 	}
 
+
 	const SORT_TYPE_CREATE_DATE = 'create_date';
 	const SORT_TYPE_TITLE = 'title';
 	const SORT_TYPE_DIRECTION_ASC = 'asc';
 	const SORT_TYPE_DIRECTION_DESC = 'desc';
-
 	/**
 	 * @var string
 	 *
@@ -84,7 +87,6 @@ class srObjAlbum extends ActiveRecord {
 	 * @db_is_notnull true
 	 */
 	protected $preview_id = 0;
-
 	/**
 	 * @var string
 	 *
@@ -94,7 +96,6 @@ class srObjAlbum extends ActiveRecord {
 	 * @db_is_notnull true
 	 */
 	protected $sort_type = self::SORT_TYPE_CREATE_DATE;
-
 	/**
 	 * @var string
 	 *
@@ -104,7 +105,6 @@ class srObjAlbum extends ActiveRecord {
 	 * @db_is_notnull true
 	 */
 	protected $sort_direction = self::SORT_TYPE_DIRECTION_ASC;
-
 	/**
 	 * @var array
 	 */
@@ -112,7 +112,6 @@ class srObjAlbum extends ActiveRecord {
 		self::SORT_TYPE_CREATE_DATE,
 		self::SORT_TYPE_TITLE,
 	);
-
 	//
 	// Setter & Getter
 	//
@@ -232,12 +231,13 @@ class srObjAlbum extends ActiveRecord {
 	 * @return string
 	 */
 	public function getPreviewWebSrc() {
+		$pl = ilPhotoGalleryPlugin::getInstance();
 		if ($this->getPreviewId() > 0) {
 			$obj_picture = srObjPicture::find($this->getPreviewId());
 
 			return $obj_picture->getPreviewWebSrc();
 		} else {
-			return './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/nopreview.jpg';
+			return $pl->getDirectory() . '/templates/images/nopreview.jpg';
 		}
 	}
 
@@ -246,6 +246,7 @@ class srObjAlbum extends ActiveRecord {
 	 * @return string
 	 */
 	public function getMosaicWebSrc() {
+		$pl = ilPhotoGalleryPlugin::getInstance();
 		if ($this->getPreviewId() > 0) {
 			/**
 			 * @var srObjPicture $srObjPicture
@@ -254,7 +255,7 @@ class srObjAlbum extends ActiveRecord {
 
 			return $srObjPicture->getMosaicWebSrc();
 		} else {
-			return './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/nopreview.jpg';
+			return $pl->getDirectory() . '/templates/images/nopreview.jpg';
 		}
 	}
 
@@ -282,12 +283,14 @@ class srObjAlbum extends ActiveRecord {
 		return CLIENT_WEB_DIR . '/xpho/album_' . $this->getId();
 	}
 
+
 	/**
 	 * @return string
 	 */
 	public function getSortType() {
 		return $this->sort_type;
 	}
+
 
 	/**
 	 * @param string $sort_type
@@ -296,12 +299,14 @@ class srObjAlbum extends ActiveRecord {
 		$this->sort_type = $sort_type;
 	}
 
+
 	/**
 	 * @return string
 	 */
 	public function getSortDirection() {
 		return $this->sort_direction;
 	}
+
 
 	/**
 	 * @param string $sort_direction
