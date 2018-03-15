@@ -13,6 +13,7 @@ require_once('./Services/Repository/classes/class.ilRepositoryObjectPlugin.php')
  */
 class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin {
 
+	const PLUGIN_ID = 'xpho';
 	const PLUGIN_NAME = 'PhotoGallery';
 	/**
 	 * @var ilPhotoGalleryPlugin

@@ -39,7 +39,7 @@ include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 
 	function initType() {
-		$this->setType(ilObjPhotoGalleryGUI::XPHO);
+		$this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
 	}
 
 
@@ -71,7 +71,7 @@ class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 	function getProperties() {
 		$props = array();
 		$this->plugin->includeClass('class.ilObjPhotoGalleryAccess.php');
-		if (! ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
+		if (!ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
 			$props[] = array(
 				'alert' => true,
 				'property' => $this->txt('status'),

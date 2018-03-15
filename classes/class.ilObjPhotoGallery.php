@@ -54,7 +54,7 @@ class ilObjPhotoGallery extends ilObjectPlugin {
 
 
 	final function initType() {
-		$this->setType(ilObjPhotoGalleryGUI::XPHO);
+		$this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
 	}
 
 

@@ -51,7 +51,6 @@ require_once('class.ilObjPhotoGalleryTableGUI.php');
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
-	const XPHO = 'xpho';
 	const CMD_INFO_SCREEN = 'infoScreen';
 	const CMD_EDIT_PROPERTIES = 'editProperties';
 	const CMD_LIST_ALBUMS = 'list_albums';
@@ -125,7 +124,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @return string
 	 */
 	final function getType() {
-		return self::XPHO;
+		return ilPhotoGalleryPlugin::PLUGIN_ID;
 	}
 
 

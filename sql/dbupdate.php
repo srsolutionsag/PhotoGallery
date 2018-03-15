@@ -36,7 +36,7 @@ srObjPicture::updateDB();
 //Adding a new Permission rep_robj_xpho_download_images ("Download Images")
 require_once("./Services/Migration/DBUpdate_3560/classes/class.ilDBUpdateNewObjectType.php");
 
-$xpho_type_id = ilDBUpdateNewObjectType::addNewType('xpho', 'Plugin Photogallery');
+$xpho_type_id = ilDBUpdateNewObjectType::addNewType(ilPhotoGalleryPlugin::PLUGIN_ID, 'Plugin Photogallery');
 
 $offering_admin = ilDBUpdateNewObjectType::addCustomRBACOperation( //$a_id, $a_title, $a_class, $a_pos
 	'rep_robj_xpho_download_images', 'download images', 'object', 280);
