@@ -44,7 +44,7 @@ class srObjAlbumTableGUI extends atTableGUI {
 	 */
 	//TODO GET ersetzen
 	protected function initFormActionsAndCmdButtons() {
-		$this->setFormAction($this->ctrl->getFormActionByClass('srobjpicturegui'));
+		$this->setFormAction($this->ctrl->getFormActionByClass(srObjPictureGUI::class));
 		if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
 			//$this->addHeaderCommand($this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, self::CMD_ADD), $this->pl->txt('add_new_pic'));
 		}

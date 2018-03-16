@@ -74,7 +74,7 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 		$this->fillForm();
 
 		if (is_object($this->exif)) {
-			$this->ilLocator->addItem($this->pl->txt("exif_data"), $this->ctrl->getLinkTargetByClass("srobjexifgui", ""), "", $_REQUEST['picture_id']);
+			$this->ilLocator->addItem($this->pl->txt("exif_data"), $this->ctrl->getLinkTargetByClass(srObjExifGUI::class, ""), "", $_REQUEST['picture_id']);
 			$this->ctrl->saveParameter($this, $_REQUEST["album_id"]);
 			$this->tpl->setLocator();
 		}

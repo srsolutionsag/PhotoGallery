@@ -49,7 +49,7 @@ class srObjExifGUI {
 		$this->tabs_gui = $this->parent->tabs_gui;
 		$this->lng = $DIC->language();
 
-		//$this->tabs_gui->setBackTarget($this->pl->txt('back_to_diashow'), $this->ctrl->getLinkTargetByClass("srobjslidergui", "index"));
+		//$this->tabs_gui->setBackTarget($this->pl->txt('back_to_diashow'), $this->ctrl->getLinkTargetByClass(srObjSliderGUI::class, srObjSliderGUI::CMD_INDEX));
 
 		$this->picture = new srObjPicture($_GET['picture_id']);
 	}
