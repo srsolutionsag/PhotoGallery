@@ -172,7 +172,7 @@ class srObjAlbumGUI {
 	public function listPictures() {
 		$this->tpl->addJavaScript($this->pl->getDirectory() . '/templates/libs/foundation-5.0.2/js/modernizr.js');
 		$this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
-		$tpl = new ilTemplate($this->pl->getDirectory() . '/templates/default/Picture/tpl.clearing.html', false, true);
+		$tpl = $this->pl->getTemplate('default/Picture/tpl.clearing.html', false);
 		/**
 		 * @var $srObjPicture srObjPicture
 		 */

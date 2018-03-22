@@ -309,7 +309,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 	public function listAlbums() {
 		$this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
-		$tpl = new ilTemplate($this->pl->getDirectory() . '/templates/default/Album/tpl.clearing.html', true, true);
+		$tpl = $this->pl->getTemplate('default/Album/tpl.clearing.html');
 
 		/**
 		 * @var $srObjAlbum srObjAlbum
