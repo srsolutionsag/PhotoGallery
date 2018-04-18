@@ -22,29 +22,42 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 */
 	protected $parent_gui;
 	/**
-	 * @var  ilCtrl
-	 */
-	protected $ctrl;
-	/**
 	 * @var ilLog
 	 */
 	protected $log;
-
+	/**
+	 * @var ilCtrl
+	 */
+	protected $ctrl;
+	/**
+	 * @var ilObjUser
+	 */
+	protected $user;
+	/**
+	 * @var ilPhotoGalleryPlugin
+	 */
+	protected $pl;
+	/**
+	 * @var srObjAlbum
+	 */
+	protected $album;
 
 	/**
 	 * @param              $parent_gui
 	 * @param srObjPicture $picture
 	 */
 	public function __construct($parent_gui, srObjPicture $picture) {
-		global $ilCtrl, $ilLog;
+		parent::__construct();
+		global $DIC;
+		$this->ctrl = $DIC->ctrl();
+		$this->user = $DIC->user();
 		$this->picture = $picture;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $ilCtrl;
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->ctrl->saveParameter($parent_gui, 'picture_id');
 		$this->album = new srObjAlbum($_GET['album_id']);
 		$this->initForm();
-		$this->log = $ilLog;
+		$this->log = $DIC["ilLog"];
 	}
 
 
@@ -57,9 +70,9 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		}
 		$cmd = ($this->ctrl->getCmd() == 'post') ? $_GET['fallbackCmd'] : $this->ctrl->getCmd();
 		switch ($cmd) {
-			//			case 'update':
-			case 'edit':
-			case 'update':
+			//			case atTableGUI::CMD_UPDATE:
+			case atTableGUI::CMD_EDIT:
+			case atTableGUI::CMD_UPDATE:
 				$title = new ilTextInputGUI($this->pl->txt('pic_title'), 'title');
 				$title->setRequired(true);
 				$this->addItem($title);
@@ -71,12 +84,12 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 				$vorschau = new ilCheckboxInputGUI($this->pl->txt('select_preview'), 'preview');
 				$vorschau->setValue(1);
 				$this->addItem($vorschau);
-				$this->addCommandButton('update', $this->pl->txt('save'));
-				$this->addCommandButton('redirectToAlbumListPictures', $this->pl->txt('cancel'));
-				$this->setFormAction($this->ctrl->getFormActionByClass('srObjPictureGUI', 'update'));
+				$this->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
+				$this->addCommandButton(srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES, $this->pl->txt('cancel'));
+				$this->setFormAction($this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_UPDATE));
 				break;
-			case 'add':
-			case 'create':
+			case atTableGUI::CMD_ADD:
+			case atTableGUI::CMD_CREATE:
 				$this->setMultipart(true);
 				// TODO image type is missed
 				$file_input = new ilDragDropFileInputGUI($this->pl->txt('pic'), 'upload_files');
@@ -87,11 +100,11 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 					'png',
 					'gif'
 				));
-				$file_input->setCommandButtonNames('create', 'redirectToAlbumListPictures');
+				$file_input->setCommandButtonNames(atTableGUI::CMD_CREATE, srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
 				$this->addItem($file_input);
-				$this->addCommandButton('create', $this->pl->txt('add_pic'));
-				$this->addCommandButton('redirectToAlbumListPictures', $this->pl->txt('cancel'));
-				$this->setFormAction($this->ctrl->getFormActionByClass('srObjPictureGUI', 'create'));
+				$this->addCommandButton(atTableGUI::CMD_CREATE, $this->pl->txt('add_pic'));
+				$this->addCommandButton(srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES, $this->pl->txt('cancel'));
+				$this->setFormAction($this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_CREATE));
 				break;
 		}
 	}
@@ -114,7 +127,6 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function fillObject() {
-		global $ilUser;
 		if (!$this->checkInput()) {
 			return false;
 		}
@@ -123,7 +135,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI {
 		if (!$this->picture->getId()) {
 			$this->picture->setAlbumId($_GET['album_id']);
 		}
-		$this->picture->setUserId($ilUser->getId());
+		$this->picture->setUserId($this->user->getId());
 		$date_array = $this->getInput('create_date');
 		if (is_array($date_array)) {
 			$date = $date_array['date'];

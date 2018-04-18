@@ -9,7 +9,16 @@ require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvan
  * @version 2.0.6
  */
 abstract class atTableGUI extends ilTable2GUI {
-
+	const CMD_ADD = 'add';
+	const CMD_CANCEL = 'cancel';
+	const CMD_CONFIRM_DELETE = 'confirmDelete';
+	const CMD_CREATE = 'create';
+	const CMD_DELETE = 'delete';
+	const CMD_EDIT = 'edit';
+	const CMD_DOWNLOAD = 'download';
+	const CMD_DOWNLOAD_ALBUM = 'downloadAlbum';
+	const CMD_SAVE = 'save';
+	const CMD_UPDATE = 'update';
 	/**
 	 * @var string
 	 */
@@ -27,35 +36,37 @@ abstract class atTableGUI extends ilTable2GUI {
 	 */
 	protected $filter_array = array();
 	/**
-	 * @var ilCtrl
+	 * @var int
 	 */
-	protected $ctrl;
+	static $num = 0;
 	/**
-	 * @var ilTabsGUI
+	 * @var ilObjUser
 	 */
-	protected $tabs;
+    protected $usr;
 	/**
 	 * @var ilAccessHandler
 	 */
 	protected $access;
 	/**
-	 * @var int
+	 * @var ilCtrl
 	 */
-	static $num = 0;
-
+	protected $ctrl;
+	/**
+	 * @var ilPhotoGalleryPlugin
+	 */
+	protected $pl;
 
 	/**
 	 * @param        $a_parent_obj
 	 * @param string $a_parent_cmd
 	 */
 	public function __construct($a_parent_obj, $a_parent_cmd) {
-		global $ilCtrl, $ilTabs, $ilAccess;
-		$this->ctrl = $ilCtrl;
-		$this->tabs = $ilTabs;
-		$this->access = $ilAccess;
+		global $DIC;
+		$this->usr = $DIC->user();
+		$this->access = $DIC->access();
+		$this->ctrl = $DIC->ctrl();
 		if ($this->initLanguage() === false) {
-			global $lng;
-			$this->lng = $lng;
+			$this->lng = $DIC->language();
 		}
 		$this->initTableProperties();
 		$this->setId($this->table_id);
@@ -181,8 +192,8 @@ abstract class atTableGUI extends ilTable2GUI {
 			$actions = new ilAdvancedSelectionListGUI();
 			$actions->setId('actions_' . self::$num);
 			$actions->setListTitle($this->lng->txt('actions'));
-			$actions->addItem($this->lng->txt('edit'), 'edit', $this->ctrl->getLinkTarget($this->parent_obj, 'edit'));
-			$actions->addItem($this->lng->txt('delete'), 'delete', $this->ctrl->getLinkTarget($this->parent_obj, 'confirmDelete'));
+			$actions->addItem($this->lng->txt('edit'), 'edit', $this->ctrl->getLinkTarget($this->parent_obj, self::CMD_EDIT));
+			$actions->addItem($this->lng->txt('delete'), 'delete', $this->ctrl->getLinkTarget($this->parent_obj, self::CMD_CONFIRM_DELETE));
 			$this->tpl->setCurrentBlock('cell');
 			$this->tpl->setVariable('VALUE', $actions->getHTML());
 			$this->tpl->parseCurrentBlock();
@@ -236,11 +247,7 @@ abstract class atTableGUI extends ilTable2GUI {
 	 * @return array
 	 */
 	public function getNavigationParametersAsArray() {
-		global $ilUser;
-		/**
-		 * @var $ilUser ilObjUser
-		 */
-		$hits = $ilUser->getPref('hits_per_page');
+		$hits = $this->usr->getPref('hits_per_page');
 		$parameters = explode(':', $_GET[$this->getNavParameter()]);
 		$return_values = array(
 			'from' => $parameters[2] ? $parameters[2] : 0,

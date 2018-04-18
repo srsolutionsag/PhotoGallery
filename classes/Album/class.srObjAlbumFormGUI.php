@@ -20,22 +20,35 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 */
 	protected $parent_gui;
 	/**
-	 * @var  ilCtrl
+	 * @var ilPhotoGalleryPlugin
+	 */
+	protected $pl;
+	/**
+	 * @var ilCtrl
 	 */
 	protected $ctrl;
-
+	/**
+	 * @var ilLanguage
+	 */
+	protected $lng;
+	/**
+	 * @var ilObjUser
+	 */
+	protected $user;
 
 	/**
 	 * @param            $parent_gui
 	 * @param srObjAlbum $album
 	 */
 	public function __construct($parent_gui, srObjAlbum $album) {
-		global $ilCtrl, $lng;
+		parent::__construct();
+		global $DIC;
+		$this->ctrl = $DIC->ctrl();
+		$this->lng = $DIC->language();
+		$this->user = $DIC->user();
 		$this->album = $album;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $ilCtrl;
-		$this->pl = new ilPhotoGalleryPlugin();
-		$this->lng = $lng;
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->ctrl->saveParameter($parent_gui, 'album_id');
 		$this->initForm();
 	}
@@ -54,13 +67,13 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
 		$this->addItem($desc);
 		switch ($this->ctrl->getCmd()) {
-			//			case 'update':
-			case 'edit':
+			//			case atTableGUI::CMD_UPDATE:
+			case atTableGUI::CMD_EDIT:
 				$date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
 				$date_input->setDate(new ilDate($this->album->getCreateDate(), IL_CAL_DATE));
 				$this->addItem($date_input);
 				break;
-			case 'add':
+			case atTableGUI::CMD_ADD:
 				$date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
 				$date_input->setDate(new ilDate(date('Y-m-d'), IL_CAL_DATE));
 				$this->addItem($date_input);
@@ -87,11 +100,11 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		$this->addItem($item);
 
 		if ($this->album->getId() == 0) {
-			$this->addCommandButton('create', $this->pl->txt('create_album'));
-			$this->addCommandButton('redirectToGalleryListAlbums', $this->pl->txt('cancel'));
+			$this->addCommandButton(atTableGUI::CMD_CREATE, $this->pl->txt('create_album'));
+			$this->addCommandButton(srObjAlbumGUI::CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS, $this->pl->txt('cancel'));
 		} else {
-			$this->addCommandButton('update', $this->pl->txt('save'));
-			$this->addCommandButton('redirectToGalleryManageAlbums', $this->pl->txt('cancel'));
+			$this->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
+			$this->addCommandButton(srObjAlbumGUI::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS, $this->pl->txt('cancel'));
 		}
 	}
 
@@ -113,7 +126,6 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 	 * @return bool
 	 */
 	public function fillObject() {
-		global $ilUser;
 		if (!$this->checkInput()) {
 			return false;
 		}
@@ -127,7 +139,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI {
 		}
 		$this->album->setCreateDate($date);
 		$this->album->setObjectId(ilObject::_lookupObjectId($_GET['ref_id']));
-		$this->album->setUserId($ilUser->getId());
+		$this->album->setUserId($this->user->getId());
 		$this->album->setSortType($this->getInput('sort_type'));
 		$this->album->setSortDirection($this->getInput('sort_direction'));
 		return true;

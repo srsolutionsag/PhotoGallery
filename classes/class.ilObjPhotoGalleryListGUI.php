@@ -22,6 +22,7 @@
 */
 
 include_once('./Services/Repository/classes/class.ilObjectPluginListGUI.php');
+include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.ilObjPhotoGalleryGUI.php');
 
 /**
  * ListGUI implementation for PhotoGallery object plugin. This one
@@ -38,12 +39,12 @@ include_once('./Services/Repository/classes/class.ilObjectPluginListGUI.php');
 class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 
 	function initType() {
-		$this->setType('xpho');
+		$this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
 	}
 
 
 	function getGuiClass() {
-		return 'ilObjPhotoGalleryGUI';
+		return ilObjPhotoGalleryGUI::class;
 	}
 
 
@@ -51,12 +52,12 @@ class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 		return array(
 			array(
 				'permission' => 'read',
-				'cmd' => 'showContent',
+				'cmd' => ilObjPhotoGalleryGUI::CMD_SHOW_CONTENT,
 				'default' => true
 			),
 			array(
 				'permission' => 'write',
-				'cmd' => 'editProperties',
+				'cmd' => ilObjPhotoGalleryGUI::CMD_EDIT_PROPERTIES,
 				'txt' => $this->txt('edit'),
 				'default' => false
 			),
@@ -70,7 +71,7 @@ class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
 	function getProperties() {
 		$props = array();
 		$this->plugin->includeClass('class.ilObjPhotoGalleryAccess.php');
-		if (! ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
+		if (!ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
 			$props[] = array(
 				'alert' => true,
 				'property' => $this->txt('status'),

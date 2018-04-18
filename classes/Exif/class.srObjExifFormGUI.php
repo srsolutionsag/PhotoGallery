@@ -21,10 +21,6 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 	 */
 	protected $parent_gui;
 	/**
-	 * @var  ilCtrl
-	 */
-	protected $ctrl;
-	/**
 	 * @var ilTemplate
 	 */
 	protected $tpl;
@@ -32,19 +28,26 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 	 * @var srObjPicture
 	 */
 	protected $picture;
-
+	/**
+	 * @var ilLocatorGUI
+	 */
+	protected $ilLocator;
+	/**
+	 * @var ilCtrl
+	 */
+	protected $ctrl;
 
 	public function __construct(srObjExifGUI $parent_gui, srObjExif $exif) {
-		global $ilCtrl, $tpl, $ilLocator;
-
-		$this->tpl = $tpl;
+		parent::__construct();
+		global $DIC;
+		$this->ctrl = $DIC->ctrl();
+		$this->tpl = $DIC->ui()->mainTemplate();
 		$this->exif = $exif;
 		$this->parent_gui = $parent_gui;
-		$this->ctrl = $ilCtrl;
-		$this->ilLocator = $ilLocator;
+		$this->ilLocator = $DIC["ilLocator"];
 
 		$this->ctrl->saveParameter($parent_gui, 'picture_id');
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 		$this->initForm();
 	}
 
@@ -71,7 +74,7 @@ class srObjExifFormGUI extends ilPropertyFormGUI {
 		$this->fillForm();
 
 		if (is_object($this->exif)) {
-			$this->ilLocator->addItem($this->pl->txt("exif_data"), $this->ctrl->getLinkTargetByClass("srobjexifgui", ""), "", $_REQUEST['picture_id']);
+			$this->ilLocator->addItem($this->pl->txt("exif_data"), $this->ctrl->getLinkTargetByClass(srObjExifGUI::class, ""), "", $_REQUEST['picture_id']);
 			$this->ctrl->saveParameter($this, $_REQUEST["album_id"]);
 			$this->tpl->setLocator();
 		}

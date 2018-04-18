@@ -13,6 +13,7 @@ require_once('./Services/Repository/classes/class.ilRepositoryObjectPlugin.php')
  */
 class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin {
 
+	const PLUGIN_ID = 'xpho';
 	const PLUGIN_NAME = 'PhotoGallery';
 	/**
 	 * @var ilPhotoGalleryPlugin
@@ -33,6 +34,21 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin {
 
 
 	/**
+	 * @var ilDB
+	 */
+	protected $db;
+
+
+	public function __construct() {
+		parent::__construct();
+
+		global $DIC;
+
+		$this->db = $DIC->database();
+	}
+
+
+	/**
 	 * @return string
 	 */
 	public function getPluginName() {
@@ -41,7 +57,19 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin {
 
 
 	protected function uninstallCustom() {
-		// TODO: Implement uninstallCustom() method.
+		require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Exif/class.srObjExif.php';
+		require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php';
+		require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPhotoData.php';
+		require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php';
+
+		$this->db->dropTable(srObjExif::TABLE_NAME, false);
+		$this->db->dropTable(srObjAlbum::TABLE_NAME, false);
+		$this->db->dropTable(srObjPhotoData::TABLE_NAME, false);
+		$this->db->dropTable(srObjPicture::TABLE_NAME, false);
+
+		// TODO Delete photos folder
+
+		return true;
 	}
 }
 

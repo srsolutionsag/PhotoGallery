@@ -51,12 +51,19 @@ require_once('class.ilObjPhotoGalleryTableGUI.php');
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
-	const XPHO = 'xpho';
+	const CMD_INFO_SCREEN = 'infoScreen';
+	const CMD_EDIT_PROPERTIES = 'editProperties';
+	const CMD_LIST_ALBUMS = 'list_albums';
 	const CMD_MANAGE_ALBUMS = 'manageAlbums';
+	const CMD_PERM = 'perm';
 	const CMD_SHOW_CONTENT = 'showContent';
 	const CMD_SHOW_SUMMARY = 'showSummary';
-	const CMDEDIT = 'edit';
-	const CMD_LIST_ALBUMS = 'listAlbums';
+	const TAB_CONTENT = 'content';
+	const TAB_INFO = 'info';
+	const TAB_LIST_ALBUMS = 'list_albums';
+	const TAB_MANAGE_ALBUMS = 'manage_albums';
+	const TAB_PERMISSIONS = 'permissions';
+	const TAB_SETTINGS = 'settings';
 	/**
 	 * @var ilObjPhotoGallery
 	 */
@@ -89,20 +96,25 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @var ilAccessHandler
 	 */
 	public $access;
+	/**
+	 * @var ilAppEventHandler
+	 */
+	protected $event;
 
 
 	protected function afterConstructor() {
-		global $tpl, $ilCtrl, $ilAccess, $ilNavigationHistory, $ilTabs;
+		global $DIC;
 
-		$this->tpl = $tpl;
-		$this->history = $ilNavigationHistory;
-		$this->access = $ilAccess;
-		$this->ctrl = $ilCtrl;
-		$this->tabs_gui = $ilTabs;
+		$this->tpl = $DIC->ui()->mainTemplate();
+		$this->history = $DIC["ilNavigationHistory"];
+		$this->access = $DIC->access();
+		$this->ctrl = $DIC->ctrl();
+		$this->tabs_gui = $DIC->tabs();
 		$this->pl = ilPhotoGalleryPlugin::getInstance();
+		$this->event = $DIC->event();
 
 		// add a link pointing to this object in footer [The "Permanent Link" in the footer]
-		if ($this->object !== null) {
+		if ($this->object !== NULL) {
 			$this->tpl->setPermanentLink($this->pl->getId(), $this->object->getRefId());
 		}
 	}
@@ -112,13 +124,13 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @return string
 	 */
 	final function getType() {
-		return self::XPHO;
+		return ilPhotoGalleryPlugin::PLUGIN_ID;
 	}
 
 
 	public function executeCommand() {
-		if ($this->access->checkAccess('read', '', $_GET['ref_id'])) {
-			$this->history->addItem($_GET['ref_id'], $this->ctrl->getLinkTarget($this, $this->getStandardCmd()), $this->getType(), '');
+		if ($this->access->checkAccess('read', '', $this->ref_id)) {
+			$this->history->addItem($this->ref_id, $this->ctrl->getLinkTarget($this, $this->getStandardCmd()), $this->getType(), '');
 		}
 		$cmd = $this->ctrl->getCmd();
 		$next_class = $this->ctrl->getNextClass($this);
@@ -131,21 +143,21 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		switch ($next_class) {
 			case 'ilpermissiongui':
 				$this->setTabs();
-				$this->tabs_gui->setTabActive('permissions');
+				$this->tabs_gui->activateTab(self::TAB_PERMISSIONS);
 				$perm_gui = new ilPermissionGUI($this);
 				$this->ctrl->forwardCommand($perm_gui);
 				$this->tpl->show();
 				break;
 			case 'ilinfoscreengui':
 				$this->setTabs();
-				$this->tabs_gui->setTabActive('info');
+				$this->tabs_gui->activateTab(self::TAB_INFO);
 				$info_gui = new ilInfoScreenGUI($this);
 				$this->ctrl->forwardCommand($info_gui);
 				$this->tpl->show();
 				break;
 			case 'srobjalbumgui':
 				$this->setTabs();
-				$this->tabs_gui->setTabActive('content');
+				$this->tabs_gui->activateTab(self::TAB_CONTENT);
 				$album_gui = new srObjAlbumGUI($this);
 				$this->ctrl->forwardCommand($album_gui);
 				$this->tpl->show();
@@ -163,40 +175,43 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 			case 'srobjphotogallerygui':
 			case '':
 				switch ($cmd) {
-					case 'create':
+					case atTableGUI::CMD_CREATE:
 						$this->tpl->setTitle($this->pl->txt('obj_title_create_new'));
 						$this->create();
 						break;
-					case 'save':
+					case atTableGUI::CMD_SAVE:
 						$this->save();
 						$this->tpl->show();
 						break;
-					case self::CMDEDIT:
-					case 'editProperties':
+					case atTableGUI::CMD_CANCEL:
+						$this->cancel();
+						break;
+					case atTableGUI::CMD_EDIT:
+					case self::CMD_EDIT_PROPERTIES:
 						$this->setTabs();
 						$this->edit();
 						$this->tpl->show();
 						break;
-					case 'update':
+					case atTableGUI::CMD_UPDATE:
 						parent::update();
 						$this->tpl->show();
 						break;
 					case self::CMD_MANAGE_ALBUMS:
 						$this->setTabs();
-						$this->tabs_gui->setTabActive('content');
+						$this->tabs_gui->activateTab(self::TAB_CONTENT);
 						$this->setSubTabsContent();
-						$this->tabs_gui->setSubTabActive('manage_albums');
+						$this->tabs_gui->activateSubTab(self::TAB_MANAGE_ALBUMS);
 						$this->manageAlbums();
 						$this->tpl->show();
 						break;
-					case 'infoScreen':
+					case self::CMD_INFO_SCREEN:
 						$this->setTabs();
 
-						$this->ctrl->setCmd("showSummary");
-						$this->ctrl->setCmdClass("ilinfoscreengui");
+						$this->ctrl->setCmd(self::CMD_SHOW_SUMMARY);
+						$this->ctrl->setCmdClass(ilInfoScreenGUI::class);
 						$this->infoScreen();
 
-						$this->tabs_gui->setTabActive('info');
+						$this->tabs_gui->activateTab(self::TAB_INFO);
 
 						$this->tpl->show();
 						break;
@@ -204,9 +219,9 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 					case self::CMD_LIST_ALBUMS:
 					case '':
 						$this->setTabs();
-						$this->tabs_gui->setTabActive('content');
+						$this->tabs_gui->activateTab(self::TAB_CONTENT);
 						$this->setSubTabsContent();
-						$this->tabs_gui->setSubTabActive('list_albums');
+						$this->tabs_gui->activateSubTab(self::TAB_LIST_ALBUMS);
 						$this->listAlbums();
 						$this->tpl->show();
 						break;
@@ -217,7 +232,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	public function edit() {
-		$this->tabs_gui->activateTab('settings');
+		$this->tabs_gui->activateTab(self::TAB_SETTINGS);
 		$form = new ilPropertyFormGUI();
 		$form->setTitle($this->pl->txt('edit'));
 		// title
@@ -233,7 +248,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 		$ta->setValue($this->object->getDescription());
 		$ti->setValue($this->object->getTitle());
 		$form->setFormAction($this->ctrl->getFormAction($this));
-		$form->addCommandButton('update', $this->pl->txt('save'));
+		$form->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
 		$form->addCommandButton(self::CMD_SHOW_CONTENT, $this->pl->txt('cancel'));
 		$this->tpl->setContent($form->getHTML());
 	}
@@ -269,51 +284,52 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 
 
 	protected function setTabs() {
-		$this->tabs_gui->addTab('content', $this->pl->txt('content'), $this->ctrl->getLinkTarget($this, self::CMD_SHOW_CONTENT));
-		$this->tabs_gui->addTab('info', $this->pl->txt('info'), $this->ctrl->getLinkTargetByClass('ilinfoscreengui', self::CMD_SHOW_SUMMARY));
+		$this->tabs_gui->addTab(self::TAB_CONTENT, $this->pl->txt('content'), $this->ctrl->getLinkTarget($this, self::CMD_SHOW_CONTENT));
+		$this->tabs_gui->addTab(self::TAB_INFO, $this->pl->txt('info'), $this->ctrl->getLinkTargetByClass(ilInfoScreenGUI::class, self::CMD_SHOW_SUMMARY));
 		if ($this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
-			$this->tabs_gui->addTab('settings', $this->pl->txt('settings'), $this->ctrl->getLinkTarget($this, self::CMDEDIT));
+			$this->tabs_gui->addTab(self::TAB_SETTINGS, $this->pl->txt('settings'), $this->ctrl->getLinkTarget($this, atTableGUI::CMD_EDIT));
 		}
 		if ($this->access->checkAccess('edit_permission', '', $this->object->getRefId())) {
-			$this->tabs_gui->addTab('permissions', $this->pl->txt('permissions'), $this->ctrl->getLinkTargetByClass('ilpermissiongui', 'perm'));
+			$this->tabs_gui->addTab(self::TAB_PERMISSIONS, $this->pl->txt('permissions'), $this->ctrl->getLinkTargetByClass(ilPermissionGUI::class, self::CMD_PERM));
 		}
+
 		return true;
 	}
 
 
 	protected function setSubTabsContent() {
-		$this->tabs_gui->addSubTab('list_albums', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
+		$this->tabs_gui->addSubTab(self::TAB_LIST_ALBUMS, $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_ALBUMS));
 
 		// show tab "manage" on level overview
 		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->object->ref_id)) {
-			$this->tabs_gui->addSubTab('manage_albums', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
+			$this->tabs_gui->addSubTab(self::TAB_MANAGE_ALBUMS, $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_ALBUMS));
 		}
 	}
 
 
 	public function listAlbums() {
-		$this->tpl->addCss('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/clearing.css');
-		$tpl = new ilTemplate('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/Album/tpl.clearing.html', true, true);
+		$this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
+		$tpl = $this->pl->getTemplate('default/Album/tpl.clearing.html');
 
 		/**
 		 * @var $srObjAlbum srObjAlbum
 		 */
 		if ($this->access->checkAccess('read', '', $this->object->getRefId())) {
 			foreach ($this->object->getAlbumObjects() as $srObjAlbum) {
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $srObjAlbum->getId());
+				$this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $srObjAlbum->getId());
 				$tpl->setCurrentBlock('picture');
 				$tpl->setVariable('TITLE', $srObjAlbum->getTitle());
 				$tpl->setVariable('DATE', date('d.m.Y', strtotime($srObjAlbum->getCreateDate())));
 				$tpl->setVariable('COUNT', $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'));
-				$tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass('srObjAlbumGUI'));
+				$tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class));
 
 				if ($srObjAlbum->getPreviewId() > 0) {
-					$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_id', $srObjAlbum->getPreviewId());
-					$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_type', srObjPicture::TITLE_MOSAIC);
-					$src_mosaic = $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'sendFile');
+					$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
+					$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
+					$src_mosaic = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
 				} else {
 					//TODO Refactor
-					$src_mosaic = './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/nopreview.jpg';
+					$src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
 				}
 
 				$tpl->setVariable('SRC_PREVIEW', $src_mosaic);
@@ -321,8 +337,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 			}
 			if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
 				$tpl->setCurrentBlock('add_new');
-				$tpl->setVariable('SRC_ADDNEW', './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/addnew.jpg');
-				$tpl->setVariable('LINK_ADDNEW', $this->ctrl->getLinkTargetByClass('srObjAlbumGUI', 'add'));
+				$tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
+				$tpl->setVariable('LINK_ADDNEW', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD));
 				$tpl->parseCurrentBlock();
 			}
 		} else {
@@ -350,16 +366,17 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @throws ilFileException
 	 */
 	public static function executeDownload($arr_picture_ids) {
-		global $ilCtrl, $ilAccess;
+		global $DIC;
+		$ilCtrl = $DIC->ctrl();
 		$pl = ilPhotoGalleryPlugin::getInstance();
 		//TODO bringen wir hier das GET weg?
-		if (!$ilAccess->checkAccess('read', '', $_GET['ref_id'])) {
+		if (!$DIC->access()->checkAccess('read', '', $_GET['ref_id'])) {
 			ilUtil::sendFailure($pl->txt('permission_denied'), true);
-			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
+			$ilCtrl->redirectByClass(self::class, '');
 		}
 		if (!sizeof($arr_picture_ids)) {
 			ilUtil::sendFailure($pl->txt('no_checkbox'), true);
-			$ilCtrl->redirectByClass('ilObjPhotoGalleryGUI', '');
+			$ilCtrl->redirectByClass(self::class, '');
 		} else {
 			if (sizeof($arr_picture_ids) == 1) {
 				// only one picture ==> do not make a .zip !
@@ -370,7 +387,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 				$oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
 
 				try {
-					ilUtil::deliverFile($oldPictureFilename, $title, '', false, true);
+					ilUtil::deliverFile($oldPictureFilename, $title, '', false, false);
 				} catch (ilFileException $e) {
 					ilUtil::sendInfo($e->getMessage(), true);
 				}
@@ -410,9 +427,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI {
 	 * @param ilObject $gallery
 	 */
 	function afterSave(ilObject $gallery) {
-		global $ilAppEventHandler;
-		/** @var $ilAppEventHandler ilAppEventHandler */
-		$ilAppEventHandler->raise('Services/Object', 'afterSave', array(
+		$this->event->raise('Services/Object', 'afterSave', array(
 			'object' => $gallery,
 			'obj_id' => $gallery->getId(),
 			'obj_type' => $gallery->getType()

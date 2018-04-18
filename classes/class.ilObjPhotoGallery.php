@@ -22,6 +22,7 @@
 */
 
 require_once('./Services/Repository/classes/class.ilObjectPlugin.php');
+require_once('Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.ilObjPhotoGalleryGUI.php');
 
 /**
  * Application class for ilObjPhotoGallery repository object.
@@ -43,17 +44,17 @@ class ilObjPhotoGallery extends ilObjectPlugin {
 	 * @param int $a_ref_id
 	 */
 	public function __construct($a_ref_id = 0) {
-		global $ilDB;
+		global $DIC;
 		/**
 		 * @var $ilDB ilDB
 		 */
 		parent::__construct($a_ref_id);
-		$this->db = $ilDB;
+		$this->db = $DIC->database();
 	}
 
 
 	final function initType() {
-		$this->setType('xpho');
+		$this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
 	}
 
 

@@ -16,9 +16,9 @@ actions#:#Aktionen
 edit#:#Bearbeiten
 title#:#Titel
 description#:#Beschreibung
-create_album#:#Album Erstellen
-edit_album#:#Album Bearbeiten
-enter_date#:#Datum Angeben
+create_album#:#Album erstellen
+edit_album#:#Album bearbeiten
+enter_date#:#Datum angeben
 date#:#Datum
 save#:#Speichern
 cancel#:#Abbrechen
@@ -33,7 +33,7 @@ back_to_gallery#:#Zurück zur Galerie
 success_pic#:#Foto erstellt!
 delete_pic#:#Objekte(e) löschen?
 msg_removed_pic#:#Objekte(e) gelöscht!
-add_new_pic#:#Neues Foto Hochladen
+add_new_pic#:#Neues Foto hochladen
 back_to_pictures#:#Zurück zu Bildern
 exif_data#:#Exif Daten
 gallery_title#:#Galerietitel

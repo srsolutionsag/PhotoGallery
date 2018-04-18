@@ -17,6 +17,12 @@ require_once('./Services/FileSystem/classes/class.ilFileSystemGUI.php');
  */
 class srObjAlbumGUI {
 
+	const CMD_LIST_PICTURES = 'listPictures';
+	const CMD_MANAGE_PICTURES = 'managePictures';
+	const CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS = 'redirectToGalleryListAlbums';
+	const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
+	const TAB_LIST_PICTURES = 'list_pictures';
+	const TAB_MANAGE_PICTURES = 'manage_pictures';
 	/**
 	 * @var ilTabsGUI
 	 */
@@ -63,20 +69,20 @@ class srObjAlbumGUI {
 	 * @param $parent_gui
 	 */
 	public function __construct($parent_gui) {
-		global $tpl, $ilCtrl, $ilToolbar, $ilAccess, $ilTabs, $ilLocator;
-		$this->tpl = $tpl;
-		$this->access = $ilAccess;
-		$this->ctrl = $ilCtrl;
+		global $DIC;
+		$this->tpl = $DIC->ui()->mainTemplate();
+		$this->access = $DIC->access();
+		$this->ctrl = $DIC->ctrl();
 		$this->parent_gui = $parent_gui;
-		$this->locator = $ilLocator;
-		//$this->toolbar = $ilToolbar;
-		$this->tabs_gui = $ilTabs;
+		$this->ilLocator = $DIC["ilLocator"];
+		//$this->toolbar = $DIC->toolbar();
+		$this->tabs_gui = $DIC->tabs();
 		$this->tabs_gui->clearTargets();
 
 		$this->obj_album = srObjAlbum::find($_GET['album_id']);
-		$this->pl = new ilPhotoGalleryPlugin();
+		$this->pl = ilPhotoGalleryPlugin::getInstance();
 
-		$this->ctrl->setParameterByClass('srObjPictureGUI', 'album_id', $_GET['album_id']);
+		$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $_GET['album_id']);
 	}
 
 
@@ -88,41 +94,41 @@ class srObjAlbumGUI {
 		$cmd = $this->ctrl->getCmd();
 
 		switch ($cmd) {
-			case 'redirectToGalleryListAlbums':
-				$this->ctrl->setParameterByClass('ilObjPhotoGalleryGUI', 'picutre_id', NULL);
-				$this->ctrl->setParameterByClass('ilObjPhotoGalleryGUI', 'album_id', NULL);
-				$this->ctrl->redirectByClass('ilObjPhotoGalleryGUI', 'listAlbums');
+			case self::CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS:
+				$this->ctrl->setParameterByClass(ilObjPhotoGalleryGUI::class, 'picutre_id', NULL);
+				$this->ctrl->setParameterByClass(ilObjPhotoGalleryGUI::class, 'album_id', NULL);
+				$this->ctrl->redirectByClass(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_LIST_ALBUMS);
 				break;
-			case 'redirectToGalleryManageAlbums':
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'picutre_id', NULL);
-				$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', NULL);
-				$this->ctrl->redirectByClass('ilObjPhotoGalleryGUI', 'manageAlbums');
+			case self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS:
+				$this->ctrl->setParameterByClass(self::class, 'picutre_id', NULL);
+				$this->ctrl->setParameterByClass(self::class, 'album_id', NULL);
+				$this->ctrl->redirectByClass(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
 				break;
-			case 'add':
-			case 'create':
-			case 'edit':
-			case 'update':
-			case 'delete':
-			case 'confirmDelete':
-			case 'download':
+			case atTableGUI::CMD_ADD:
+			case atTableGUI::CMD_CREATE:
+			case atTableGUI::CMD_EDIT:
+			case atTableGUI::CMD_UPDATE:
+			case atTableGUI::CMD_DELETE:
+			case atTableGUI::CMD_CONFIRM_DELETE:
+			case atTableGUI::CMD_DOWNLOAD:
 				$this->$cmd();
 				break;
-			case 'downloadAlbum':
+			case atTableGUI::CMD_DOWNLOAD_ALBUM:
 				$this->download();
 				break;
 			case '':
-			case 'listPictures':
+			case self::CMD_LIST_PICTURES:
 				self::setLocator($this->obj_album->getId());
 				$this->setTabs();
 				$this->setSubTabs();
-				$this->tabs_gui->setSubTabActive('list_pictures');
+				$this->tabs_gui->activateSubTab(self::TAB_LIST_PICTURES);
 				$this->listPictures();
 				break;
-			case 'managePictures':
+			case self::CMD_MANAGE_PICTURES:
 				self::setLocator($this->obj_album->getId());
 				$this->setTabs();
 				$this->setSubTabs();
-				$this->tabs_gui->setSubTabActive('manage_pictures');
+				$this->tabs_gui->activateSubTab(self::TAB_MANAGE_PICTURES);
 				$this->$cmd();
 				break;
 		}
@@ -132,12 +138,12 @@ class srObjAlbumGUI {
 
 
 	protected function setSubTabs() {
-		$this->ctrl->setParameterByClass('srObjAlbumGUI', 'album_id', $this->obj_album->getId());
-		$this->tabs_gui->addSubTab('list_pictures', $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, 'listPictures'));
+		$this->ctrl->setParameterByClass(self::class, 'album_id', $this->obj_album->getId());
+		$this->tabs_gui->addSubTab(self::TAB_LIST_PICTURES, $this->pl->txt('view'), $this->ctrl->getLinkTarget($this, self::CMD_LIST_PICTURES));
 
 		// show tab "manage" on level album
 		if (ilObjPhotoGalleryAccess::checkManageTabAccess($this->parent_gui->object->ref_id)) {
-			$this->tabs_gui->addSubTab('manage_pictures', $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, 'managePictures'));
+			$this->tabs_gui->addSubTab(self::TAB_MANAGE_PICTURES, $this->pl->txt('manage'), $this->ctrl->getLinkTarget($this, self::CMD_MANAGE_PICTURES));
 		}
 	}
 
@@ -151,21 +157,22 @@ class srObjAlbumGUI {
 	 * @param int $album_id
 	 */
 	public static function setLocator($album_id) {
-		global $ilCtrl, $ilLocator, $tpl;
+		global $DIC;
+		$ilCtrl = $DIC->ctrl();
 		/**
 		 * @var $srObjAlbum srObjAlbum
 		 */
 		$srObjAlbum = srObjAlbum::find($album_id);
-		$ilCtrl->setParameterByClass("srObjAlbumGUI", 'album_id', $album_id);
-		$ilLocator->addItem($srObjAlbum->getTitle(), $ilCtrl->getLinkTargetByClass("srObjAlbumGUI", "listPictures"));
-		$tpl->setLocator();
+		$ilCtrl->setParameterByClass(self::class, 'album_id', $album_id);
+		$DIC["ilLocator"]->addItem($srObjAlbum->getTitle(), $ilCtrl->getLinkTargetByClass(self::class, self::CMD_LIST_PICTURES));
+		$DIC->ui()->mainTemplate()->setLocator();
 	}
 
 
 	public function listPictures() {
-		$this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/libs/foundation-5.0.2/js/modernizr.js');
-		$this->tpl->addCss('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/clearing.css');
-		$tpl = new ilTemplate('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/default/Picture/tpl.clearing.html', false, true);
+		$this->tpl->addJavaScript($this->pl->getDirectory() . '/templates/libs/foundation-5.0.2/js/modernizr.js');
+		$this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
+		$tpl = $this->pl->getTemplate('default/Picture/tpl.clearing.html', false);
 		/**
 		 * @var $srObjPicture srObjPicture
 		 */
@@ -175,22 +182,22 @@ class srObjAlbumGUI {
 				$tpl->setCurrentBlock('picture');
 				$tpl->setVariable('TITLE', $srObjPicture->getTitle());
 
-				$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_id', $srObjPicture->getId());
-				$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_type', srObjPicture::TITLE_MOSAIC);
-				$src_preview = $this->ctrl->getLinkTargetByClass("srObjPictureGUI", "sendFile");
+				$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
+				$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
+				$src_preview = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
 				$tpl->setVariable('SRC_PREVIEW', $src_preview);
 
-				$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_id', $srObjPicture->getId());
-				$this->ctrl->setParameterByClass('srObjPictureGUI', 'picture_type', srObjPicture::TITLE_PRESENTATION);
-				$src_prensentation = $this->ctrl->getLinkTargetByClass("srObjPictureGUI", "sendFile");
+				$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
+				$this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_PRESENTATION);
+				$src_prensentation = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
 				$tpl->setVariable('SRC_PRESENTATION', $src_prensentation);
 
 				$tpl->parseCurrentBlock();
 			}
 			if ($this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 				$tpl->setCurrentBlock('add_new');
-				$tpl->setVariable('SRC_ADDNEW', './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/images/addnew.jpg');
-				$tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass('srObjPictureGUI', 'add'));
+				$tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
+				$tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD));
 				$tpl->parseCurrentBlock();
 			}
 		} else {
@@ -206,14 +213,14 @@ class srObjAlbumGUI {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {
-			$tableGui = new srObjAlbumTableGUI($this, 'managePictures');
+			$tableGui = new srObjAlbumTableGUI($this, srObjAlbumGUI::CMD_MANAGE_PICTURES);
 			$this->tpl->setContent($tableGui->getHTML());
 		}
 	}
 
 
 	public function add() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -224,7 +231,7 @@ class srObjAlbumGUI {
 
 
 	public function create() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -232,7 +239,7 @@ class srObjAlbumGUI {
 			$form->setValuesByPost();
 			if ($form->saveObject()) {
 				ilUtil::sendSuccess($this->pl->txt('success'), true);
-				$this->ctrl->redirect($this->parent_gui, 'listAlbums');
+				$this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_LIST_ALBUMS);
 			} else {
 				$this->tpl->setContent($form->getHTML());
 			}
@@ -241,7 +248,7 @@ class srObjAlbumGUI {
 
 
 	public function edit() {
-		if (! $this->access->checkAccess('write', '', $_GET['ref_id'])) {
+		if (!$this->access->checkAccess('write', '', $_GET['ref_id'])) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -253,7 +260,7 @@ class srObjAlbumGUI {
 
 
 	public function update() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -261,7 +268,7 @@ class srObjAlbumGUI {
 			$form->setValuesByPost();
 			if ($form->saveObject()) {
 				ilUtil::sendSuccess($this->pl->txt('success_edit'), true);
-				$this->ctrl->redirect($this->parent_gui, 'manageAlbums');
+				$this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
 			} else {
 				$this->tpl->setContent($form->getHTML());
 			}
@@ -270,11 +277,11 @@ class srObjAlbumGUI {
 
 
 	public function confirmDelete() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
-			if (! sizeof($_POST['album_ids']) AND ! $_GET['album_id']) {
+			if (!sizeof($_POST['album_ids']) AND !$_GET['album_id']) {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 				$this->ctrl->redirect($this, '');
 			}
@@ -285,10 +292,10 @@ class srObjAlbumGUI {
 			}
 			$c_gui = new ilConfirmationGUI();
 			// set confirm/cancel commands
-			$c_gui->setFormAction($this->ctrl->getFormAction($this, 'delete'));
+			$c_gui->setFormAction($this->ctrl->getFormAction($this, atTableGUI::CMD_DELETE));
 			$c_gui->setHeaderText($this->pl->txt('delete_album'));
-			$c_gui->setCancel($this->pl->txt('cancel'), 'redirectToGalleryManageAlbums');
-			$c_gui->setConfirm($this->pl->txt('delete'), 'delete');
+			$c_gui->setCancel($this->pl->txt('cancel'), self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS);
+			$c_gui->setConfirm($this->pl->txt('delete'), atTableGUI::CMD_DELETE);
 			// add items to delete
 			//			include_once('./Services/News/classes/class.ilNewsItem.php');
 			foreach ($arr_album_ids as $album_id) {
@@ -305,7 +312,7 @@ class srObjAlbumGUI {
 
 
 	public function delete() {
-		if (! $this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('write', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this->parent_gui, '');
 		} else {
@@ -319,19 +326,19 @@ class srObjAlbumGUI {
 			} else {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 			}
-			$this->ctrl->redirect($this->parent_gui, 'manageAlbums');
+			$this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
 		}
 	}
 
 
 	public function download() {
 		$arr_album_id = array();
-		if (! $this->access->checkAccess('read', '', $this->parent_gui->object->getRefId())) {
+		if (!$this->access->checkAccess('read', '', $this->parent_gui->object->getRefId())) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {
 			//TODO album_ids ist der falsche Begriff
-			if (! sizeof($_POST['album_ids']) AND ! $_GET['album_id']) {
+			if (!sizeof($_POST['album_ids']) AND !$_GET['album_id']) {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 				$this->ctrl->redirect($this, '');
 			}
