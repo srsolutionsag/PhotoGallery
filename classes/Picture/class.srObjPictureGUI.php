@@ -180,11 +180,11 @@ class srObjPictureGUI {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 			$this->ctrl->redirect($this, '');
 		} else {
-			if (!sizeof($_POST['picture_ids']) AND !$_GET['picture_id']) {
+			if ((!isset($_POST['picture_ids']) || !sizeof($_POST['picture_ids'])) AND !$_GET['picture_id']) {
 				ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
 				$this->ctrl->redirect($this, '');
 			}
-			if (sizeof($_POST['picture_ids'])) {
+			if (isset($_POST['picture_ids']) && sizeof($_POST['picture_ids'])) {
 				$arr_picture_ids = $_POST['picture_ids'];
 			} else {
 				$arr_picture_ids[] = $_GET['picture_id'];
