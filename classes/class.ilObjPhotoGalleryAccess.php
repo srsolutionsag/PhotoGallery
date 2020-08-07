@@ -21,16 +21,12 @@
 	+-----------------------------------------------------------------------------+
 */
 
-require_once('./Services/Repository/classes/class.ilObjectPluginAccess.php');
-require_once('class.ilObjPhotoGallery.php');
-
 /**
  * Access/Condition checking for PhotoGallery object
  * Please do not create instances of large application classes (like ilObjPhotoGallery)
  * Write small methods within this class to determin the status.
  * @author        Fabian Schmid <fs@studer-raimann.ch>
  * @author        Martin Studer <ms@studer-raimann.ch>
- * @version       $Id$
  */
 class ilObjPhotoGalleryAccess extends ilObjectPluginAccess
 {

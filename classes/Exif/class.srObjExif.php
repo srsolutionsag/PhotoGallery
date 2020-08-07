@@ -1,10 +1,8 @@
 <?php
-require_once('./Services/ActiveRecord/class.ActiveRecord.php');
 
 /**
  * srObjExif
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
- * @version 1
  * delete this file ? is not used
  */
 class srObjExif extends ActiveRecord

@@ -1,13 +1,8 @@
 <?php
-require_once('class.srObjExif.php');
-require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
-require_once('class.srObjExifFormGUI.php');
-require_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
 
 /**
  * GUI-Class srObjExifGUI
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
- * @version           $Id:
  */
 class srObjExifGUI
 {
@@ -93,4 +88,4 @@ class srObjExifGUI
     }
 }
 
-?>
+

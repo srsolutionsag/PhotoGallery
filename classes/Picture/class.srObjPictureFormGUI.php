@@ -1,13 +1,9 @@
 <?php
-require_once('./Services/FileUpload/classes/class.ilFileUploadGUI.php');
-require_once('./Services/Form/classes/class.ilDragDropFileInputGUI.php');
-require_once('./Services/Accordion/classes/class.ilAccordionGUI.php');
 
 /**
  * Class srObjPictureFormGUI
  * @author              Zeynep Karahan <zk@studer-raimann.ch>
  * @author              Martin Studer <ms@studer-raimann.ch>
- * @version             1.0.0
  */
 class srObjPictureFormGUI extends ilPropertyFormGUI
 {

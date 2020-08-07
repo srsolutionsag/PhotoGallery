@@ -1,12 +1,10 @@
 <?php
-require_once('./Services/ActiveRecord/class.ActiveRecord.php');
 
 /**
  * srObjAlbum
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
- * @version 1
  */
 class srObjAlbum extends ActiveRecord
 {

@@ -1,17 +1,10 @@
 <?php
-require_once('class.srObjAlbum.php');
-require_once('class.srObjAlbumTableGUI.php');
-require_once('class.srObjAlbumFormGUI.php');
-require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
-require_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
-require_once('./Services/FileSystem/classes/class.ilFileSystemGUI.php');
 
 /**
  * GUI-Class srObjAlbumGUI
  * @author            Fabian Schmid <fs@studer-raimann.ch>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
- * @version           $Id:
  */
 class srObjAlbumGUI
 {
@@ -362,4 +355,4 @@ class srObjAlbumGUI
     }
 }
 
-?>
+

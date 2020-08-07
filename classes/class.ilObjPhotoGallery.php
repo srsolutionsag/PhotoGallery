@@ -21,9 +21,6 @@
 	+-----------------------------------------------------------------------------+
 */
 
-require_once('./Services/Repository/classes/class.ilObjectPlugin.php');
-require_once('Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.ilObjPhotoGalleryGUI.php');
-
 /**
  * Application class for ilObjPhotoGallery repository object.
  * @author  Fabian Schmid <fs@studer-raimann.ch>
@@ -113,4 +110,4 @@ class ilObjPhotoGallery extends ilObjectPlugin
     }
 }
 
-?>
+

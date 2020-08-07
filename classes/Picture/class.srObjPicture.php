@@ -1,13 +1,10 @@
 <?php
-require_once('./Services/ActiveRecord/class.ActiveRecord.php');
-require_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
 
 /**
  * srObjPicture
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
- * @version 1
  */
 class srObjPicture extends ActiveRecord
 {

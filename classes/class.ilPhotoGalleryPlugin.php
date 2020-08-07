@@ -1,12 +1,10 @@
 <?php
-
-require_once('./Services/Repository/classes/class.ilRepositoryObjectPlugin.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/vendor/autoload.php');
 
 /**
  * PhotoGallery repository object plugin
  * @author  Martin Studer <ms@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
- * @version $Id$
  */
 class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 {
@@ -54,11 +52,6 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 
     protected function uninstallCustom()
     {
-        require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Exif/class.srObjExif.php';
-        require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php';
-        require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPhotoData.php';
-        require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php';
-
         $this->db->dropTable(srObjExif::TABLE_NAME, false);
         $this->db->dropTable(srObjAlbum::TABLE_NAME, false);
         $this->db->dropTable(srObjPhotoData::TABLE_NAME, false);
@@ -70,4 +63,4 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
     }
 }
 
-?>
+

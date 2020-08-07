@@ -1,11 +1,9 @@
 <?php
-require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 
 /**
  * GUI-Class srObjAlbumGUI
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
- * @version           $Id:
  */
 class srObjAlbumFormGUI extends ilPropertyFormGUI
 {

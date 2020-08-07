@@ -1,19 +1,10 @@
 <?php
-require_once('class.srObjPicture.php');
-require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
-require_once('class.srObjPictureFormGUI.php');
-require_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
-require_once('./Services/FileSystem/classes/class.ilFileSystemGUI.php');
-require_once('./Modules/WorkspaceFolder/classes/class.ilObjWorkspaceFolderGUI.php');
-require_once('./Services/JSON/classes/class.ilJsonUtil.php');
-require_once('./Services/Utilities/classes/class.ilMimeTypeUtil.php');
 
 /**
  * GUI-Class srObjPictureGUI
  * @author            Fabian Schmid <fs@studer-raimann.ch>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
- * @version           $Id:
  */
 class srObjPictureGUI
 {
@@ -265,4 +256,4 @@ class srObjPictureGUI
     }
 }
 
-?>
+

@@ -1,11 +1,8 @@
 <?php
-require_once('./Services/Table/classes/class.ilTable2GUI.php');
-require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 
 /**
  * Class atTableGUI
  * @author  Fabian Schmid <fs@studer-raimann.ch>
- * @version 2.0.6
  */
 abstract class atTableGUI extends ilTable2GUI
 {
@@ -262,4 +259,4 @@ abstract class atTableGUI extends ilTable2GUI
     }
 }
 
-?>
+

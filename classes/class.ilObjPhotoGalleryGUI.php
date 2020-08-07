@@ -20,19 +20,6 @@
 	| Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
 	+-----------------------------------------------------------------------------+
 */
-require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
-require_once('./Services/Repository/classes/class.ilObjectPluginGUI.php');
-require_once('class.ilPhotoGalleryPlugin.php');
-require_once('./Services/Calendar/classes/class.ilDate.php');
-require_once('./Services/AccessControl/classes/class.ilPermissionGUI.php');
-require_once('./Services/InfoScreen/classes/class.ilInfoScreenGUI.php');
-require_once('./Modules/File/classes/class.ilFileException.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbumGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPictureGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php');
-require_once('class.ilObjPhotoGallery.php');
-require_once('class.ilObjPhotoGalleryTableGUI.php');
 
 /**
  * User Interface class for example repository object.

@@ -82,4 +82,4 @@ class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI
     }
 }
 
-?>
+

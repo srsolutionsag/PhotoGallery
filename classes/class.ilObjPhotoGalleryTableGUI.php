@@ -1,14 +1,10 @@
 <?php
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php');
-require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
-require_once('class.atTableGUI.php');
 
 /**
  * TableGUI srModelObjectTableGUI
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
- * @version $Id:
  */
 class ilObjPhotoGalleryTableGUI extends atTableGUI
 {
@@ -28,7 +24,7 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
      */
     protected function initTableProperties()
     {
-        require_once('./Services/Object/classes/class.ilObject2.php');
+
         $this->table_title = ilObject2::_lookupTitle(ilObject2::_lookupObjId($_GET['ref_id']));
     }
 
@@ -152,11 +148,11 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
      */
     protected function initLanguage()
     {
-        require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.ilPhotoGalleryPlugin.php');
+
         $this->pl = ilPhotoGalleryPlugin::getInstance();
 
         return false;
     }
 }
 
-?>
+

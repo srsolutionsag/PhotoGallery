@@ -1,5 +1,4 @@
 <?php
-require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 
 /**
  * Created by JetBrains PhpStorm.

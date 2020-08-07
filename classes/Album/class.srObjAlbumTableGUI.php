@@ -1,15 +1,10 @@
 <?php
-//require_once('./Customizing/global/plugins/Libraries/ActiveRecord/class.srModelObjectTableGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.atTableGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPicture.php');
-require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 
 /**
  * TableGUI srModelObjectTableGUI
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
- * @version $Id:
  */
 class srObjAlbumTableGUI extends atTableGUI
 {
@@ -162,4 +157,4 @@ class srObjAlbumTableGUI extends atTableGUI
     }
 }
 
-?>
+
