@@ -1,7 +1,7 @@
 <?php
-$id = 'xpho';
-$version = '2.5.1';
+$id                = 'xpho';
+$version           = '2.5.1';
 $ilias_min_version = '5.3.0';
 $ilias_max_version = '5.4.999';
-$responsible = 'Gabriel Comte, Fabian Schmid, Martin Studer';
-$responsible_mail = 'support@studer-raimann.ch';
+$responsible       = 'studer + raimann ag';
+$responsible_mail  = 'support-core1@studer-raimann.ch';
