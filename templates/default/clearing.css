@@ -1,9 +1,9 @@
-span.album_count     {
+span.album_count {
 	color: #808080;
 	font-size: 0.8em;
 }
 
-span.album_date     {
+span.album_date {
 	color: #808080;
 	font-size: 0.8em;
 }
@@ -68,16 +68,17 @@ ul.clearing-thumbs {
 div#fixed_content {
 	position: static;
 }
+
 class#ilMainMenuSearch {
 	height: 22px;
 }
 
 .clearing-blackout {
-	z-index:   1050 !important;
-	position:  absolute;
-	top:       0;
-	left:      0;
-	clear:     both;
+	z-index: 1050 !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	clear: both;
 	direction: ltr;
 
 }
@@ -87,15 +88,22 @@ class#ilMainMenuSearch {
 	*zoom: 1;
 	margin-bottom: 0;
 	margin-left: 0;
-	list-style: none; }
+	list-style: none;
+}
+
 [data-clearing]:before, [data-clearing]:after {
 	content: " ";
-	display: table; }
+	display: table;
+}
+
 [data-clearing]:after {
-	clear: both; }
+	clear: both;
+}
+
 [data-clearing] li {
 	float: left;
-	margin-right: 10px; }
+	margin-right: 10px;
+}
 
 .clearing-blackout {
 	background: #333333;
@@ -104,27 +112,35 @@ class#ilMainMenuSearch {
 	height: 100%;
 	top: 0;
 	left: 0;
-	z-index: 998; }
+	z-index: 998;
+}
+
 .clearing-blackout .clearing-close {
-	display: block; }
+	display: block;
+}
 
 .clearing-container {
 	position: relative;
 	z-index: 998;
 	height: 100%;
 	overflow: hidden;
-	margin: 0; }
+	margin: 0;
+}
 
 .visible-img {
 	height: 95%;
-	position: relative; }
+	position: relative;
+}
+
 .visible-img img {
 	position: absolute;
 	left: 50%;
 	top: 50%;
 	margin-left: -50%;
 	max-height: 100%;
-	max-width: 100%; }
+	max-width: 100%;
+	padding-bottom: 45px;
+}
 
 .clearing-caption {
 	color: #cccccc;
@@ -137,7 +153,8 @@ class#ilMainMenuSearch {
 	width: 100%;
 	padding: 10px 30px 20px;
 	position: absolute;
-	left: 0; }
+	left: 0;
+}
 
 .clearing-close {
 	z-index: 999;
@@ -146,19 +163,28 @@ class#ilMainMenuSearch {
 	font-size: 30px;
 	line-height: 1;
 	color: #cccccc;
-	display: none; }
+	display: none;
+}
+
 .clearing-close:hover, .clearing-close:focus {
-	color: #ccc; }
+	color: #ccc;
+}
 
 .clearing-assembled .clearing-container {
-	height: 100%; }
+	height: 100%;
+}
+
 .clearing-assembled .clearing-container .carousel > ul {
-	display: none; }
+	display: none;
+}
 
 .clearing-feature li {
-	display: none; }
+	display: none;
+}
+
 .clearing-feature li.clearing-featured-img {
-	display: block; }
+	display: block;
+}
 
 @media only screen and (min-width: 40.063em) {
 	.clearing-main-prev,
@@ -166,7 +192,9 @@ class#ilMainMenuSearch {
 		position: absolute;
 		height: 100%;
 		width: 40px;
-		top: 0; }
+		top: 0;
+	}
+
 	.clearing-main-prev > span,
 	.clearing-main-next > span {
 		position: absolute;
@@ -174,39 +202,53 @@ class#ilMainMenuSearch {
 		display: block;
 		width: 0;
 		height: 0;
-		border: solid 12px; }
+		border: solid 12px;
+	}
+
 	.clearing-main-prev > span:hover,
 	.clearing-main-next > span:hover {
-		opacity: 0.8; }
+		opacity: 0.8;
+	}
 
 	.clearing-main-prev {
-		left: 0; }
+		left: 0;
+	}
+
 	.clearing-main-prev > span {
 		left: 5px;
 		border-color: transparent;
-		border-right-color: #cccccc; }
+		border-right-color: #cccccc;
+	}
 
 	.clearing-main-next {
-		right: 0; }
+		right: 0;
+	}
+
 	.clearing-main-next > span {
 		border-color: transparent;
-		border-left-color: #cccccc; }
+		border-left-color: #cccccc;
+	}
 
 	.clearing-main-prev.disabled,
 	.clearing-main-next.disabled {
-		opacity: 0.3; }
+		opacity: 0.3;
+	}
 
 	.clearing-assembled .clearing-container .carousel {
 		background: rgba(51, 51, 51, 0.8);
 		height: 120px;
 		margin-top: 10px;
-		text-align: center; }
+		text-align: center;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul {
 		display: inline-block;
 		z-index: 999;
 		height: 100%;
 		position: relative;
-		float: none; }
+		float: none;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul li {
 		display: block;
 		width: 120px;
@@ -217,30 +259,45 @@ class#ilMainMenuSearch {
 		padding: 0;
 		position: relative;
 		cursor: pointer;
-		opacity: 0.4; }
+		opacity: 0.4;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul li.fix-height img {
 		height: 100%;
-		max-width: none; }
+		max-width: none;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul li a.th {
 		border: none;
 		-webkit-box-shadow: none;
 		box-shadow: none;
-		display: block; }
+		display: block;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul li img {
 		cursor: pointer !important;
-		width: 100% !important; }
+		width: 100% !important;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul li.visible {
-		opacity: 1; }
+		opacity: 1;
+	}
+
 	.clearing-assembled .clearing-container .carousel > ul li:hover {
-		opacity: 0.8; }
+		opacity: 0.8;
+	}
+
 	.clearing-assembled .clearing-container .visible-img {
 		background: #333333;
 		overflow: hidden;
-		height: 85%; }
+		height: 85%;
+	}
 
 	.clearing-close {
 		position: absolute;
 		top: 10px;
 		right: 20px;
 		padding-left: 0;
-		padding-top: 0; } }
+		padding-top: 0;
+	}
+}
