@@ -1,0 +1,39 @@
+{
+  "name": "studer-raimann/photogallery",
+  "description": "ILIAS 5.x Photo-Gallery plugin",
+  "type": "project",
+  "keywords": [
+    "ILIAS",
+    "Plugin",
+    "Photos"
+  ],
+  "license": "GPL-3.0+",
+  "authors": [
+    {
+      "name": "studer + raimann ag",
+      "email": "support-core1@studer-raimann.ch",
+      "homepage": "https://studer-raimann.ch",
+      "role": "Project Manager, Software Engineer"
+    }
+  ],
+  "support": {
+    "issues": "https://plugins.studer-raimann.ch/goto.php?target=uihk_srsu_PLOPENCAST"
+  },
+  "minimum-stability": "beta",
+  "prefer-stable": true,
+  "require": {
+    "php": "^5.5.9 || ^7.0"
+  },
+  "autoload": {
+    "classmap": [
+      "./classes/",
+      "../../../../../../../Services/Table",
+      "../../../../../../../Services/Form",
+      "../../../../../../../Services/Repository",
+      "../../../../../../../Services/Component",
+      "../../../../../../../Services/ActiveRecord",
+      "../../../../../../../Services/UIComponent",
+      "../../../../../../../Services/Utilities"
+    ]
+  }
+}
