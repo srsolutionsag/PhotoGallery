@@ -1,97 +1,91 @@
 <?php
-require_once('class.srObjExif.php');
-require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
-require_once('class.srObjExifFormGUI.php');
-require_once('./Services/Utilities/classes/class.ilConfirmationGUI.php');
 
 /**
  * GUI-Class srObjExifGUI
- *
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
- * @version           $Id:
- *
  */
-class srObjExifGUI {
+class srObjExifGUI
+{
 
-	/**
-	 * @var ilTabsGUI
-	 */
-	protected $tabs_gui;
-	/**
-	 * @var ilPropertyFormGUI
-	 */
-	protected $form;
-	/**
-	 * @var ilToolbarGUI
-	 */
-	protected $toolbar;
-	/**
-	 * @var ilCtrl
-	 */
-	protected $ctrl;
-	/**
-	 * @var ilTemplate
-	 */
-	protected $tpl;
+    /**
+     * @var ilTabsGUI
+     */
+    protected $tabs_gui;
+    /**
+     * @var ilPropertyFormGUI
+     */
+    protected $form;
+    /**
+     * @var ilToolbarGUI
+     */
+    protected $toolbar;
+    /**
+     * @var ilCtrl
+     */
+    protected $ctrl;
+    /**
+     * @var ilTemplate
+     */
+    protected $tpl;
 
+    /**
+     * @param $parent_gui
+     */
+    public function __construct($parent_gui)
+    {
+        global $DIC;
 
-	/**
-	 * @param $parent_gui
-	 */
-	public function __construct($parent_gui) {
-		global $DIC;
+        $this->tpl      = $DIC->ui()->mainTemplate();
+        $this->ctrl     = $DIC->ctrl();
+        $this->parent   = $parent_gui;
+        $this->toolbar  = $DIC->toolbar();
+        $this->pl       = ilPhotoGalleryPlugin::getInstance();
+        $this->tabs_gui = $this->parent->tabs_gui;
+        $this->lng      = $DIC->language();
 
-		$this->tpl = $DIC->ui()->mainTemplate();
-		$this->ctrl = $DIC->ctrl();
-		$this->parent = $parent_gui;
-		$this->toolbar = $DIC->toolbar();
-		$this->pl = ilPhotoGalleryPlugin::getInstance();
-		$this->tabs_gui = $this->parent->tabs_gui;
-		$this->lng = $DIC->language();
+        //$this->tabs_gui->setBackTarget($this->pl->txt('back_to_diashow'), $this->ctrl->getLinkTargetByClass(srObjSliderGUI::class, srObjSliderGUI::CMD_INDEX));
 
-		//$this->tabs_gui->setBackTarget($this->pl->txt('back_to_diashow'), $this->ctrl->getLinkTargetByClass(srObjSliderGUI::class, srObjSliderGUI::CMD_INDEX));
+        $this->picture = new srObjPicture($_GET['picture_id']);
+    }
 
-		$this->picture = new srObjPicture($_GET['picture_id']);
-	}
+    /**
+     * @return bool
+     */
+    public function executeCommand()
+    {
+        $cmd = $this->ctrl->getCmd();
+        $this->ctrl->saveParameter($this, 'picture_id');
 
+        switch ($cmd) {
+            case '':
+                $this->show();
+                break;
+            default:
+                $this->$cmd();
+                break;
+        }
 
-	/**
-	 * @return bool
-	 */
-	public function executeCommand() {
-		$cmd = $this->ctrl->getCmd();
-		$this->ctrl->saveParameter($this, 'picture_id');
+        return true;
+    }
 
-		switch ($cmd) {
-			case '':
-				$this->show();
-				break;
-			default:
-				$this->$cmd();
-				break;
-		}
+    /**
+     * @return bool
+     * @description set $this->lng with your LanguageObject or return false to use global Language
+     */
+    protected function initLanguage()
+    {
+        global $DIC;
+        $this->lng = $DIC->language();
 
-		return true;
-	}
+        return true;
+    }
 
-
-	/**
-	 * @return bool
-	 * @description set $this->lng with your LanguageObject or return false to use global Language
-	 */
-	protected function initLanguage() {
-		global $DIC;
-		$this->lng = $DIC->language();
-
-		return true;
-	}
-
-
-	public function show() {
-		$form = new srObjExifFormGUI($this, new srObjExif($_GET['picture_id']));
-		$form->fillForm();
-		$this->tpl->setContent($form->getHTML());
-	}
+    public function show()
+    {
+        $form = new srObjExifFormGUI($this, new srObjExif($_GET['picture_id']));
+        $form->fillForm();
+        $this->tpl->setContent($form->getHTML());
+    }
 }
 
-?>
+
