@@ -26,92 +26,91 @@ require_once('Customizing/global/plugins/Services/Repository/RepositoryObject/Ph
 
 /**
  * Application class for ilObjPhotoGallery repository object.
- *
  * @author  Fabian Schmid <fs@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
- *
  * $Id$
  */
-class ilObjPhotoGallery extends ilObjectPlugin {
+class ilObjPhotoGallery extends ilObjectPlugin
+{
 
-	/**
-	 * @var bool
-	 */
-	protected $object;
+    /**
+     * @var bool
+     */
+    protected $object;
 
+    /**
+     * @param int $a_ref_id
+     */
+    public function __construct($a_ref_id = 0)
+    {
+        global $DIC;
+        /**
+         * @var $ilDB ilDB
+         */
+        parent::__construct($a_ref_id);
+        $this->db = $DIC->database();
+    }
 
-	/**
-	 * @param int $a_ref_id
-	 */
-	public function __construct($a_ref_id = 0) {
-		global $DIC;
-		/**
-		 * @var $ilDB ilDB
-		 */
-		parent::__construct($a_ref_id);
-		$this->db = $DIC->database();
-	}
+    final function initType()
+    {
+        $this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
+    }
 
+    public function doCreate()
+    {
+    }
 
-	final function initType() {
-		$this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
-	}
+    public function doRead()
+    {
+    }
 
+    public function doUpdate()
+    {
+    }
 
-	public function doCreate() {
-	}
+    public function doDelete()
+    {
+    }
 
+    /**
+     * @return bool
+     */
+    public function hasDirectory()
+    {
+        return is_dir($this->getDirectory());
+    }
 
-	public function doRead() {
-	}
+    public function createDirectory()
+    {
+        ilUtil::createDirectory($this->getDirectory());
+    }
 
+    /**
+     * @return string
+     */
+    public function getDirectory()
+    {
+        global $ilias;
 
-	public function doUpdate() {
-	}
+        return $_SERVER['DOCUMENT_ROOT'] . '/' . ILIAS_WEB_DIR . '/' . $ilias->client_id . '/' . $this->getType() . '/' . $this->getId();
+    }
 
+    /**
+     * @return srObjAlbum[]
+     */
+    public function getAlbumObjects()
+    {
+        return srObjAlbum::where(array('object_id' => $this->getId()))->orderBy('create_date')->get();
+    }
 
-	public function doDelete() {
-	}
-
-
-	/**
-	 * @return bool
-	 */
-	public function hasDirectory() {
-		return is_dir($this->getDirectory());
-	}
-
-
-	public function createDirectory() {
-		ilUtil::createDirectory($this->getDirectory());
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getDirectory() {
-		global $ilias;
-
-		return $_SERVER['DOCUMENT_ROOT'] . '/' . ILIAS_WEB_DIR . '/' . $ilias->client_id . '/' . $this->getType() . '/' . $this->getId();
-	}
-
-
-	/**
-	 * @return srObjAlbum[]
-	 */
-	public function getAlbumObjects() {
-		return srObjAlbum::where(array( 'object_id' => $this->getId() ))->orderBy('create_date')->get();
-	}
-
-
-	/**
-	 * @param                     $a_target_id
-	 * @param                     $a_copy_id
-	 * @param ilObjPhotoGallery   $new_obj
-	 */
-	public function doClone($a_target_id, $a_copy_id, ilObjPhotoGallery $new_obj) {
-	}
+    /**
+     * @param                     $a_target_id
+     * @param                     $a_copy_id
+     * @param ilObjPhotoGallery   $new_obj
+     */
+    public function doClone($a_target_id, $a_copy_id, ilObjPhotoGallery $new_obj)
+    {
+    }
 }
 
 ?>

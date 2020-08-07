@@ -28,59 +28,58 @@ include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
  * ListGUI implementation for PhotoGallery object plugin. This one
  * handles the presentation in container items (categories, courses, ...)
  * together with the corresponfing ...Access class.
- *
  * PLEASE do not create instances of larger classes here. Use the
  * ...Access class to get DB data and keep it small.
- *
  * @author        Fabian Schmid <fs@studer-raimann.ch>
  * @author        Martin Studer <ms@studer-raimann.ch>
- *
  */
-class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI {
+class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI
+{
 
-	function initType() {
-		$this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
-	}
+    function initType()
+    {
+        $this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
+    }
 
+    function getGuiClass()
+    {
+        return ilObjPhotoGalleryGUI::class;
+    }
 
-	function getGuiClass() {
-		return ilObjPhotoGalleryGUI::class;
-	}
+    function initCommands()
+    {
+        return array(
+            array(
+                'permission' => 'read',
+                'cmd'        => ilObjPhotoGalleryGUI::CMD_SHOW_CONTENT,
+                'default'    => true
+            ),
+            array(
+                'permission' => 'write',
+                'cmd'        => ilObjPhotoGalleryGUI::CMD_EDIT_PROPERTIES,
+                'txt'        => $this->txt('edit'),
+                'default'    => false
+            ),
+        );
+    }
 
+    /**
+     * @return array
+     */
+    function getProperties()
+    {
+        $props = array();
+        $this->plugin->includeClass('class.ilObjPhotoGalleryAccess.php');
+        if (!ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
+            $props[] = array(
+                'alert'    => true,
+                'property' => $this->txt('status'),
+                'value'    => $this->txt('offline')
+            );
+        }
 
-	function initCommands() {
-		return array(
-			array(
-				'permission' => 'read',
-				'cmd' => ilObjPhotoGalleryGUI::CMD_SHOW_CONTENT,
-				'default' => true
-			),
-			array(
-				'permission' => 'write',
-				'cmd' => ilObjPhotoGalleryGUI::CMD_EDIT_PROPERTIES,
-				'txt' => $this->txt('edit'),
-				'default' => false
-			),
-		);
-	}
-
-
-	/**
-	 * @return array
-	 */
-	function getProperties() {
-		$props = array();
-		$this->plugin->includeClass('class.ilObjPhotoGalleryAccess.php');
-		if (!ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
-			$props[] = array(
-				'alert' => true,
-				'property' => $this->txt('status'),
-				'value' => $this->txt('offline')
-			);
-		}
-
-		return $props;
-	}
+        return $props;
+    }
 }
 
 ?>
