@@ -217,11 +217,17 @@ class srObjPicture extends ActiveRecord
     {
         $destination_path = $this->getPicturePath();
         ilUtil::makeDirParents($destination_path);
-        $this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_PREVIEW . '.'
-            . $this->getSuffix(), self::SIZE_PREVIEW, self::SIZE_PREVIEW);
-        $this->cropImage($tmp_path, $destination_path . '/' . self::TITLE_MOSAIC . '.' . $this->getSuffix(), self::SIZE_MOSAIC, self::SIZE_MOSAIC);
+        // resize thumbnail/preview
+        $to_preview = $destination_path . '/' . self::TITLE_PREVIEW . '.' . $this->getSuffix();
+        $this->cropImage($tmp_path, $to_preview, self::SIZE_PREVIEW, self::SIZE_PREVIEW);
+
+        // resize mosaic
+        $to_mosaic = $destination_path . '/' . self::TITLE_MOSAIC . '.' . $this->getSuffix();
+        $this->cropImage($tmp_path, $to_mosaic, self::SIZE_MOSAIC, self::SIZE_MOSAIC);
+
+        // resizing presentation image
         $this->resizeImage($tmp_path, $destination_path . '/' . self::TITLE_PRESENTATION . '.'
-            . $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, true, self::DPI);
+            . $this->getSuffix(), self::SIZE_PRESENTATION, self::SIZE_PRESENTATION, self::DPI);
 
         $name = self::TITLE_ORIGINAL . '.' . $this->getSuffix();
         ilUtil::moveUploadedFile($tmp_path, $name, $destination_path . '/' . $name);
@@ -249,24 +255,43 @@ class srObjPicture extends ActiveRecord
     }
 
     /**
-     * @param      $a_from
-     * @param      $a_to
-     * @param      $a_width
-     * @param      $a_height
-     * @param bool $a_constrain_prop
-     * @param      $dpi
+     * @param $a_from
+     * @param $a_to
+     * @param $a_width
+     * @param $a_height
+     * @param $dpi
      */
-    public static function resizeImage($a_from, $a_to, $a_width, $a_height, $a_constrain_prop = false, $dpi)
+    public static function resizeImage($a_from, $a_to, $a_width, $a_height, $dpi)
     {
-        if ($a_constrain_prop) {
-            $size = " -geometry " . $a_width . "x" . $a_height . " ";
-        } else {
-            $size = " -resize " . $a_width . "x" . $a_height . "! ";
+        list($width, $height) = getimagesize($a_from);
+
+        $ratio = $width / $height;
+
+        if ($width > $a_width || $height > $a_height) {
+            switch (true) {
+                case ($ratio > 1): // landscape
+                    $resize_factor = $a_width / $width;
+                    break;
+                case ($ratio < 1): // portrait
+                    $resize_factor = $a_height / $height;
+                    break;
+                case ($ratio == 1): // square
+                    $resize_factor = 1;
+                    break;
+            }
+
         }
+
+        $a_width  = $width * $resize_factor;
+        $a_height = $height * $resize_factor;
+
+        $size = " -resize " . $a_width . "x" . $a_height . "! ";
+
         $density = '';
         if ($dpi) {
             $density = " -density " . $dpi . " ";
         }
+
         $convert_cmd = ilUtil::escapeShellArg($a_from) . " " . $size . $density . ilUtil::escapeShellArg($a_to);
         ilUtil::execConvert($convert_cmd);
     }
