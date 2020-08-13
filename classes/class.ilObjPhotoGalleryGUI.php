@@ -118,7 +118,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         }
         $cmd        = $this->ctrl->getCmd();
         $next_class = $this->ctrl->getNextClass($this);
-        $this->tpl->getStandardTemplate();
+        $this->tpl->loadStandardTemplate();
         $this->setTitleAndDescription();
         $this->setLocator();
 
@@ -130,26 +130,26 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $this->tabs_gui->activateTab(self::TAB_PERMISSIONS);
                 $perm_gui = new ilPermissionGUI($this);
                 $this->ctrl->forwardCommand($perm_gui);
-                $this->tpl->show();
+                $this->tpl->printToStdout();
                 break;
             case 'ilinfoscreengui':
                 $this->setTabs();
                 $this->tabs_gui->activateTab(self::TAB_INFO);
                 $info_gui = new ilInfoScreenGUI($this);
                 $this->ctrl->forwardCommand($info_gui);
-                $this->tpl->show();
+                $this->tpl->printToStdout();
                 break;
             case 'srobjalbumgui':
                 $this->setTabs();
                 $this->tabs_gui->activateTab(self::TAB_CONTENT);
                 $album_gui = new srObjAlbumGUI($this);
                 $this->ctrl->forwardCommand($album_gui);
-                $this->tpl->show();
+                $this->tpl->printToStdout();
                 break;
             case 'srobjpicturegui':
                 $picture_gui = new srObjPictureGUI($this);
                 $this->ctrl->forwardCommand($picture_gui);
-                $this->tpl->show();
+                $this->tpl->printToStdout();
                 break;
             case 'ilcommonactiondispatchergui';
                 include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
@@ -165,7 +165,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                         break;
                     case atTableGUI::CMD_SAVE:
                         $this->save();
-                        $this->tpl->show();
+                        $this->tpl->printToStdout();
                         break;
                     case atTableGUI::CMD_CANCEL:
                         $this->cancel();
@@ -174,11 +174,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                     case self::CMD_EDIT_PROPERTIES:
                         $this->setTabs();
                         $this->edit();
-                        $this->tpl->show();
+                        $this->tpl->printToStdout();
                         break;
                     case atTableGUI::CMD_UPDATE:
                         parent::update();
-                        $this->tpl->show();
+                        $this->tpl->printToStdout();
                         break;
                     case self::CMD_MANAGE_ALBUMS:
                         $this->setTabs();
@@ -186,7 +186,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                         $this->setSubTabsContent();
                         $this->tabs_gui->activateSubTab(self::TAB_MANAGE_ALBUMS);
                         $this->manageAlbums();
-                        $this->tpl->show();
+                        $this->tpl->printToStdout();
                         break;
                     case self::CMD_INFO_SCREEN:
                         $this->setTabs();
@@ -197,7 +197,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 
                         $this->tabs_gui->activateTab(self::TAB_INFO);
 
-                        $this->tpl->show();
+                        $this->tpl->printToStdout();
                         break;
                     case self::CMD_SHOW_CONTENT:
                     case self::CMD_LIST_ALBUMS:
@@ -207,7 +207,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                         $this->setSubTabsContent();
                         $this->tabs_gui->activateSubTab(self::TAB_LIST_ALBUMS);
                         $this->listAlbums();
-                        $this->tpl->show();
+                        $this->tpl->printToStdout();
                         break;
                 }
                 break;
