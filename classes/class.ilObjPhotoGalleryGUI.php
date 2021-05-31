@@ -177,7 +177,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                         $this->tpl->printToStdout();
                         break;
                     case atTableGUI::CMD_UPDATE:
-                        parent::update();
+                        $this->update();
                         $this->tpl->printToStdout();
                         break;
                     case self::CMD_MANAGE_ALBUMS:
@@ -217,6 +217,23 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     public function edit()
     {
         $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+        $this->tpl->setContent($this->initEditForm()->getHTML());
+    }
+
+
+    /**
+     * @param ilPropertyFormGUI|null $form
+     */
+    public function editObject(ilPropertyFormGUI $form = null) {
+        $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+        $this->tpl->setContent($form->getHTML());
+    }
+
+
+    /**
+     * @return ilPropertyFormGUI
+     */
+    public function initEditForm() {
         $form = new ilPropertyFormGUI();
         $form->setTitle($this->pl->txt('edit'));
         // title
@@ -231,10 +248,32 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $form->addItem($ta);
         $ta->setValue($this->object->getDescription());
         $ti->setValue($this->object->getTitle());
+
+        // tile image
+        $obj_service = $this->getObjectService();
+        $form = $obj_service->commonSettings()->legacyForm($form, $this->object)->addTileImage();
+
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
         $form->addCommandButton(self::CMD_SHOW_CONTENT, $this->pl->txt('cancel'));
-        $this->tpl->setContent($form->getHTML());
+
+        return $form;
+    }
+
+    public function update() {
+        $form = $this->initEditForm();
+
+        if (!$form->checkInput()) {
+            $form->setValuesByPost();
+            ilUtil::sendFailure($GLOBALS['DIC']->language()->txt('err_check_input'));
+            $this->editObject($form);
+        }
+
+        // tile image
+        $obj_service = $this->getObjectService();
+        $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTileImage();
+        // title and description
+        parent::update();
     }
 
     public function saveObject()

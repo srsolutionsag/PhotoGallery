@@ -273,11 +273,11 @@ class srObjAlbumGUI
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
         } else {
-            if (!sizeof($_POST['album_ids']) and !$_GET['album_id']) {
+            if ((!isset($_POST['album_ids']) || !sizeof($_POST['album_ids'])) and !$_GET['album_id']) {
                 ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
                 $this->ctrl->redirect($this, '');
             }
-            if (sizeof($_POST['album_ids'])) {
+            if (isset($_POST['album_ids']) && sizeof($_POST['album_ids'])) {
                 $arr_album_ids = $_POST['album_ids'];
             } else {
                 $arr_album_ids[] = $_GET['album_id'];
@@ -329,12 +329,11 @@ class srObjAlbumGUI
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            //TODO album_ids ist der falsche Begriff
-            if (!sizeof($_POST['album_ids']) and !$_GET['album_id']) {
+            if ((!isset($_POST['album_ids']) || !sizeof($_POST['album_ids'])) and !$_GET['album_id']) {
                 ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
                 $this->ctrl->redirect($this, '');
             }
-            if (sizeof($_POST['album_ids'])) {
+            if (isset($_POST['album_ids']) && sizeof($_POST['album_ids'])) {
                 $arr_album_id = $_POST['album_ids'];
             } else {
                 $arr_album_id[] = $_GET['album_id'];

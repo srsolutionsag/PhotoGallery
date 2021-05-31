@@ -36,9 +36,16 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
     //TODO GET ersetzen
     protected function initFormActionsAndCmdButtons()
     {
-        $this->setFormAction($this->ctrl->getFormAction($this->parent_obj));
+        $this->setFormAction($this->ctrl->getFormActionByClass(srObjAlbumGUI::class));
         if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
             //	$this->addHeaderCommand($this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_ADD), $this->pl->txt('create_album'));
+        }
+
+        $this->setSelectAllCheckbox('album_ids[]'); //add to checkbox in tpl
+        $this->addMultiCommand(self::CMD_DOWNLOAD, $this->pl->txt('download'));
+
+        if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
+            $this->addMultiCommand(self::CMD_CONFIRM_DELETE, $this->pl->txt('delete'));
         }
     }
 
@@ -72,15 +79,10 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
             $this->pl->txt('sort_direction_' . $srObjAlbum->getSortDirection()),
         );
         $this->tpl->setVariable('SORTING', implode(', ', $sortings));
-        if ($this->parent_cmd == 'manage') {
-            $this->tpl->setCurrentBlock("edit_checkbox");
-            $this->tpl->setVariable("ID", $a_set["id"]);
-            $this->tpl->parseCurrentBlock();
-            //checkbox, select all option
-            $this->addMultiCommand(self::CMD_DOWNLOAD_ALBUM, $this->pl->txt('download'));
-            $this->addMultiCommand(self::CMD_CONFIRM_DELETE, $this->pl->txt('delete'));
-            $this->setSelectAllCheckbox('album_ids[]'); //add to checkbox in tpl
-        }
+
+        $this->tpl->setCurrentBlock("edit_checkbox");
+        $this->tpl->setVariable("ID", $a_set["id"]);
+        $this->tpl->parseCurrentBlock();
 
         //TODO GET ersetzen
         // show Action "Download"
