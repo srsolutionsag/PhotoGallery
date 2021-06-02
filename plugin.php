@@ -1,6 +1,6 @@
 <?php
 $id                = 'xpho';
-$version           = '2.6.1';
+$version           = '2.6.2';
 $ilias_min_version = '6.000';
 $ilias_max_version = '6.999';
 $responsible       = 'studer + raimann ag';
