@@ -97,7 +97,7 @@ class ilObjPhotoGallery extends ilObjectPlugin
      */
     public function getAlbumObjects()
     {
-        return srObjAlbum::where(array('object_id' => $this->getId()))->orderBy('create_date')->get();
+        return srObjAlbum::where(array('object_id' => $this->getId()))->orderBy('create_date')->orderBy('title')->get();
     }
 
     /**
