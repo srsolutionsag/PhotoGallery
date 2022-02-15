@@ -235,14 +235,15 @@ class srObjPictureGUI
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            if (!sizeof($_POST['picture_ids']) and !$_REQUEST['picture_id']) {
-                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
-                $this->ctrl->redirect($this, '');
-            }
-            if (sizeof($_POST['picture_ids'])) {
+            if(!empty($_REQUEST['picture_id'])) {
+                $arr_picture_ids[] = $_REQUEST['picture_id'];
+            } elseif (!empty($_REQUEST['picture_ids'])) {
                 $arr_picture_ids = $_POST['picture_ids'];
             } else {
-                $arr_picture_ids[] = $_REQUEST['picture_id'];
+                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
+                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
+                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
+                $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
             }
             ilObjPhotoGalleryGUI::executeDownload($arr_picture_ids);
         }
