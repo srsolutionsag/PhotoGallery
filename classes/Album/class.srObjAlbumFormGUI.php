@@ -41,12 +41,12 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
     {
         parent::__construct();
         global $DIC;
-        $this->ctrl       = $DIC->ctrl();
-        $this->lng        = $DIC->language();
-        $this->user       = $DIC->user();
-        $this->album      = $album;
+        $this->ctrl = $DIC->ctrl();
+        $this->lng = $DIC->language();
+        $this->user = $DIC->user();
+        $this->album = $album;
         $this->parent_gui = $parent_gui;
-        $this->pl         = ilPhotoGalleryPlugin::getInstance();
+        $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
         $this->initForm();
     }
@@ -64,7 +64,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
         $this->addItem($title);
         $desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
         $this->addItem($desc);
-        $cmd=$this->ctrl->getCmd();
+        $cmd = $this->ctrl->getCmd();
         switch ($this->ctrl->getCmd()) {
             //			case atTableGUI::CMD_UPDATE:
             case atTableGUI::CMD_EDIT:
@@ -111,9 +111,9 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
     public function fillForm()
     {
         $array = array(
-            'title'          => $this->album->getTitle(),
-            'description'    => $this->album->getDescription(),
-            'sort_type'      => $this->album->getSortType(),
+            'title' => $this->album->getTitle(),
+            'description' => $this->album->getDescription(),
+            'sort_type' => $this->album->getSortType(),
             'sort_direction' => $this->album->getSortDirection(),
         );
         $this->setValuesByArray($array, true);

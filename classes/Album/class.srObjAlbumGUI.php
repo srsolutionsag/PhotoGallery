@@ -8,7 +8,6 @@
  */
 class srObjAlbumGUI
 {
-
     const CMD_LIST_PICTURES = 'listPictures';
     const CMD_MANAGE_PICTURES = 'managePictures';
     const CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS = 'redirectToGalleryListAlbums';
@@ -62,17 +61,17 @@ class srObjAlbumGUI
     public function __construct($parent_gui)
     {
         global $DIC;
-        $this->tpl        = $DIC->ui()->mainTemplate();
-        $this->access     = $DIC->access();
-        $this->ctrl       = $DIC->ctrl();
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->access = $DIC->access();
+        $this->ctrl = $DIC->ctrl();
         $this->parent_gui = $parent_gui;
-        $this->ilLocator  = $DIC["ilLocator"];
+        $this->ilLocator = $DIC["ilLocator"];
         //$this->toolbar = $DIC->toolbar();
         $this->tabs_gui = $DIC->tabs();
         $this->tabs_gui->clearTargets();
 
         $this->obj_album = srObjAlbum::find($_GET['album_id']);
-        $this->pl        = ilPhotoGalleryPlugin::getInstance();
+        $this->pl = ilPhotoGalleryPlugin::getInstance();
 
         $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $_GET['album_id']);
     }
@@ -295,7 +294,7 @@ class srObjAlbumGUI
                  * @var $album srObjAlbum
                  */
                 $album = srObjAlbum::find($album_id);
-                $url   = $album->getPreviewWebSrc();
+                $url = $album->getPreviewWebSrc();
                 $c_gui->addItem('album_ids[]', $album_id, $album->getTitle(), $url);
             }
             $this->tpl->setContent($c_gui->getHTML());
@@ -353,5 +352,3 @@ class srObjAlbumGUI
         ilObjPhotoGalleryGUI::executeDownload($arr_picture_ids);
     }
 }
-
-
