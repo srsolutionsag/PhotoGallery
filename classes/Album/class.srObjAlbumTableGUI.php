@@ -61,9 +61,9 @@ class srObjAlbumTableGUI extends atTableGUI
         /**
          * @var $srObjAlbum srObjAlbum
          */
-        $srObjAlbum        = srObjAlbum::find($_GET['album_id']);
+        $srObjAlbum = srObjAlbum::find($_GET['album_id']);
         $this->table_title = $srObjAlbum->getTitle();
-        $this->table_id    = 'alb' . $srObjAlbum->getId();
+        $this->table_id = 'alb' . $srObjAlbum->getId();
     }
 
     /**
@@ -156,5 +156,3 @@ class srObjAlbumTableGUI extends atTableGUI
         $this->pl = ilPhotoGalleryPlugin::getInstance();
     }
 }
-
-

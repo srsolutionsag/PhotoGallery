@@ -24,7 +24,6 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
      */
     protected function initTableProperties()
     {
-
         $this->table_title = ilObject2::_lookupTitle(ilObject2::_lookupObjId($_GET['ref_id']));
     }
 
@@ -150,11 +149,8 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
      */
     protected function initLanguage()
     {
-
         $this->pl = ilPhotoGalleryPlugin::getInstance();
 
         return false;
     }
 }
-
-

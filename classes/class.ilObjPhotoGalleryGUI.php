@@ -1,24 +1,24 @@
 <?php
 /*
-	+-----------------------------------------------------------------------------+
-	| ILIAS open source                                                           |
-	+-----------------------------------------------------------------------------+
-	| Copyright (c) 1998-2009 ILIAS open source, University of Cologne            |
-	|                                                                             |
-	| This program is free software; you can redistribute it and/or               |
-	| modify it under the terms of the GNU General Public License                 |
-	| as published by the Free Software Foundation; either version 2              |
-	| of the License, or (at your option) any later version.                      |
-	|                                                                             |
-	| This program is distributed in the hope that it will be useful,             |
-	| but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-	| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-	| GNU General Public License for more details.                                |
-	|                                                                             |
-	| You should have received a copy of the GNU General Public License           |
-	| along with this program; if not, write to the Free Software                 |
-	| Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-	+-----------------------------------------------------------------------------+
+    +-----------------------------------------------------------------------------+
+    | ILIAS open source                                                           |
+    +-----------------------------------------------------------------------------+
+    | Copyright (c) 1998-2009 ILIAS open source, University of Cologne            |
+    |                                                                             |
+    | This program is free software; you can redistribute it and/or               |
+    | modify it under the terms of the GNU General Public License                 |
+    | as published by the Free Software Foundation; either version 2              |
+    | of the License, or (at your option) any later version.                      |
+    |                                                                             |
+    | This program is distributed in the hope that it will be useful,             |
+    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+    | GNU General Public License for more details.                                |
+    |                                                                             |
+    | You should have received a copy of the GNU General Public License           |
+    | along with this program; if not, write to the Free Software                 |
+    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
+    +-----------------------------------------------------------------------------+
 */
 
 /**
@@ -34,7 +34,6 @@
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 {
-
     const CMD_INFO_SCREEN = 'infoScreen';
     const CMD_EDIT_PROPERTIES = 'editProperties';
     const CMD_LIST_ALBUMS = 'list_albums';
@@ -89,13 +88,13 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     {
         global $DIC;
 
-        $this->tpl      = $DIC->ui()->mainTemplate();
-        $this->history  = $DIC["ilNavigationHistory"];
-        $this->access   = $DIC->access();
-        $this->ctrl     = $DIC->ctrl();
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->history = $DIC["ilNavigationHistory"];
+        $this->access = $DIC->access();
+        $this->ctrl = $DIC->ctrl();
         $this->tabs_gui = $DIC->tabs();
-        $this->pl       = ilPhotoGalleryPlugin::getInstance();
-        $this->event    = $DIC->event();
+        $this->pl = ilPhotoGalleryPlugin::getInstance();
+        $this->event = $DIC->event();
 
         // add a link pointing to this object in footer [The "Permanent Link" in the footer]
         if ($this->object !== null) {
@@ -106,7 +105,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     /**
      * @return string
      */
-    final function getType()
+    final public function getType()
     {
         return ilPhotoGalleryPlugin::PLUGIN_ID;
     }
@@ -116,7 +115,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         if ($this->access->checkAccess('read', '', $this->ref_id)) {
             $this->history->addItem($this->ref_id, $this->ctrl->getLinkTarget($this, $this->getStandardCmd()), $this->getType(), '');
         }
-        $cmd        = $this->ctrl->getCmd();
+        $cmd = $this->ctrl->getCmd();
         $next_class = $this->ctrl->getNextClass($this);
         $this->tpl->loadStandardTemplate();
         $this->setTitleAndDescription();
@@ -151,7 +150,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $this->ctrl->forwardCommand($picture_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'ilcommonactiondispatchergui';
+            case 'ilcommonactiondispatchergui':
                 include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
                 $this->ctrl->forwardCommand($gui);
@@ -224,7 +223,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     /**
      * @param ilPropertyFormGUI|null $form
      */
-    public function editObject(ilPropertyFormGUI $form = null) {
+    public function editObject(ilPropertyFormGUI $form = null)
+    {
         $this->tabs_gui->activateTab(self::TAB_SETTINGS);
         $this->tpl->setContent($form->getHTML());
     }
@@ -233,7 +233,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     /**
      * @return ilPropertyFormGUI
      */
-    public function initEditForm() {
+    public function initEditForm()
+    {
         $form = new ilPropertyFormGUI();
         $form->setTitle($this->pl->txt('edit'));
         // title
@@ -260,7 +261,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         return $form;
     }
 
-    public function update() {
+    public function update()
+    {
         $form = $this->initEditForm();
 
         if (!$form->checkInput()) {
@@ -292,7 +294,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     /**
      * @return string
      */
-    function getAfterCreationCmd()
+    public function getAfterCreationCmd()
     {
         return self::CMD_LIST_ALBUMS;
     }
@@ -300,7 +302,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     /**
      * @return string
      */
-    function getStandardCmd()
+    public function getStandardCmd()
     {
         return self::CMD_LIST_ALBUMS;
     }
@@ -390,7 +392,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     {
         global $DIC;
         $ilCtrl = $DIC->ctrl();
-        $pl     = ilPhotoGalleryPlugin::getInstance();
+        $pl = ilPhotoGalleryPlugin::getInstance();
         //TODO bringen wir hier das GET weg?
         if (!$DIC->access()->checkAccess('read', '', $_GET['ref_id'])) {
             ilUtil::sendFailure($pl->txt('permission_denied'), true);
@@ -404,8 +406,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 // only one picture ==> do not make a .zip !
                 $picture_id = $arr_picture_ids[0];
 
-                $picture            = srObjPicture::find($picture_id);
-                $title              = $picture->getTitle();
+                $picture = srObjPicture::find($picture_id);
+                $title = $picture->getTitle();
                 $oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
 
                 try {
@@ -414,15 +416,15 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                     ilUtil::sendInfo($e->getMessage(), true);
                 }
             } else {
-                $zip    = PATH_TO_ZIP;
+                $zip = PATH_TO_ZIP;
                 $tmpdir = ilUtil::ilTempnam();
                 ilUtil::makeDir($tmpdir);
                 $zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
                 ilUtil::makeDir($zipbasedir);
                 $tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
                 foreach ($arr_picture_ids as $picture_id) {
-                    $picture            = srObjPicture::find($picture_id);
-                    $title              = $picture->getTitle();
+                    $picture = srObjPicture::find($picture_id);
+                    $title = $picture->getTitle();
                     $oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
                     $newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilUtil::getASCIIFilename($title . '_' . $picture->getId() . '.'
                             . $picture->getSuffix());
@@ -447,11 +449,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     /**
      * @param ilObject $gallery
      */
-    function afterSave(ilObject $gallery)
+    public function afterSave(ilObject $gallery)
     {
         $this->event->raise('Services/Object', 'afterSave', array(
-            'object'   => $gallery,
-            'obj_id'   => $gallery->getId(),
+            'object' => $gallery,
+            'obj_id' => $gallery->getId(),
             'obj_type' => $gallery->getType()
         ));
 

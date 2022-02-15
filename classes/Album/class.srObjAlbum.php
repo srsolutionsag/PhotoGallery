@@ -8,7 +8,6 @@
  */
 class srObjAlbum extends ActiveRecord
 {
-
     const TABLE_NAME = 'sr_obj_pg_album';
 
     /**

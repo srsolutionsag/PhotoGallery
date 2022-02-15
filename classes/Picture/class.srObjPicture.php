@@ -249,7 +249,7 @@ class srObjPicture extends ActiveRecord
      */
     public static function cropImage($a_from, $a_to, $a_width, $a_height)
     {
-        $crop        = "-resize " . $a_width . "x" . $a_height . "^ -gravity Center -crop " . $a_width . "x" . $a_height . "+0+0 +repage ";
+        $crop = "-resize " . $a_width . "x" . $a_height . "^ -gravity Center -crop " . $a_width . "x" . $a_height . "+0+0 +repage ";
         $convert_cmd = ilUtil::escapeShellArg($a_from) . " " . $crop . ilUtil::escapeShellArg($a_to);
         ilUtil::execConvert($convert_cmd);
     }
@@ -279,10 +279,9 @@ class srObjPicture extends ActiveRecord
                     $resize_factor = 1;
                     break;
             }
-
         }
 
-        $a_width  = $width * $resize_factor;
+        $a_width = $width * $resize_factor;
         $a_height = $height * $resize_factor;
 
         $size = " -resize " . $a_width . "x" . $a_height . "! ";
