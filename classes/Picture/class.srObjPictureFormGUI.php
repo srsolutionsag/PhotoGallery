@@ -141,6 +141,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
         if ($this->getInput('preview') == 1) {
             $this->album->setPreviewId($_GET['picture_id']);
         }
+        // remove preview image if current picture is preview and checkbox has been unselected
+        if($this->picture->getId() == $this->album->getPreviewId() && $this->getInput('preview') == "") {
+            $this->album->setPreviewId(0);
+        }
 
         return true;
     }
