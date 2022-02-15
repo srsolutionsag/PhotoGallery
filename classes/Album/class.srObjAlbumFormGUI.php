@@ -64,6 +64,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
         $this->addItem($title);
         $desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
         $this->addItem($desc);
+        $cmd=$this->ctrl->getCmd();
         switch ($this->ctrl->getCmd()) {
             //			case atTableGUI::CMD_UPDATE:
             case atTableGUI::CMD_EDIT:
@@ -72,6 +73,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
                 $this->addItem($date_input);
                 break;
             case atTableGUI::CMD_ADD:
+            case atTableGUI::CMD_CREATE:
                 $date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
                 $date_input->setDate(new ilDate(date('Y-m-d'), IL_CAL_DATE));
                 $this->addItem($date_input);
