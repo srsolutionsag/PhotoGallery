@@ -211,6 +211,12 @@ class srObjPictureGUI
                     $srObjPicture = srObjPicture::find($pic_id);
                     //saveAlbumID before Deletion
                     $album_id = $srObjPicture->getAlbumId();
+                    //if the current picture serves as the album's preview image remove the preview before deletion
+                    $srObjAlbum = srObjAlbum::find($album_id);
+                    if($srObjPicture->getId() == $srObjAlbum->getPreviewId()) {
+                        $srObjAlbum->setPreviewId(0);
+                        $srObjAlbum->update();
+                    }
 
                     $srObjPicture->delete();
                 }
