@@ -45,11 +45,11 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
     {
         parent::__construct();
         global $DIC;
-        $this->ctrl       = $DIC->ctrl();
-        $this->user       = $DIC->user();
-        $this->picture    = $picture;
+        $this->ctrl = $DIC->ctrl();
+        $this->user = $DIC->user();
+        $this->picture = $picture;
         $this->parent_gui = $parent_gui;
-        $this->pl         = ilPhotoGalleryPlugin::getInstance();
+        $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'picture_id');
         $this->album = new srObjAlbum($_GET['album_id']);
         $this->initForm();
@@ -108,10 +108,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
     public function fillForm()
     {
         $array = array(
-            'title'       => $this->picture->getTitle(),
+            'title' => $this->picture->getTitle(),
             'description' => $this->picture->getDescription(),
-            'preview'     => $this->album->getPreviewId() == $this->picture->getId(),
-            'suffix'      => $this->picture->getSuffix(),
+            'preview' => $this->album->getPreviewId() == $this->picture->getId(),
+            'suffix' => $this->picture->getSuffix(),
         );
         $this->setValuesByArray($array, true);
     }
@@ -140,6 +140,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
         $this->picture->setCreateDate($date); // TODO bei MultipleFileUpload Exif-Daten verwenden
         if ($this->getInput('preview') == 1) {
             $this->album->setPreviewId($_GET['picture_id']);
+        }
+        // remove preview image if current picture is preview and checkbox has been unselected
+        if ($this->picture->getId() == $this->album->getPreviewId() && $this->getInput('preview') == "") {
+            $this->album->setPreviewId(0);
         }
 
         return true;
@@ -174,12 +178,12 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
             $this->picture->create();
             $this->picture->uploadPicture($_FILES['upload_files']['tmp_name']);
             // create answer object
-            $response               = new stdClass();
-            $response->fileName     = $_FILES['upload_files']['name'];
-            $response->fileSize     = intval($_FILES['upload_files']['size']);
-            $response->fileType     = $_FILES['upload_files']['type'];
+            $response = new stdClass();
+            $response->fileName = $_FILES['upload_files']['name'];
+            $response->fileSize = intval($_FILES['upload_files']['size']);
+            $response->fileType = $_FILES['upload_files']['type'];
             $response->fileUnzipped = '';
-            $response->error        = null;
+            $response->error = null;
 
             return $response;
         }

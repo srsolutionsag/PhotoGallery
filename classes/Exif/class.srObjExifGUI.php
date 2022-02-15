@@ -35,13 +35,13 @@ class srObjExifGUI
     {
         global $DIC;
 
-        $this->tpl      = $DIC->ui()->mainTemplate();
-        $this->ctrl     = $DIC->ctrl();
-        $this->parent   = $parent_gui;
-        $this->toolbar  = $DIC->toolbar();
-        $this->pl       = ilPhotoGalleryPlugin::getInstance();
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->ctrl = $DIC->ctrl();
+        $this->parent = $parent_gui;
+        $this->toolbar = $DIC->toolbar();
+        $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->tabs_gui = $this->parent->tabs_gui;
-        $this->lng      = $DIC->language();
+        $this->lng = $DIC->language();
 
         //$this->tabs_gui->setBackTarget($this->pl->txt('back_to_diashow'), $this->ctrl->getLinkTargetByClass(srObjSliderGUI::class, srObjSliderGUI::CMD_INDEX));
 
@@ -87,5 +87,3 @@ class srObjExifGUI
         $this->tpl->setContent($form->getHTML());
     }
 }
-
-

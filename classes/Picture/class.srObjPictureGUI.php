@@ -46,14 +46,14 @@ class srObjPictureGUI
     public function __construct($parent_gui)
     {
         global $DIC;
-        $this->tpl         = $DIC->ui()->mainTemplate();
-        $this->access      = $DIC->access();
-        $this->ctrl        = $DIC->ctrl();
-        $this->parent      = $parent_gui;
-        $this->toolbar     = $DIC->toolbar();
-        $this->tabs_gui    = $DIC->tabs();
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->access = $DIC->access();
+        $this->ctrl = $DIC->ctrl();
+        $this->parent = $parent_gui;
+        $this->toolbar = $DIC->toolbar();
+        $this->tabs_gui = $DIC->tabs();
         $this->obj_picture = srObjPicture::find($_GET['picture_id']);
-        $this->pl          = ilPhotoGalleryPlugin::getInstance();
+        $this->pl = ilPhotoGalleryPlugin::getInstance();
 
         $this->ctrl->setParameterByClass(self::class, 'album_id', $_GET['album_id']);
         srObjAlbumGUI::setLocator($_GET['album_id']);
@@ -118,9 +118,9 @@ class srObjPictureGUI
         $form = new srObjPictureFormGUI($this, new srObjPicture());
         $form->setValuesByPost();
         $response = $form->saveObject();
-//			if ($response === false) {
-//				ilUtil::sendFailure($this->pl->txt('wrong_filetype'), true);
-//			}
+        //			if ($response === false) {
+        //				ilUtil::sendFailure($this->pl->txt('wrong_filetype'), true);
+        //			}
         if ($response !== false) {
             header('Vary: Accept');
             header('Content-type: text/plain');
@@ -190,7 +190,7 @@ class srObjPictureGUI
                  * @var $srObjPicture srObjPicture
                  */
                 $srObjPicture = srObjPicture::find($picture_id);
-                $url          = $srObjPicture->getPreviewWebSrc();
+                $url = $srObjPicture->getPreviewWebSrc();
                 $c_gui->addItem('picture_ids[]', $picture_id, $srObjPicture->getTitle(), $url);
             }
             $this->tpl->setContent($c_gui->getHTML());
@@ -211,6 +211,12 @@ class srObjPictureGUI
                     $srObjPicture = srObjPicture::find($pic_id);
                     //saveAlbumID before Deletion
                     $album_id = $srObjPicture->getAlbumId();
+                    //if the current picture serves as the album's preview image remove the preview before deletion
+                    $srObjAlbum = srObjAlbum::find($album_id);
+                    if ($srObjPicture->getId() == $srObjAlbum->getPreviewId()) {
+                        $srObjAlbum->setPreviewId(0);
+                        $srObjAlbum->update();
+                    }
 
                     $srObjPicture->delete();
                 }
@@ -229,14 +235,15 @@ class srObjPictureGUI
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            if (!sizeof($_POST['picture_ids']) and !$_REQUEST['picture_id']) {
-                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
-                $this->ctrl->redirect($this, '');
-            }
-            if (sizeof($_POST['picture_ids'])) {
+            if (!empty($_REQUEST['picture_id'])) {
+                $arr_picture_ids[] = $_REQUEST['picture_id'];
+            } elseif (!empty($_REQUEST['picture_ids'])) {
                 $arr_picture_ids = $_POST['picture_ids'];
             } else {
-                $arr_picture_ids[] = $_REQUEST['picture_id'];
+                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
+                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
+                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
+                $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
             }
             ilObjPhotoGalleryGUI::executeDownload($arr_picture_ids);
         }
@@ -255,5 +262,3 @@ class srObjPictureGUI
         ilUtil::deliverFile($srObjPicture->getSrc($_GET['picture_type']), $srObjPicture->getTitle() . '.' . $srObjPicture->getSuffix());
     }
 }
-
-

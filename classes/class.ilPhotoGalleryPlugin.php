@@ -8,7 +8,6 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
  */
 class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 {
-
     const PLUGIN_ID = 'xpho';
     const PLUGIN_NAME = 'PhotoGallery';
     /**
@@ -62,5 +61,3 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
         return true;
     }
 }
-
-

@@ -40,11 +40,11 @@ class srObjExifFormGUI extends ilPropertyFormGUI
     {
         parent::__construct();
         global $DIC;
-        $this->ctrl       = $DIC->ctrl();
-        $this->tpl        = $DIC->ui()->mainTemplate();
-        $this->exif       = $exif;
+        $this->ctrl = $DIC->ctrl();
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->exif = $exif;
         $this->parent_gui = $parent_gui;
-        $this->ilLocator  = $DIC["ilLocator"];
+        $this->ilLocator = $DIC["ilLocator"];
 
         $this->ctrl->saveParameter($parent_gui, 'picture_id');
         $this->pl = ilPhotoGalleryPlugin::getInstance();
@@ -83,7 +83,7 @@ class srObjExifFormGUI extends ilPropertyFormGUI
     public function fillForm()
     {
         $array = array(
-            'title'       => $this->parent_gui->picture->getTitle(),
+            'title' => $this->parent_gui->picture->getTitle(),
             'description' => $this->parent_gui->picture->getDescription(),
 
         );
@@ -92,7 +92,6 @@ class srObjExifFormGUI extends ilPropertyFormGUI
 
     public function saveObject()
     {
-
         if ($this) {
             return false;
         }

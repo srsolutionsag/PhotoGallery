@@ -35,7 +35,7 @@ abstract class atTableGUI extends ilTable2GUI
     /**
      * @var int
      */
-    static $num = 0;
+    public static $num = 0;
     /**
      * @var ilObjUser
      */
@@ -60,9 +60,9 @@ abstract class atTableGUI extends ilTable2GUI
     public function __construct($a_parent_obj, $a_parent_cmd)
     {
         global $DIC;
-        $this->usr    = $DIC->user();
+        $this->usr = $DIC->user();
         $this->access = $DIC->access();
-        $this->ctrl   = $DIC->ctrl();
+        $this->ctrl = $DIC->ctrl();
         if ($this->initLanguage() === false) {
             $this->lng = $DIC->language();
         }
@@ -137,7 +137,7 @@ abstract class atTableGUI extends ilTable2GUI
     /**
      * @param ilFormPropertyGUI $item
      */
-    final function addFilterItemToForm(ilFormPropertyGUI $item)
+    final public function addFilterItemToForm(ilFormPropertyGUI $item)
     {
         /**
          * @var $item ilTextInputGUI
@@ -150,7 +150,7 @@ abstract class atTableGUI extends ilTable2GUI
     /**
      * @return bool
      */
-    final function initStandardTableColumns()
+    final public function initStandardTableColumns()
     {
         $data = $this->getData();
         if (count($data) === 0) {
@@ -169,7 +169,7 @@ abstract class atTableGUI extends ilTable2GUI
      * @internal    param array $_set
      * @description override, when using own columns
      */
-    final function fillRow($a_set)
+    final public function fillRow($a_set)
     {
         if ($this->fillTableRow($a_set) === false) {
             self::$num++;
@@ -235,13 +235,13 @@ abstract class atTableGUI extends ilTable2GUI
      */
     public function getNavigationParametersAsArray()
     {
-        $hits          = $this->usr->getPref('hits_per_page');
-        $parameters    = explode(':', $_GET[$this->getNavParameter()]);
+        $hits = $this->usr->getPref('hits_per_page');
+        $parameters = explode(':', $_GET[$this->getNavParameter()]);
         $return_values = array(
-            'from'       => $parameters[2] ? $parameters[2] : 0,
-            'to'         => $parameters[2] ? $parameters[2] + $hits - 1 : $hits - 1,
+            'from' => $parameters[2] ? $parameters[2] : 0,
+            'to' => $parameters[2] ? $parameters[2] + $hits - 1 : $hits - 1,
             'sort_field' => $parameters[0] ? $parameters[0] : false,
-            'order'      => $parameters[1] ? strtoupper($parameters[1]) : 'ASC'
+            'order' => $parameters[1] ? strtoupper($parameters[1]) : 'ASC'
         );
 
         return $return_values;
@@ -258,5 +258,3 @@ abstract class atTableGUI extends ilTable2GUI
         return $array[$param];
     }
 }
-
-
