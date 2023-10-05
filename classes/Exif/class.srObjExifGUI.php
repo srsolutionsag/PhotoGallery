@@ -6,7 +6,16 @@
  */
 class srObjExifGUI
 {
-
+    public $parent;
+    /**
+     * @var \ilPhotoGalleryPlugin
+     */
+    public $pl;
+    public $lng;
+    /**
+     * @var \srObjPicture
+     */
+    public $picture;
     /**
      * @var ilTabsGUI
      */
@@ -48,10 +57,7 @@ class srObjExifGUI
         $this->picture = new srObjPicture($_GET['picture_id']);
     }
 
-    /**
-     * @return bool
-     */
-    public function executeCommand()
+    public function executeCommand(): bool
     {
         $cmd = $this->ctrl->getCmd();
         $this->ctrl->saveParameter($this, 'picture_id');
@@ -69,10 +75,9 @@ class srObjExifGUI
     }
 
     /**
-     * @return bool
      * @description set $this->lng with your LanguageObject or return false to use global Language
      */
-    protected function initLanguage()
+    protected function initLanguage(): bool
     {
         global $DIC;
         $this->lng = $DIC->language();
@@ -80,7 +85,7 @@ class srObjExifGUI
         return true;
     }
 
-    public function show()
+    public function show(): void
     {
         $form = new srObjExifFormGUI($this, new srObjExif($_GET['picture_id']));
         $form->fillForm();

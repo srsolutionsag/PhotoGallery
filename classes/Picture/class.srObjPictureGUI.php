@@ -8,9 +8,14 @@
  */
 class srObjPictureGUI
 {
-    const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
-    const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
-    const CMD_SEND_FILE = 'sendFile';
+    public $parent;
+    /**
+     * @var \ilPhotoGalleryPlugin
+     */
+    public $pl;
+    public const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
+    public const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
+    public const CMD_SEND_FILE = 'sendFile';
     /**
      * @var ilAccessHandler
      */
@@ -36,9 +41,10 @@ class srObjPictureGUI
      */
     protected $tpl;
     /**
-     * @var srObjPicture
+     * @var \ActiveRecord|null
      */
     public $obj_picture;
+    public ILIAS\DI\UIServices $ui;
 
     /**
      * @param $parent_gui
@@ -54,15 +60,13 @@ class srObjPictureGUI
         $this->tabs_gui = $DIC->tabs();
         $this->obj_picture = srObjPicture::find($_GET['picture_id']);
         $this->pl = ilPhotoGalleryPlugin::getInstance();
+        $this->ui = $DIC->ui();
 
         $this->ctrl->setParameterByClass(self::class, 'album_id', $_GET['album_id']);
         srObjAlbumGUI::setLocator($_GET['album_id']);
     }
 
-    /**
-     * @return bool
-     */
-    public function executeCommand()
+    public function executeCommand(): bool
     {
         $cmd = $this->ctrl->getCmd();
         //$this->ctrl->saveParameter($this, 'user_id');
@@ -94,10 +98,10 @@ class srObjPictureGUI
         return true;
     }
 
-    public function add()
+    public function add(): void
     {
-        if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
+        if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
             $form = new srObjPictureFormGUI($this, new srObjPicture());
@@ -108,32 +112,24 @@ class srObjPictureGUI
     /**
      * @description for AJAX Drag&Drop Fileupload
      */
-    public function create()
+    public function create(): void
     {
         $response = '';
-        if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
+        if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent);
         }
         $form = new srObjPictureFormGUI($this, new srObjPicture());
         $form->setValuesByPost();
         $response = $form->saveObject();
-        //			if ($response === false) {
-        //				ilUtil::sendFailure($this->pl->txt('wrong_filetype'), true);
-        //			}
-        if ($response !== false) {
-            header('Vary: Accept');
-            header('Content-type: text/plain');
-            echo json_encode($response);
-            exit;
-        }
-        $this->tpl->setContent($form->getHTML());
+
+        $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
     }
 
-    public function edit()
+    public function edit(): void
     {
-        if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
+        if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
             $form = new srObjPictureFormGUI($this, $this->obj_picture);
@@ -142,16 +138,16 @@ class srObjPictureGUI
         }
     }
 
-    public function update()
+    public function update(): void
     {
-        if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
+        if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
             $form = new srObjPictureFormGUI($this, $this->obj_picture);
 
             if ($form->saveObject()) {
-                ilUtil::sendSuccess($this->pl->txt('success_edit'), true);
+                $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success_edit'), true);
 
                 $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picture_id', null);
                 $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $this->obj_picture->getAlbumId());
@@ -163,17 +159,22 @@ class srObjPictureGUI
         }
     }
 
-    public function confirmDelete()
+    public function confirmDelete(): void
     {
-        if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this, '');
+        $arr_picture_ids = [];
+        if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES);
         } else {
-            if ((!isset($_POST['picture_ids']) || !sizeof($_POST['picture_ids'])) and !$_GET['picture_id']) {
-                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
-                $this->ctrl->redirect($this, '');
+            if ((!isset($_POST['picture_ids']) || !(is_countable($_POST['picture_ids']) ? count(
+                $_POST['picture_ids']
+            ) : 0)) && !$_GET['picture_id']) {
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
+                $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES);
             }
-            if (isset($_POST['picture_ids']) && sizeof($_POST['picture_ids'])) {
+            if (isset($_POST['picture_ids']) && (is_countable($_POST['picture_ids']) ? count(
+                $_POST['picture_ids']
+            ) : 0)) {
                 $arr_picture_ids = $_POST['picture_ids'];
             } else {
                 $arr_picture_ids[] = $_GET['picture_id'];
@@ -184,26 +185,26 @@ class srObjPictureGUI
             $c_gui->setCancel($this->pl->txt('cancel'), srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES);
             $c_gui->setConfirm($this->pl->txt('delete'), atTableGUI::CMD_DELETE);
             // add items to delete
-            include_once('./Services/News/classes/class.ilNewsItem.php');
             foreach ($arr_picture_ids as $picture_id) {
                 /**
                  * @var $srObjPicture srObjPicture
                  */
                 $srObjPicture = srObjPicture::find($picture_id);
-                $url = $srObjPicture->getPreviewWebSrc();
-                $c_gui->addItem('picture_ids[]', $picture_id, $srObjPicture->getTitle(), $url);
+                $file_icon = ilObject::_getIcon($srObjPicture->getId(), "small", "file");
+                $c_gui->addItem('picture_ids[]', $picture_id, $srObjPicture->getTitle(), $file_icon);
             }
             $this->tpl->setContent($c_gui->getHTML());
         }
     }
 
-    public function delete()
+    public function delete(): void
     {
-        if (!$this->access->checkAccess('write', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this, '');
+        $album_id = null;
+        if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES);
         } else {
-            if (count($_POST['picture_ids']) > 0) {
+            if ((is_countable($_POST['picture_ids']) ? count($_POST['picture_ids']) : 0) > 0) {
                 foreach ($_POST['picture_ids'] as $pic_id) {
                     /**
                      * @var $srObjPicture srObjPicture
@@ -220,19 +221,20 @@ class srObjPictureGUI
 
                     $srObjPicture->delete();
                 }
-                ilUtil::sendSuccess($this->pl->txt('msg_removed_pic'), true);
+                $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_pic'), true);
             } else {
-                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
             }
             $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $album_id);
             $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
         }
     }
 
-    public function download()
+    public function download(): void
     {
-        if (!$this->access->checkAccess('read', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
+        $arr_picture_ids = [];
+        if (!$this->access->checkAccess('read', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
             if (!empty($_REQUEST['picture_id'])) {
@@ -240,7 +242,7 @@ class srObjPictureGUI
             } elseif (!empty($_REQUEST['picture_ids'])) {
                 $arr_picture_ids = $_POST['picture_ids'];
             } else {
-                ilUtil::sendFailure($this->pl->txt('no_checkbox'), true);
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
                 $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
                 $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
                 $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
@@ -249,16 +251,17 @@ class srObjPictureGUI
         }
     }
 
-    protected function sendFile()
+    protected function sendFile(): void
     {
-        if (!$this->access->checkAccess('read', '', $this->parent->ref_id)) {
-            ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
+        if (!$this->access->checkAccess('read', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         }
         /**
          * @var $srObjPicture srObjPicture
          */
         $srObjPicture = srObjPicture::find($_GET['picture_id']);
-        ilUtil::deliverFile($srObjPicture->getSrc($_GET['picture_type']), $srObjPicture->getTitle() . '.' . $srObjPicture->getSuffix());
+        $path_to_file = $srObjPicture->getSrc($_GET['picture_type']);
+        ilFileDelivery::deliverFileInline($path_to_file, $srObjPicture->getTitle() . '.' . $srObjPicture->getSuffix());
     }
 }

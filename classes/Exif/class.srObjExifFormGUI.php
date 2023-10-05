@@ -10,19 +10,13 @@
  */
 class srObjExifFormGUI extends ilPropertyFormGUI
 {
+    /**
+     * @var \ilPhotoGalleryPlugin
+     */
+    public $pl;
+    protected \srObjExif $exif;
+    protected \srObjExifGUI $parent_gui;
 
-    /**
-     * @var  srObjExif
-     */
-    protected $exif;
-    /**
-     * @var  srObjExifGUI
-     */
-    protected $parent_gui;
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
     /**
      * @var srObjPicture
      */
@@ -31,10 +25,6 @@ class srObjExifFormGUI extends ilPropertyFormGUI
      * @var ilLocatorGUI
      */
     protected $ilLocator;
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
 
     public function __construct(srObjExifGUI $parent_gui, srObjExif $exif)
     {
@@ -54,7 +44,7 @@ class srObjExifFormGUI extends ilPropertyFormGUI
     /**
      * @param string $mode
      */
-    public function initForm($mode = 'show')
+    public function initForm($mode = 'show'): void
     {
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
 
@@ -72,25 +62,26 @@ class srObjExifFormGUI extends ilPropertyFormGUI
             $this->addItem($exif_field);
         }
         $this->fillForm();
-
-        if (is_object($this->exif)) {
-            $this->ilLocator->addItem($this->pl->txt("exif_data"), $this->ctrl->getLinkTargetByClass(srObjExifGUI::class, ""), "", $_REQUEST['picture_id']);
-            $this->ctrl->saveParameter($this, $_REQUEST["album_id"]);
-            $this->tpl->setLocator();
-        }
+        $this->ilLocator->addItem(
+            $this->pl->txt("exif_data"),
+            $this->ctrl->getLinkTargetByClass(srObjExifGUI::class, ""),
+            "",
+            $_REQUEST['picture_id']
+        );
+        $this->ctrl->saveParameter($this, $_REQUEST["album_id"]);
+        $this->tpl->setLocator();
     }
 
-    public function fillForm()
+    public function fillForm(): void
     {
-        $array = array(
+        $array = [
             'title' => $this->parent_gui->picture->getTitle(),
-            'description' => $this->parent_gui->picture->getDescription(),
-
-        );
+            'description' => $this->parent_gui->picture->getDescription()
+        ];
         $this->setValuesByArray($array);
     }
 
-    public function saveObject()
+    public function saveObject(): bool
     {
         if ($this) {
             return false;

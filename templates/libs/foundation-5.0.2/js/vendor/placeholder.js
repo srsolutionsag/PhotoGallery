@@ -1,10 +1,10 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright (c) 2012 James Allardice
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -139,7 +139,8 @@
         hideOnInput, liveUpdates, keydownVal, styleElem, styleRules, placeholder, timer, form, elem, len, i;
 
     // No-op (used in place of public methods when native support is detected)
-    function noop() {}
+    function noop() {
+    }
 
     // Hide the placeholder value on a single element. Returns true if the placeholder was hidden and false if it was not (because it wasn't visible in the first place)
     function hidePlaceholder(elem) {
@@ -254,6 +255,7 @@
             }
         };
     }
+
     function makeKeyupHandler(elem) {
         return function () {
             var type;
@@ -279,6 +281,7 @@
             }
         };
     }
+
     function makeClickHandler(elem) {
         return function () {
             if (elem === document.activeElement && elem.value === elem.getAttribute(ATTR_CURRENT_VAL) && elem.getAttribute(ATTR_ACTIVE) === "true") {

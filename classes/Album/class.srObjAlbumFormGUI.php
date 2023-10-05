@@ -7,37 +7,11 @@
  */
 class srObjAlbumFormGUI extends ilPropertyFormGUI
 {
+    protected srObjAlbum $album;
+    protected srObjAlbumGUI $parent_gui;
+    protected ilPhotoGalleryPlugin $pl;
 
-    /**
-     * @var  srObjAlbum
-     */
-    protected $album;
-    /**
-     * @var srObjAlbumGUI
-     */
-    protected $parent_gui;
-    /**
-     * @var ilPhotoGalleryPlugin
-     */
-    protected $pl;
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-    /**
-     * @var ilLanguage
-     */
-    protected $lng;
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-
-    /**
-     * @param            $parent_gui
-     * @param srObjAlbum $album
-     */
-    public function __construct($parent_gui, srObjAlbum $album)
+    public function __construct(srObjAlbumGUI $parent_gui, srObjAlbum $album)
     {
         parent::__construct();
         global $DIC;
@@ -51,7 +25,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
         $this->initForm();
     }
 
-    private function initForm()
+    private function initForm(): void
     {
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
         if ($this->album->getId() == 0) {
@@ -64,7 +38,7 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
         $this->addItem($title);
         $desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
         $this->addItem($desc);
-        $cmd = $this->ctrl->getCmd();
+        $this->ctrl->getCmd();
         switch ($this->ctrl->getCmd()) {
             //			case atTableGUI::CMD_UPDATE:
             case atTableGUI::CMD_EDIT:
@@ -108,22 +82,21 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
         }
     }
 
-    public function fillForm()
+    public function fillForm(): void
     {
-        $array = array(
+        $array = [
             'title' => $this->album->getTitle(),
             'description' => $this->album->getDescription(),
             'sort_type' => $this->album->getSortType(),
-            'sort_direction' => $this->album->getSortDirection(),
-        );
+            'sort_direction' => $this->album->getSortDirection()
+        ];
         $this->setValuesByArray($array, true);
     }
 
     /**
      * returns whether checkinput was successful or not.
-     * @return bool
      */
-    public function fillObject()
+    public function fillObject(): bool
     {
         if (!$this->checkInput()) {
             return false;
@@ -144,15 +117,12 @@ class srObjAlbumFormGUI extends ilPropertyFormGUI
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    public function saveObject()
+    public function saveObject(): bool
     {
         if (!$this->fillObject()) {
             return false;
         }
-        if ($this->album->getId()) {
+        if ($this->album->getId() !== 0) {
             $this->album->update();
         } else {
             $this->album->create();

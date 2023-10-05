@@ -30,50 +30,38 @@
  */
 class ilObjPhotoGalleryAccess extends ilObjectPluginAccess
 {
-
     /**
      * @param string $a_cmd
      * @param string $a_permission
      * @param int    $a_ref_id
      * @param int    $a_obj_id
      * @param string $a_user_id
-     * @return bool
      */
-    public function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = '')
+    public function _checkAccess(string $cmd, string $permission, int $ref_id, int $obj_id, ?int $user_id = null): bool
     {
         global $DIC;
-        if ($a_user_id == '') {
-            $a_user_id = $DIC->user()->getId();
+        if ($user_id === null) {
+            $user_id = $DIC->user()->getId();
         }
-        switch ($a_permission) {
-            case 'read':
-                if (!ilObjPhotoGalleryAccess::checkOnline($a_obj_id) and !$DIC->access()->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)
-                ) {
-                    return true;
-                }
-                break;
-        }
-
-        return true;
+        return $DIC->access()->checkAccessOfUser($user_id, $permission, '', $ref_id);
     }
 
     /**
      * @param $a_id
-     * @return bool
      */
-    public static function checkOnline($a_id)
+    public static function checkOnline($a_id): bool
     {
         return true;
     }
 
     // The manage tab is only displayed for user with at least one of theese rights: rep_robj_xpho_download_images, write, delete
-    public static function checkManageTabAccess($ref_id)
+    public static function checkManageTabAccess(int $ref_id): bool
     {
         global $DIC;
         $ilAccess = $DIC->access();
 
-        return $ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id, '', '')
-            || $ilAccess->checkAccess('write', '', $ref_id, '', '')
-            || $ilAccess->checkAccess('delete', '', $ref_id, '', '');
+        return $ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id)
+            || $ilAccess->checkAccess('write', '', $ref_id)
+            || $ilAccess->checkAccess('delete', '', $ref_id);
     }
 }

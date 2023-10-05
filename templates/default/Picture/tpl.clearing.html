@@ -1,23 +1,23 @@
 <div class="ilTableHeaderTitle">
-	<h3 class="ilHeader"><a class="ilAccAnchor">{ALBUM_TITLE}</a></h3>
+    <h3 class="ilHeader"><a class="ilAccAnchor">{ALBUM_TITLE}</a></h3>
 </div>
 <script src="./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/libs/foundation-5.0.2/js/foundation/foundation.js"></script>
 <script src="./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/templates/libs/foundation-5.0.2/js/foundation/foundation.clearing.js"></script>
 <div id="xpho_clearing">
-	<ul class="clearing-thumbs" data-clearing>
-		<!-- BEGIN picture -->
-		<li class="xpho_mosaic xpho_clearing">
-			<a href="{SRC_PRESENTATION}"><img data-caption="{TITLE}" src="{SRC_PREVIEW}"></a></li>
-		<!-- END picture -->
-	</ul>
-	<ul class="clearing-thumbs">
-		<!-- BEGIN add_new -->
-		<li class="xpho_mosaic addnew"><a href="{LINK}"><img src="{SRC_ADDNEW}"></a></li>
-		<!-- END add_new -->
-	</ul>
+    <ul class="clearing-thumbs" data-clearing>
+        <!-- BEGIN picture -->
+        <li class="xpho_mosaic xpho_clearing">
+            <a href="{SRC_PRESENTATION}"><img data-caption="{TITLE}" src="{SRC_PREVIEW}"></a></li>
+        <!-- END picture -->
+    </ul>
+    <ul class="clearing-thumbs">
+        <!-- BEGIN add_new -->
+        <li class="xpho_mosaic addnew"><a href="{LINK}"><img src="{SRC_ADDNEW}"></a></li>
+        <!-- END add_new -->
+    </ul>
 </div>
 <script>
-	$('#il_center_col').foundation({
-		close_selectors: 'body'
-	});
+    $('#il_center_col').foundation({
+        close_selectors: 'body'
+    });
 </script>

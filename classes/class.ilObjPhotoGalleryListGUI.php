@@ -21,9 +21,6 @@
     +-----------------------------------------------------------------------------+
 */
 
-include_once('./Services/Repository/classes/class.ilObjectPluginListGUI.php');
-include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/class.ilObjPhotoGalleryGUI.php');
-
 /**
  * ListGUI implementation for PhotoGallery object plugin. This one
  * handles the presentation in container items (categories, courses, ...)
@@ -35,46 +32,39 @@ include_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
  */
 class ilObjPhotoGalleryListGUI extends ilObjectPluginListGUI
 {
-    public function initType()
+    public function initType(): void
     {
         $this->setType(ilPhotoGalleryPlugin::PLUGIN_ID);
     }
 
-    public function getGuiClass()
+    public function getGuiClass(): string
     {
         return ilObjPhotoGalleryGUI::class;
     }
 
-    public function initCommands()
+    public function initCommands(): array
     {
-        return array(
-            array(
+        return [
+            [
                 'permission' => 'read',
                 'cmd' => ilObjPhotoGalleryGUI::CMD_SHOW_CONTENT,
                 'default' => true
-            ),
-            array(
+            ],
+            [
                 'permission' => 'write',
                 'cmd' => ilObjPhotoGalleryGUI::CMD_EDIT_PROPERTIES,
                 'txt' => $this->txt('edit'),
                 'default' => false
-            ),
-        );
+            ],
+        ];
     }
 
-    /**
-     * @return array
-     */
-    public function getProperties()
+    public function getProperties(): array
     {
-        $props = array();
-        $this->plugin->includeClass('class.ilObjPhotoGalleryAccess.php');
+        $props = [];
+        //        $this->plugin->includeClass('class.ilObjPhotoGalleryAccess.php');
         if (!ilObjPhotoGalleryAccess::checkOnline($this->obj_id)) {
-            $props[] = array(
-                'alert' => true,
-                'property' => $this->txt('status'),
-                'value' => $this->txt('offline')
-            );
+            $props[] = ['alert' => true, 'property' => $this->txt('status'), 'value' => $this->txt('offline')];
         }
 
         return $props;

@@ -8,49 +8,42 @@
  */
 class srObjAlbum extends ActiveRecord
 {
-    const TABLE_NAME = 'sr_obj_pg_album';
+    public const TABLE_NAME = 'sr_obj_pg_album';
 
-    /**
-     * @return string
-     */
-    public static function returnDbTableName()
+    public static function returnDbTableName(): string
     {
         return self::TABLE_NAME;
     }
 
-    const SORT_TYPE_CREATE_DATE = 'create_date';
-    const SORT_TYPE_TITLE = 'title';
-    const SORT_TYPE_DIRECTION_ASC = 'asc';
-    const SORT_TYPE_DIRECTION_DESC = 'desc';
+    public const SORT_TYPE_CREATE_DATE = 'create_date';
+    public const SORT_TYPE_TITLE = 'title';
+    public const SORT_TYPE_DIRECTION_ASC = 'asc';
+    public const SORT_TYPE_DIRECTION_DESC = 'desc';
     /**
-     * @var string
      * @db_has_field        true
      * @db_fieldtype        text
      * @db_length           256
      */
-    protected $title = '';
+    protected string $title = '';
     /**
-     * @var string
      * @db_has_field        true
      * @db_fieldtype        integer
      * @db_length           8
      * @db_is_primary       true
      * @con_sequence        true
      */
-    protected $id;
+    protected ?int $id = null;
     /**
-     * @var string
      * @db_has_field        true
      * @db_fieldtype        text
      * @db_length           4000
      */
-    protected $description = '';
+    protected string $description = '';
     /**
-     * @var string
      * @db_has_field        true
      * @db_fieldtype        date
      */
-    protected $create_date;
+    protected ?string $create_date = null;
     /**
      * @var int
      * @db_has_field  true
@@ -94,144 +87,81 @@ class srObjAlbum extends ActiveRecord
     /**
      * @var array
      */
-    public static $sort_types = array(
-        self::SORT_TYPE_CREATE_DATE,
-        self::SORT_TYPE_TITLE,
-    );
+    public static $sort_types = [self::SORT_TYPE_CREATE_DATE, self::SORT_TYPE_TITLE];
     //
     // Setter & Getter
     //
-    /**
-     * @param string $description
-     */
-    public function setDescription($description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     */
-    public function setId($id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
 
-    /**
-     * @param string $title
-     */
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $create_date
-     */
-    public function setCreateDate($create_date)
+    public function setCreateDate(string $create_date): void
     {
         $this->create_date = $create_date;
     }
 
-    /**
-     * @return string
-     */
-    public function getCreateDate()
+    public function getCreateDate(): string
     {
         return $this->create_date;
     }
 
-    /**
-     * @return int
-     */
-    public function getUserId()
+    public function getUserId(): int
     {
         return $this->user_id;
     }
 
-    /**
-     * @param int $user_id
-     */
-    public function setUserId($user_id)
+    public function setUserId(int $user_id): void
     {
         $this->user_id = $user_id;
     }
 
-    /**
-     * @return int
-     */
-    public function getObjectId()
+    public function getObjectId(): int
     {
         return $this->object_id;
     }
 
-    /**
-     * @param int $object_id
-     */
-    public function setObjectId($object_id)
+    public function setObjectId(int $object_id): void
     {
         $this->object_id = $object_id;
     }
 
-    /**
-     * @return int
-     */
-    public function getPreviewId()
+    public function getPreviewId(): int
     {
-        return (int) $this->preview_id;
+        return $this->preview_id;
     }
 
-    /**
-     * @param int $preview_id
-     */
-    public function setPreviewId($preview_id)
+    public function setPreviewId(int $preview_id): void
     {
         $this->preview_id = $preview_id;
     }
 
-    /**
-     * @return string
-     */
-    public function getPreviewWebSrc()
-    {
-        $pl = ilPhotoGalleryPlugin::getInstance();
-        if ($this->getPreviewId() > 0) {
-            $obj_picture = srObjPicture::find($this->getPreviewId());
-
-            return $obj_picture->getPreviewWebSrc();
-        } else {
-            return $pl->getDirectory() . '/templates/images/nopreview.jpg';
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public function getMosaicWebSrc()
+    public function getMosaicWebSrc(): string
     {
         $pl = ilPhotoGalleryPlugin::getInstance();
         if ($this->getPreviewId() > 0) {
@@ -249,62 +179,47 @@ class srObjAlbum extends ActiveRecord
     /**
      * @return srObjPicture[]
      */
-    public function getPictureObjects()
+    public function getPictureObjects(): array
     {
-        return srObjPicture::where(array('album_id' => $this->getId()))->orderBy($this->getSortType(), $this->getSortDirection())->get();
+        return srObjPicture::where(['album_id' => $this->getId()])->orderBy(
+            $this->getSortType(),
+            $this->getSortDirection()
+        )->get();
     }
 
-    /**
-     * @return int
-     */
-    public function getPictureCount()
+    public function getPictureCount(): int
     {
-        return srObjPicture::where(array('album_id' => $this->getId()))->count();
+        return srObjPicture::where(['album_id' => $this->getId()])->count();
     }
 
-    /**
-     * @return string
-     */
-    public function getAlbumPath()
+    public function getAlbumPath(): string
     {
         return CLIENT_WEB_DIR . '/xpho/album_' . $this->getId();
     }
 
-    /**
-     * @return string
-     */
-    public function getSortType()
+    public function getSortType(): string
     {
         return $this->sort_type;
     }
 
-    /**
-     * @param string $sort_type
-     */
-    public function setSortType($sort_type)
+    public function setSortType(string $sort_type): void
     {
         $this->sort_type = $sort_type;
     }
 
-    /**
-     * @return string
-     */
-    public function getSortDirection()
+    public function getSortDirection(): string
     {
         return $this->sort_direction;
     }
 
-    /**
-     * @param string $sort_direction
-     */
-    public function setSortDirection($sort_direction)
+    public function setSortDirection(string $sort_direction): void
     {
         $this->sort_direction = $sort_direction;
     }
 
-    public function delete()
+    public function delete(): void
     {
         parent::delete();
-        ilUtil::delDir($this->getAlbumPath());
+        ilFileUtils::delDir($this->getAlbumPath());
     }
 }

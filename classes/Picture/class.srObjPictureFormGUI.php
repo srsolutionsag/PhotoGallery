@@ -7,11 +7,7 @@
  */
 class srObjPictureFormGUI extends ilPropertyFormGUI
 {
-
-    /**
-     * @var  srObjPicture
-     */
-    protected $picture;
+    protected \srObjPicture $picture;
     /**
      * @var srObjPictureGUI
      */
@@ -20,26 +16,11 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
      * @var ilLog
      */
     protected $log;
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-    /**
-     * @var ilPhotoGalleryPlugin
-     */
-    protected $pl;
-    /**
-     * @var srObjAlbum
-     */
-    protected $album;
+    protected \ilPhotoGalleryPlugin $pl;
+    protected \srObjAlbum $album;
 
     /**
      * @param              $parent_gui
-     * @param srObjPicture $picture
      */
     public function __construct($parent_gui, srObjPicture $picture)
     {
@@ -56,7 +37,7 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
         $this->log = $DIC["ilLog"];
     }
 
-    private function initForm()
+    private function initForm(): void
     {
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
         if ($this->picture->getId() == 0) {
@@ -88,15 +69,10 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
             case atTableGUI::CMD_CREATE:
                 $this->setMultipart(true);
                 // TODO image type is missed
-                $file_input = new ilDragDropFileInputGUI($this->pl->txt('pic'), 'upload_files');
+                $file_input = new ilFileInputGUI($this->pl->txt('pic'), 'upload_files');
                 $file_input->setRequired(true);
-                $file_input->setSuffixes(array(
-                    'jpg',
-                    'jpeg',
-                    'png',
-                    'gif'
-                ));
-                $file_input->setCommandButtonNames(atTableGUI::CMD_CREATE, srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+                $file_input->setSuffixes(['jpg', 'jpeg', 'png', 'gif']);
+                //$file_input->setCommandButtonNames(atTableGUI::CMD_CREATE, srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
                 $this->addItem($file_input);
                 $this->addCommandButton(atTableGUI::CMD_CREATE, $this->pl->txt('add_pic'));
                 $this->addCommandButton(srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES, $this->pl->txt('cancel'));
@@ -105,44 +81,39 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
         }
     }
 
-    public function fillForm()
+    public function fillForm(): void
     {
-        $array = array(
+        $array = [
             'title' => $this->picture->getTitle(),
             'description' => $this->picture->getDescription(),
-            'preview' => $this->album->getPreviewId() == $this->picture->getId(),
-            'suffix' => $this->picture->getSuffix(),
-        );
+            'preview' => $this->album->getPreviewId() === $this->picture->getId(),
+            'suffix' => $this->picture->getSuffix()
+        ];
         $this->setValuesByArray($array, true);
     }
 
     /**
      * @description returns whether checkinput was successful or not.
-     * @return bool
      */
-    public function fillObject()
+    public function fillObject(): bool
     {
         if (!$this->checkInput()) {
             return false;
         }
         $this->picture->setTitle($this->getInput('title'));
         $this->picture->setDescription($this->getInput('description'));
-        if (!$this->picture->getId()) {
+        if ($this->picture->getId() === 0) {
             $this->picture->setAlbumId($_GET['album_id']);
         }
         $this->picture->setUserId($this->user->getId());
         $date_array = $this->getInput('create_date');
-        if (is_array($date_array)) {
-            $date = $date_array['date'];
-        } else {
-            $date = date('Y-m-d', strtotime($date_array));
-        }
+        $date = is_array($date_array) ? $date_array['date'] : date('Y-m-d', strtotime($date_array));
         $this->picture->setCreateDate($date); // TODO bei MultipleFileUpload Exif-Daten verwenden
         if ($this->getInput('preview') == 1) {
             $this->album->setPreviewId($_GET['picture_id']);
         }
         // remove preview image if current picture is preview and checkbox has been unselected
-        if ($this->picture->getId() == $this->album->getPreviewId() && $this->getInput('preview') == "") {
+        if ($this->picture->getId() === $this->album->getPreviewId() && $this->getInput('preview') == "") {
             $this->album->setPreviewId(0);
         }
 
@@ -151,19 +122,22 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
 
     public function saveObject()
     {
+        $exif = [];
         if (!$this->fillObject()) {
             return false;
         }
-        if ($this->picture->getId()) {
-            if ($_FILES['upload_files']['tmp_name']) {
+        if ($this->picture->getId() !== 0) {
+            if (isset($_FILES['upload_files']['tmp_name'])) {
                 $this->picture->uploadPicture($_FILES['upload_files']['tmp_name']);
-                $ext = strtolower(end(explode('.', $_FILES['upload_files']['name'])));
+                $explode = explode('.', $_FILES['upload_files']['name']);
+                $ext = strtolower(end($explode));
                 $this->picture->setSuffix($ext);
             }
             $this->picture->update();
             $this->album->update();
         } else {
-            $ext = strtolower(end(explode('.', $_FILES['upload_files']['name'])));
+            $explode2 = explode('.', $_FILES['upload_files']['name']);
+            $ext = strtolower(end($explode2));
             $this->picture->setSuffix($ext);
             if (function_exists('exif_read_data')) {
                 $exif = @exif_read_data($_FILES['upload_files']['tmp_name'], 0, true);
@@ -175,12 +149,13 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
             } else {
                 $this->picture->setCreateDate(date('Y-m-d'));
             }
+            $this->picture->setTitle($this->getFilenameWithoutSuffix($_FILES['upload_files']['name']));
             $this->picture->create();
             $this->picture->uploadPicture($_FILES['upload_files']['tmp_name']);
             // create answer object
             $response = new stdClass();
             $response->fileName = $_FILES['upload_files']['name'];
-            $response->fileSize = intval($_FILES['upload_files']['size']);
+            $response->fileSize = (int) $_FILES['upload_files']['size'];
             $response->fileType = $_FILES['upload_files']['type'];
             $response->fileUnzipped = '';
             $response->error = null;
@@ -189,5 +164,14 @@ class srObjPictureFormGUI extends ilPropertyFormGUI
         }
 
         return true;
+    }
+
+    protected function getFilenameWithoutSuffix(string $filename): string
+    {
+        $suffix = $this->picture->getSuffix();
+        if(!empty($suffix)) {
+            return str_replace("." . $suffix, "", $filename);
+        }
+        return $filename;
     }
 }

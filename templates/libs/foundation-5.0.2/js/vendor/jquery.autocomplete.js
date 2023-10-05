@@ -1,11 +1,11 @@
 /**
-*  Ajax Autocomplete for jQuery, version 1.2.7
-*  (c) 2013 Tomas Kirda
-*
-*  Ajax Autocomplete for jQuery is freely distributable under the terms of an MIT-style license.
-*  For details, see the web site: http://www.devbridge.com/projects/autocomplete/jquery/
-*
-*/
+ *  Ajax Autocomplete for jQuery, version 1.2.7
+ *  (c) 2013 Tomas Kirda
+ *
+ *  Ajax Autocomplete for jQuery is freely distributable under the terms of an MIT-style license.
+ *  For details, see the web site: http://www.devbridge.com/projects/autocomplete/jquery/
+ *
+ */
 
 /*jslint  browser: true, white: true, plusplus: true */
 /*global define, window, document, jQuery */
@@ -49,7 +49,8 @@
         };
 
     function Autocomplete(el, options) {
-        var noop = function () { },
+        var noop = function () {
+            },
             that = this,
             defaults = {
                 autoSelectFirst: false,
@@ -169,14 +170,24 @@
 
             // Opera does not like keydown:
             if (window.opera) {
-                that.el.on('keypress.autocomplete', function (e) { that.onKeyPress(e); });
+                that.el.on('keypress.autocomplete', function (e) {
+                    that.onKeyPress(e);
+                });
             } else {
-                that.el.on('keydown.autocomplete', function (e) { that.onKeyPress(e); });
+                that.el.on('keydown.autocomplete', function (e) {
+                    that.onKeyPress(e);
+                });
             }
 
-            that.el.on('keyup.autocomplete', function (e) { that.onKeyUp(e); });
-            that.el.on('blur.autocomplete', function () { that.onBlur(); });
-            that.el.on('focus.autocomplete', function () { that.fixPosition(); });
+            that.el.on('keyup.autocomplete', function (e) {
+                that.onKeyUp(e);
+            });
+            that.el.on('blur.autocomplete', function () {
+                that.onBlur();
+            });
+            that.el.on('focus.autocomplete', function () {
+                that.fixPosition();
+            });
         },
 
         onBlur: function () {
@@ -462,7 +473,7 @@
             // If suggestions is string array, convert them to supported format:
             if (suggestions.length && typeof suggestions[0] === 'string') {
                 return $.map(suggestions, function (value) {
-                    return { value: value, data: null };
+                    return {value: value, data: null};
                 });
             }
 

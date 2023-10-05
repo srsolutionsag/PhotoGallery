@@ -8,32 +8,27 @@
  */
 class ilObjPhotoGalleryTableGUI extends atTableGUI
 {
-
-    /**
-     * @return bool
-     */
-    protected function initTableFilter()
+    protected function initTableFilter(): bool
     {
         return false;
     }
 
     /**
-     * @return bool
      * @description returns false or set the following
      * @description e.g. override table id oder title: $this->table_id = 'myid', $this->table_title = 'My Title'
      */
-    protected function initTableProperties()
+    protected function initTableProperties(): bool
     {
         $this->table_title = ilObject2::_lookupTitle(ilObject2::_lookupObjId($_GET['ref_id']));
+        return true;
     }
 
 
     /**
-     * @return bool
      * @description return false or implements own form action and
      */
     //TODO GET ersetzen
-    protected function initFormActionsAndCmdButtons()
+    protected function initFormActionsAndCmdButtons(): bool
     {
         $this->setFormAction($this->ctrl->getFormActionByClass(srObjAlbumGUI::class));
         if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
@@ -46,14 +41,14 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
         if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
             $this->addMultiCommand(self::CMD_CONFIRM_DELETE, $this->pl->txt('delete'));
         }
+        return true;
     }
 
     /**
      * @description implement your fillRow
      * @param $a_set
-     * @return bool
      */
-    protected function fillTableRow($a_set)
+    protected function fillTableRow($a_set): bool
     {
         /**
          * @var $srObjAlbum srObjAlbum
@@ -63,20 +58,29 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
         $this->tpl->setVariable('TITLE', $a_set['title']);
 
         if ($srObjAlbum->getPreviewId() != null) {
+            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $srObjAlbum->getId());
             $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
             $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_PREVIEW);
             $src_preview = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
 
             $this->tpl->setVariable("IMAGE", ilUtil::img($src_preview));
+        } else {
+            $this->tpl->setVariable(
+                "IMAGE",
+                ilUtil::img($this->pl->getDirectory() . '/templates/images/nopreview.jpg', null, "70px", "70px")
+            );
         }
         $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $a_set['id']);
-        $this->tpl->setVariable('LINK_TITLE', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES));
+        $this->tpl->setVariable(
+            'LINK_TITLE',
+            $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES)
+        );
         $this->tpl->setVariable('DESCRIPTION', $a_set['description']);
         $this->tpl->setVariable('DATE', date('d.m.Y', strtotime($a_set['create_date'])));
-        $sortings = array(
+        $sortings = [
             $this->pl->txt('sort_type_' . $srObjAlbum->getSortType()),
-            $this->pl->txt('sort_direction_' . $srObjAlbum->getSortDirection()),
-        );
+            $this->pl->txt('sort_direction_' . $srObjAlbum->getSortDirection())
+        ];
         $this->tpl->setVariable('SORTING', implode(', ', $sortings));
 
         $this->tpl->setCurrentBlock("edit_checkbox");
@@ -86,36 +90,46 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
         //TODO GET ersetzen
         // show Action "Download"
         if (ilObjPhotoGalleryAccess::checkManageTabAccess($_GET['ref_id'])) {
-
             //action list
             $alist = new ilAdvancedSelectionListGUI();
             $alist->setId($a_set['id']);
             $alist->setListTitle($this->pl->txt("actions"));
 
             if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
-                $alist->addItem($this->pl->txt('edit'), 'edit', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_EDIT));
-                $alist->addItem($this->pl->txt('delete'), 'delete', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_CONFIRM_DELETE));
+                $alist->addItem(
+                    $this->pl->txt('edit'),
+                    'edit',
+                    $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_EDIT)
+                );
+                $alist->addItem(
+                    $this->pl->txt('delete'),
+                    'delete',
+                    $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_CONFIRM_DELETE)
+                );
             }
 
-            $alist->addItem($this->pl->txt('download'), 'download', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_DOWNLOAD_ALBUM));
+            $alist->addItem(
+                $this->pl->txt('download'),
+                'download',
+                $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_DOWNLOAD_ALBUM)
+            );
             $this->tpl->setVariable("ACTION", $alist->getHTML());
         }
+        return true;
     }
 
     /**
-     * @return void
      * @description $this->setData(Your Array of Data)
      */
-    protected function initTableData()
+    protected function initTableData(): void
     {
-        $this->setData(srObjAlbum::where(array('object_id' => ilObject::_lookupObjectId($_GET['ref_id'])), '=')->getArray());
+        $this->setData(srObjAlbum::where(['object_id' => ilObject::_lookupObjectId($_GET['ref_id'])], '=')->getArray());
     }
 
     /**
-     * @return bool
      * @description returns false, if automatic columns are needed, otherwise implement your columnss
      */
-    protected function initTableColumns()
+    protected function initTableColumns(): bool
     {
         $this->addColumn('', '', '1', true);
         $this->addColumn('', '', '100px');
@@ -124,30 +138,30 @@ class ilObjPhotoGalleryTableGUI extends atTableGUI
         $this->addColumn($this->pl->txt('date'));
         $this->addColumn($this->pl->txt('sorting'));
         $this->addColumn($this->pl->txt('actions'), '', '1');
+        return true;
     }
 
     /**
-     * @return bool
      * @description returns false if standard-table-header is needes, otherwise implement your header
      */
-    protected function initTableHeader()
+    protected function initTableHeader(): bool
     {
+        return false;
     }
 
     /**
-     * @return bool
      * @description returns false, if dynamic template is needed, otherwise implement your own template by $this->setRowTemplate($a_template, $a_template_dir = "")
      */
-    protected function initTableRowTemplate()
+    protected function initTableRowTemplate(): bool
     {
         $this->setRowTemplate('tpl.gallery_row.html', $this->pl->getDirectory());
+        return true;
     }
 
     /**
-     * @return bool
      * @description returns false, if global language is needed; implement your own language by setting $this->pl
      */
-    protected function initLanguage()
+    protected function initLanguage(): bool
     {
         $this->pl = ilPhotoGalleryPlugin::getInstance();
 

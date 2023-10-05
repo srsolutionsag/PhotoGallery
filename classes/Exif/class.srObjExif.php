@@ -7,12 +7,9 @@
  */
 class srObjExif extends ActiveRecord
 {
-    const TABLE_NAME = 'sr_obj_pg_exif_data';
+    public const TABLE_NAME = 'sr_obj_pg_exif_data';
 
-    /**
-     * @return string
-     */
-    public static function returnDbTableName()
+    public static function returnDbTableName(): string
     {
         return self::TABLE_NAME;
     }
@@ -59,7 +56,7 @@ class srObjExif extends ActiveRecord
     /**
      * @param int $id
      */
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
@@ -75,7 +72,7 @@ class srObjExif extends ActiveRecord
     /**
      * @param int $foto_id
      */
-    public function setPictureId($picture_id)
+    public function setPictureId($picture_id): void
     {
         $this->picture_id = $picture_id;
     }
@@ -91,7 +88,7 @@ class srObjExif extends ActiveRecord
     /**
      * @param string $exif_title
      */
-    public function setExifTitle($exif_title)
+    public function setExifTitle($exif_title): void
     {
         $this->exif_title = $exif_title;
     }
@@ -107,7 +104,7 @@ class srObjExif extends ActiveRecord
     /**
      * @param string $exif_entry
      */
-    public function setExifEntry($exif_entry)
+    public function setExifEntry($exif_entry): void
     {
         $this->exif_entry = $exif_entry;
     }
