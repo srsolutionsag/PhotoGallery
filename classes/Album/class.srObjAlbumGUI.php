@@ -18,6 +18,7 @@ class srObjAlbumGUI
     protected ilTabsGUI $tabs_gui;
     protected ilPropertyFormGUI $form;
     protected ilCtrl $ctrl;
+    protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
     public ilObjPhotoGallery $obj_photo_gallery;
     public ?ActiveRecord $obj_album;
@@ -35,6 +36,7 @@ class srObjAlbumGUI
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
+        $this->lng = $DIC->language();
         $this->parent_gui = $parent_gui;
         $this->locator = $DIC["ilLocator"];
         $this->ui = $DIC->ui();
@@ -241,16 +243,26 @@ class srObjAlbumGUI
         if (!$this->access->checkAccess('write', '', $ref_id)) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
-        } else {
-            $album_id = $this->http->wrapper()->query()->retrieve('album_id', $to_int);
-            /**
-             * @var $album srObjAlbum
-             */
-            $album = srObjAlbum::find($album_id);
-            $form = new srObjAlbumFormGUI($this, $album);
-            $form->fillForm();
-            $this->tpl->setContent($form->getHTML());
         }
+        if (!$this->http->wrapper()->query()->has('gallery_album_ids')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+        $to_array = $this->refinery->kindlyTo()->listOf($to_int);
+        $album_ids = $this->http->wrapper()->query()->retrieve('gallery_album_ids', $to_array);
+        if (count($album_ids) > 1) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('too_many_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+        $album_id = $album_ids[0];
+        /**
+         * @var $album srObjAlbum
+         */
+        $album = srObjAlbum::find($album_id);
+        $form = new srObjAlbumFormGUI($this, $album);
+        $form->fillForm();
+        $this->tpl->setContent($form->getHTML());
+
     }
 
     public function update(): void
@@ -277,49 +289,45 @@ class srObjAlbumGUI
 
     public function confirmDelete(): void
     {
-        $arr_album_ids = [];
         if (!$this->access->checkAccess('write', '', $this->parent_gui->getObject()->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
-        } else {
-            $to_int = $this->refinery->kindlyTo()->int();
-            $album_id = null;
-            if ($this->http->wrapper()->query()->has('album_id')) {
-                $album_id = $this->http->wrapper()->query()->retrieve('album_id', $to_int);
-            }
-            $album_ids = [];
-            if ($this->http->wrapper()->post()->has('album_ids')) {
-                $album_ids = $this->http->wrapper()->post()->retrieve(
-                    'album_ids',
-                    $this->refinery->kindlyTo()->listOf($to_int)
-                );
-            }
-            if ($album_id === null && !count($album_ids)) {
-                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
-                $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS);
-            }
-            if (count($album_ids)) {
-                $arr_album_ids = $album_ids;
-            } else {
-                $arr_album_ids[] = $album_id;
-            }
-            $c_gui = new ilConfirmationGUI();
-            // set confirm/cancel commands
-            $c_gui->setFormAction($this->ctrl->getFormAction($this, atTableGUI::CMD_DELETE));
-            $c_gui->setHeaderText($this->pl->txt('delete_album'));
-            $c_gui->setCancel($this->pl->txt('cancel'), self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS);
-            $c_gui->setConfirm($this->pl->txt('delete'), atTableGUI::CMD_DELETE);
-            // add items to delete
-            foreach ($arr_album_ids as $album_id) {
-                /**
-                 * @var $album srObjAlbum
-                 */
-                $album = srObjAlbum::find($album_id);
-                $folder_icon = ilObject::_getIcon($album->getId(), "small", "fold");
-                $c_gui->addItem('album_ids[]', $album_id, $album->getTitle(), $folder_icon);
-            }
-            $this->tpl->setContent($c_gui->getHTML());
         }
+        if (!$this->http->wrapper()->query()->has('gallery_album_ids')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+        $to_array = $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int());
+        $album_ids = $this->http->wrapper()->query()->retrieve('gallery_album_ids', $to_array);
+        if (empty($album_ids)) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+        $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_ids', implode(',', $album_ids));
+        $delete_action = $this->ctrl->getLinkTarget($this, 'delete');
+        $this->ctrl->clearParameterByClass(srObjAlbumGUI::class, 'album_ids');
+        $items = [];
+        foreach ($album_ids as $album_id) {
+            /**
+             * @var $album srObjAlbum
+             */
+            $album = srObjAlbum::find($album_id);
+            if ($album === null) {
+                continue;
+            }
+            $items[] = $this->ui->factory()->modal()->interruptiveItem()->standard(
+                $album_id,
+                $album->getTitle()
+            );
+        }
+        echo($this->ui->renderer()->renderAsync([
+            $this->ui->factory()->modal()->interruptive(
+                $this->lng->txt('delete'),
+                $this->pl->txt('delete_album'),
+                $delete_action
+            )->withAffectedItems($items)
+        ]));
+        exit();
     }
 
     public function delete(): void
@@ -327,67 +335,63 @@ class srObjAlbumGUI
         if (!$this->access->checkAccess('write', '', $this->parent_gui->getObject()->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
-        } else {
-            $to_int = $this->refinery->kindlyTo()->int();
-            $album_ids = $this->http->wrapper()->post()->retrieve(
-                'album_ids',
-                $this->refinery->kindlyTo()->listOf($to_int)
-            );
-            if ((is_countable($album_ids) ? count($album_ids) : 0) > 0) {
-                // delete all selected news items
-                foreach ($album_ids as $alb_id) {
-                    $album = srObjAlbum::find($alb_id);
-                    $album->delete();
-                }
-                $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_album'), true);
-            } else {
-                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
-            }
-            $this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
         }
+        if (!$this->http->wrapper()->query()->has('album_ids')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+        $to_str = $this->refinery->kindlyTo()->string();
+        $album_ids = explode(",",$this->http->wrapper()->query()->retrieve('album_ids', $to_str));
+        if (empty($album_ids)) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+
+        if ((is_countable($album_ids) ? count($album_ids) : 0) > 0) {
+            // delete all selected items
+            foreach ($album_ids as $album_id) {
+                $album = srObjAlbum::find($album_id);
+                if ($album === null) {
+                    continue;
+                }
+                $album->delete();
+            }
+            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_album'), true);
+        } else {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
+        }
+        $this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
     }
 
     public function download(): void
     {
-        $arr_album_id = [];
         if (!$this->access->checkAccess('read', '', $this->parent_gui->getObject()->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS);
-        } else {
-            $to_int = $this->refinery->kindlyTo()->int();
-            $album_id = -1;
-            if ($this->http->wrapper()->query()->has('album_id')) {
-                $album_id = $this->http->wrapper()->query()->retrieve('album_id', $to_int);
-            }
-            $album_ids = [];
-            if ($this->http->wrapper()->post()->has('album_ids')) {
-                $album_ids = $this->http->wrapper()->post()->retrieve(
-                    'album_ids',
-                    $this->refinery->kindlyTo()->listOf($to_int)
-                );
-            }
-            if (empty($album_ids) && $album_id === -1) {
-                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
-                $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS);
-            }
-            if (count($album_ids)) {
-                $arr_album_id = $album_ids;
-            } else {
-                $arr_album_id[] = $album_id;
-            }
         }
+        if (!$this->http->wrapper()->query()->has('gallery_album_ids')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+        $to_array = $this->refinery->kindlyTo()->listOf($this->refinery->kindlyTo()->int());
+        $album_ids = $this->http->wrapper()->query()->retrieve('gallery_album_ids', $to_array);
+        if (empty($album_ids)) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+            $this->ctrl->redirect($this->parent_gui, '');
+        }
+
         // take album id
-        $arr_picture_ids = [];
-        foreach ($arr_album_id as $album_id) {
+        $picture_ids = [];
+        foreach ($album_ids as $album_id) {
             /**
              * @var $album srObjAlbum
              */
             $album = srObjAlbum::find($album_id);
             foreach ($album->getPictureObjects() as $pic) {
-                $arr_picture_ids[] = $pic->getId();
+                $picture_ids[] = $pic->getId();
             }
         }
         // download array
-        ilObjPhotoGalleryGUI::executeDownload($arr_picture_ids);
+        ilObjPhotoGalleryGUI::executeDownload($picture_ids);
     }
 }

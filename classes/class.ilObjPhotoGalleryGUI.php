@@ -376,8 +376,8 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            $tableGui = new ilObjPhotoGalleryTableGUI($this, self::CMD_MANAGE_ALBUMS . '');
-            $this->tpl->setContent($tableGui->getHTML());
+            $table_gui = new ilObjPhotoGalleryTableGUI();
+            $this->tpl->setContent($table_gui->getTableForRepresentation());
         }
     }
 

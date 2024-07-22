@@ -1,170 +1,144 @@
 <?php
 
+use ILIAS\Data\Factory AS DataFactory;
+use ILIAS\Data\Range AS DataRange;
+use ILIAS\Data\Order AS DataOrder;
+use ILIAS\UI\Component\Table\DataRetrieval;
+use ILIAS\UI\Component\Table\DataRowBuilder AS RowBuilder;
+use ILIAS\UI\Factory AS UIFactory;
+use ILIAS\HTTP\Services AS HttpServices;
+use ILIAS\UI\URLBuilder;
+use ILIAS\UI\Renderer;
+use ILIAS\Data\URI;
+
 /**
- * TableGUI srModelObjectTableGUI
- * @author  Fabian Schmid <fs@studer-raimann.ch>
+ * Class ilObjPhotoGalleryTableGUI
+ *
+ * @author Lukas Zehnder <lukas@sr.solutions
+ * @author  Fabian Schmid <fabian@sr.solutions>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
  */
-class ilObjPhotoGalleryTableGUI extends atTableGUI
+class ilObjPhotoGalleryTableGUI implements DataRetrieval
 {
-    protected function initTableFilter(): bool
+    public const CMD_EDIT = 'edit';
+    public const CMD_CONFIRM_DELETE = 'confirmDelete';
+    public const CMD_DOWNLOAD_ALBUM = 'downloadAlbum';
+
+    private DataFactory $data_factory;
+    private HttpServices $http;
+    private ilLanguage $lng;
+    private ilPhotoGalleryPlugin $pl;
+    private UIFactory $ui_factory;
+    private Renderer $ui_renderer;
+    private ilCtrlInterface $ctrl;
+
+    public function __construct()
     {
-        return false;
-    }
-
-    /**
-     * @description returns false or set the following
-     * @description e.g. override table id oder title: $this->table_id = 'myid', $this->table_title = 'My Title'
-     */
-    protected function initTableProperties(): bool
-    {
-        $this->table_title = ilObject2::_lookupTitle(ilObject2::_lookupObjId($_GET['ref_id']));
-        return true;
-    }
-
-
-    /**
-     * @description return false or implements own form action and
-     */
-    //TODO GET ersetzen
-    protected function initFormActionsAndCmdButtons(): bool
-    {
-        $this->setFormAction($this->ctrl->getFormActionByClass(srObjAlbumGUI::class));
-        if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
-            //	$this->addHeaderCommand($this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_ADD), $this->pl->txt('create_album'));
-        }
-
-        $this->setSelectAllCheckbox('album_ids[]'); //add to checkbox in tpl
-        $this->addMultiCommand(self::CMD_DOWNLOAD, $this->pl->txt('download'));
-
-        if (($this->access->checkAccess('write', '', $_GET['ref_id']))) {
-            $this->addMultiCommand(self::CMD_CONFIRM_DELETE, $this->pl->txt('delete'));
-        }
-        return true;
-    }
-
-    /**
-     * @description implement your fillRow
-     * @param $a_set
-     */
-    protected function fillTableRow($a_set): bool
-    {
-        /**
-         * @var $srObjAlbum srObjAlbum
-         */
-        $srObjAlbum = srObjAlbum::find($a_set['id']);
-
-        $this->tpl->setVariable('TITLE', $a_set['title']);
-
-        if ($srObjAlbum->getPreviewId() != null) {
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $srObjAlbum->getId());
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_PREVIEW);
-            $src_preview = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
-
-            $this->tpl->setVariable("IMAGE", ilUtil::img($src_preview));
-        } else {
-            $this->tpl->setVariable(
-                "IMAGE",
-                ilUtil::img($this->pl->getDirectory() . '/templates/images/nopreview.jpg', null, "70px", "70px")
-            );
-        }
-        $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $a_set['id']);
-        $this->tpl->setVariable(
-            'LINK_TITLE',
-            $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES)
-        );
-        $this->tpl->setVariable('DESCRIPTION', $a_set['description']);
-        $this->tpl->setVariable('DATE', date('d.m.Y', strtotime($a_set['create_date'])));
-        $sortings = [
-            $this->pl->txt('sort_type_' . $srObjAlbum->getSortType()),
-            $this->pl->txt('sort_direction_' . $srObjAlbum->getSortDirection())
-        ];
-        $this->tpl->setVariable('SORTING', implode(', ', $sortings));
-
-        $this->tpl->setCurrentBlock("edit_checkbox");
-        $this->tpl->setVariable("ID", $a_set["id"]);
-        $this->tpl->parseCurrentBlock();
-
-        //TODO GET ersetzen
-        // show Action "Download"
-        if (ilObjPhotoGalleryAccess::checkManageTabAccess($_GET['ref_id'])) {
-            //action list
-            $alist = new ilAdvancedSelectionListGUI();
-            $alist->setId($a_set['id']);
-            $alist->setListTitle($this->pl->txt("actions"));
-
-            if (($this->access->checkAccess("write", "", $_GET['ref_id']))) {
-                $alist->addItem(
-                    $this->pl->txt('edit'),
-                    'edit',
-                    $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_EDIT)
-                );
-                $alist->addItem(
-                    $this->pl->txt('delete'),
-                    'delete',
-                    $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_CONFIRM_DELETE)
-                );
-            }
-
-            $alist->addItem(
-                $this->pl->txt('download'),
-                'download',
-                $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, self::CMD_DOWNLOAD_ALBUM)
-            );
-            $this->tpl->setVariable("ACTION", $alist->getHTML());
-        }
-        return true;
-    }
-
-    /**
-     * @description $this->setData(Your Array of Data)
-     */
-    protected function initTableData(): void
-    {
-        $this->setData(srObjAlbum::where(['object_id' => ilObject::_lookupObjectId($_GET['ref_id'])], '=')->getArray());
-    }
-
-    /**
-     * @description returns false, if automatic columns are needed, otherwise implement your columnss
-     */
-    protected function initTableColumns(): bool
-    {
-        $this->addColumn('', '', '1', true);
-        $this->addColumn('', '', '100px');
-        $this->addColumn($this->pl->txt('title'));
-        $this->addColumn($this->pl->txt('description'));
-        $this->addColumn($this->pl->txt('date'));
-        $this->addColumn($this->pl->txt('sorting'));
-        $this->addColumn($this->pl->txt('actions'), '', '1');
-        return true;
-    }
-
-    /**
-     * @description returns false if standard-table-header is needes, otherwise implement your header
-     */
-    protected function initTableHeader(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @description returns false, if dynamic template is needed, otherwise implement your own template by $this->setRowTemplate($a_template, $a_template_dir = "")
-     */
-    protected function initTableRowTemplate(): bool
-    {
-        $this->setRowTemplate('tpl.gallery_row.html', $this->pl->getDirectory());
-        return true;
-    }
-
-    /**
-     * @description returns false, if global language is needed; implement your own language by setting $this->pl
-     */
-    protected function initLanguage(): bool
-    {
+        global $DIC;
+        $this->ctrl = $DIC->ctrl();
+        $this->data_factory = new DataFactory();
+        $this->http = $DIC->http();
+        $this->lng = $DIC->language();
         $this->pl = ilPhotoGalleryPlugin::getInstance();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
 
-        return false;
+    }
+
+    public function getTableForRepresentation(): string
+    {
+        //define actions for the table
+        $here_uri = $this->data_factory->uri($this->http->request()->getUri()->__toString());
+        $url_builder = new URLBuilder($here_uri);
+        [$url_builder, $id_token] = $url_builder->acquireParameters(
+            ["gallery"],
+            "album_ids"
+        );
+        $actions = [
+            'edit' => $this->ui_factory->table()->action()->single(
+                $this->lng->txt('edit'),
+                $url_builder->withURI($this->buildURI(srObjAlbumGUI::class ,self::CMD_EDIT)),
+                $id_token
+            ),
+            'download' => $this->ui_factory->table()->action()->standard(
+                $this->lng->txt('download'),
+                $url_builder->withURI($this->buildURI(srObjAlbumGUI::class ,self::CMD_DOWNLOAD_ALBUM)),
+                $id_token
+            ),
+            'delete' => $this->ui_factory->table()->action()->standard( //TODO: implement retrieval of gallery_album_ids in srObjAlbumGUI similar to edit
+                $this->lng->txt('delete'),
+                $url_builder->withURI($this->buildURI(srObjAlbumGUI::class ,self::CMD_CONFIRM_DELETE)),
+                $id_token
+            )->withAsync(),
+        ];
+        $table = $this->ui_factory->table()->data(
+            $this->pl->txt('manage_album'),
+            $this->getColumsForRepresentation(),
+            $this
+        )->withActions($actions);
+        return $this->ui_renderer->render([$table->withRequest($this->http->request())]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getRows(
+        RowBuilder $row_builder,
+        array $visible_column_ids,
+        DataRange $range,
+        DataOrder $order,
+        ?array $filter_data,
+        ?array $additional_parameters
+    ): \Generator {
+        $records = $this->getRecords($range, $order);
+        foreach ($records as $record) {
+            $row_id = (string)$record['id'];
+            $record['create_date'] = new DateTimeImmutable($record['create_date']);
+            yield $row_builder->buildDataRow($row_id, $record);
+        }
+    }
+
+    public function getTotalRowCount(
+        ?array $filter_data,
+        ?array $additional_parameters
+    ): ?int {
+        return count($this->getRecords());
+    }
+
+    protected function getColumsForRepresentation(): array
+    {
+        return  [
+            'title' => $this->ui_factory->table()->column()->text("title")->withHighlight(true),
+            'description' => $this->ui_factory->table()->column()->text("description"),
+            'create_date' => $this->ui_factory->table()->column()->date("date", $this->data_factory->dateFormat()->germanLong()),
+            'sort_type' => $this->ui_factory->table()->column()->text("sort_type"),
+            'sort_direction' => $this->ui_factory->table()->column()->text("sort_direrction"),
+        ];
+    }
+
+    private function getRecords(DataRange $range = null, DataOrder $order = null): array
+    {
+        $records = srObjAlbum::where(['object_id' => ilObject::_lookupObjectId($_GET['ref_id'])], '=')->getArray();
+
+        if ($order) {
+            list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
+            usort($records, fn($a, $b) => $a[$order_field] <=> $b[$order_field]);
+            if ($order_direction === 'DESC') {
+                $records = array_reverse($records);
+            }
+        }
+        if ($range) {
+            $records = array_slice($records, $range->getStart(), $range->getLength());
+        }
+
+        return $records;
+    }
+
+    /**
+     * @throws ilCtrlException
+     */
+    private function buildURI(string $class, string $command): URI {
+        return new URI(ILIAS_HTTP_PATH . '/' . $this->ctrl->getLinkTargetByClass($class, $command));
     }
 }
