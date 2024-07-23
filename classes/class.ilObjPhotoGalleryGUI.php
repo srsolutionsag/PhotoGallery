@@ -344,48 +344,49 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 
     public function listAlbums(): void
     {
-        $this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
-        $tpl = $this->pl->getTemplate('default/Album/tpl.clearing.html');
-
+        if (!$this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirect($this->parent, '');
+        }
+        $cards = [];
         /**
          * @var $srObjAlbum srObjAlbum
          */
-        if ($this->access->checkAccess('read', '', $this->object->getRefId())) {
-            foreach ($this->object->getAlbumObjects() as $srObjAlbum) {
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $srObjAlbum->getId());
-                $tpl->setCurrentBlock('picture');
-                $tpl->setVariable('TITLE', $srObjAlbum->getTitle());
-                $tpl->setVariable('DATE', date('d.m.Y', strtotime($srObjAlbum->getCreateDate())));
-                $tpl->setVariable('COUNT', $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'));
-                $tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class));
-
-                if ($srObjAlbum->getPreviewId() > 0) {
-                    $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $srObjAlbum->getId());
-                    $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
-                    $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
-                    $src_mosaic = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
-                } else {
-                    //TODO Refactor
-                    $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
-                }
-
-                $tpl->setVariable('SRC_PREVIEW', $src_mosaic);
-                $tpl->parseCurrentBlock();
+        foreach ($this->object->getAlbumObjects() as $srObjAlbum) {
+            $content = [];
+            $content[] = $this->ui->factory()->listing()->property()->withItems([
+                ["0", $srObjAlbum->getDescription(), false]
+            ]);
+            $content[] = $this->ui->factory()->listing()->property()->withItems([
+                ["1", date('d.m.Y', strtotime($srObjAlbum->getCreateDate())), false]
+            ]);
+            $content[] = $this->ui->factory()->listing()->property()->withItems([
+                ["2", $srObjAlbum->getPictureCount()  . ' ' . $this->pl->txt('pics'), false]
+            ]);
+            // image for the card
+            $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
+            if ($srObjAlbum->getPreviewId() > 0) {
+                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $srObjAlbum->getId());
+                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
+                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
+                $src_mosaic = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
             }
-            if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
-                $tpl->setCurrentBlock('add_new');
-                $tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
-                $tpl->setVariable(
-                    'LINK_ADDNEW',
-                    $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD)
-                );
-                $tpl->parseCurrentBlock();
-            }
-        } else {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirectByClass(ilRepositoryGUI::class, "view");
+            $image = $this->ui->factory()->image()->responsive(
+                $src_mosaic,
+                $srObjAlbum->getTitle()
+            );
+            $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $srObjAlbum->getId());
+            $title_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class);
+            $card = $this->ui->factory()->card()->standard(
+                $srObjAlbum->getTitle(),
+                $image
+            )->withTitleAction(
+                $title_action
+            )->withSections($content);
+            $cards[] = $card;
         }
-        $this->tpl->setContent($tpl->get());
+        $deck = $this->ui->factory()->deck($cards);
+        $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
 
     public function manageAlbums(): void

@@ -83,14 +83,16 @@ class srObjAlbumGUI
                 break;
             case '':
             case self::CMD_LIST_PICTURES:
-                self::setLocator($this->obj_album->getId());
+                $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+                self::setLocator($album_id);
                 $this->setTabs();
                 $this->setSubTabs();
                 $this->tabs_gui->activateSubTab(self::TAB_LIST_PICTURES);
                 $this->listPictures();
                 break;
             case self::CMD_MANAGE_PICTURES:
-                self::setLocator($this->obj_album->getId());
+                $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+                self::setLocator($album_id);
                 $this->setTabs();
                 $this->setSubTabs();
                 $this->tabs_gui->activateSubTab(self::TAB_MANAGE_PICTURES);
