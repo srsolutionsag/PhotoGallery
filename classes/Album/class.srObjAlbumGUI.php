@@ -16,7 +16,6 @@ class srObjAlbumGUI
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
 
     protected ilTabsGUI $tabs_gui;
-    protected ilPropertyFormGUI $form;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
@@ -214,8 +213,8 @@ class srObjAlbumGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
         } else {
-            $form = new srObjAlbumFormGUI($this, new srObjAlbum());
-            $this->tpl->setContent($form->getHTML());
+            $form_gui = new srObjAlbumFormGUI($this, new srObjAlbum());
+            $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
         }
     }
 
@@ -225,19 +224,23 @@ class srObjAlbumGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
         } else {
-            $form = new srObjAlbumFormGUI($this, new srObjAlbum());
-            $form->setValuesByPost();
-            if ($form->saveObject()) {
+            $form_gui = new srObjAlbumFormGUI($this, new srObjAlbum());
+            $form = $form_gui->getForm();
+            $form = $form->withRequest($this->http->request());
+            $data = $form->getData();
+            if ($form_gui->saveData($data)) {
                 $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success'), true);
                 $this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_LIST_ALBUMS);
             } else {
-                $this->tpl->setContent($form->getHTML());
+                $this->tpl->setContent($this->ui->renderer()->render([$form]));
             }
         }
     }
 
     public function edit(): void
     {
+        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
+        $this->ctrl->saveParameter($this, 'album_id');
         $to_int = $this->refinery->kindlyTo()->int();
         $ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $to_int);
         if (!$this->access->checkAccess('write', '', $ref_id)) {
@@ -255,34 +258,44 @@ class srObjAlbumGUI
             $this->ctrl->redirect($this->parent_gui, '');
         }
         $album_id = $album_ids[0];
+        $this->ctrl->setParameterByClass(srObjAlbumFormGUI::class, 'album_id', $album_id);
+        $this->ctrl->setParameter($this, 'album_id', $album_id);
         /**
          * @var $album srObjAlbum
          */
         $album = srObjAlbum::find($album_id);
-        $form = new srObjAlbumFormGUI($this, $album);
-        $form->fillForm();
-        $this->tpl->setContent($form->getHTML());
+        $form_gui = new srObjAlbumFormGUI($this, $album);
+        $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
 
     }
 
     public function update(): void
     {
+        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
+        $this->ctrl->saveParameter($this, 'album_id');
         if (!$this->access->checkAccess('write', '', $this->parent_gui->getObject()->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent_gui, '');
         } else {
-            $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+            if (!$this->http->wrapper()->query()->has('album_id')) {
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);
+                $this->ctrl->redirect($this->parent_gui, '');
+            }
+            $to_int = $this->refinery->kindlyTo()->int();
+            $album_id = $this->http->wrapper()->query()->retrieve('album_id', $to_int);
             /**
              * @var $album srObjAlbum
              */
             $album = srObjAlbum::find($album_id);
-            $form = new srObjAlbumFormGUI($this, $album);
-            $form->setValuesByPost();
-            if ($form->saveObject()) {
+            $form_gui = new srObjAlbumFormGUI($this, $album);
+            $form = $form_gui->getForm();
+            $form = $form->withRequest($this->http->request());
+            $data = $form->getData();
+            if ($form_gui->saveData($data)) {
                 $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success_edit'), true);
                 $this->ctrl->redirect($this->parent_gui, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
             } else {
-                $this->tpl->setContent($form->getHTML());
+                $this->tpl->setContent($this->ui->renderer()->render([$form]));
             }
         }
     }

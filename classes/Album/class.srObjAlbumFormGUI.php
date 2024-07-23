@@ -1,131 +1,155 @@
 <?php
 
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
+use ILIAS\HTTP\Services AS HttpServices;
+
 /**
- * GUI-Class srObjAlbumGUI
+ * @author            Lukas Zehnder <lukas@sr.solutions>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
  */
-class srObjAlbumFormGUI extends ilPropertyFormGUI
+class srObjAlbumFormGUI
 {
+    private ilCtrlInterface $ctrl;
+    private ilLanguage $lng;
+    private Factory $ui_factory;
+    private Renderer $ui_renderer;
+    private ilObjUser $user;
+    private HttpServices $http;
     protected srObjAlbum $album;
     protected srObjAlbumGUI $parent_gui;
     protected ilPhotoGalleryPlugin $pl;
 
     public function __construct(srObjAlbumGUI $parent_gui, srObjAlbum $album)
     {
-        parent::__construct();
         global $DIC;
         $this->ctrl = $DIC->ctrl();
+        $this->http = $DIC->http();
         $this->lng = $DIC->language();
         $this->user = $DIC->user();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
         $this->album = $album;
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
-        $this->initForm();
+
+        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
+        $this->ctrl->saveParameter($this, 'album_id');
     }
 
-    private function initForm(): void
+    public function getForm(): StandardForm
     {
-        $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        if ($this->album->getId() == 0) {
-            $this->setTitle($this->pl->txt('create_album'));
-        } else {
-            $this->setTitle($this->pl->txt('edit_album'));
-        }
-        $title = new ilTextInputGUI($this->pl->txt('albumtitle'), 'title');
-        $title->setRequired(true);
-        $this->addItem($title);
-        $desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
-        $this->addItem($desc);
-        $this->ctrl->getCmd();
-        switch ($this->ctrl->getCmd()) {
-            //			case atTableGUI::CMD_UPDATE:
-            case atTableGUI::CMD_EDIT:
-                $date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
-                $date_input->setDate(new ilDate($this->album->getCreateDate(), IL_CAL_DATE));
-                $this->addItem($date_input);
-                break;
-            case atTableGUI::CMD_ADD:
-            case atTableGUI::CMD_CREATE:
-                $date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
-                $date_input->setDate(new ilDate(date('Y-m-d'), IL_CAL_DATE));
-                $this->addItem($date_input);
-                break;
-        }
-
-        $header = new ilFormSectionHeaderGUI();
-        $header->setTitle($this->lng->txt('settings'));
-        $this->addItem($header);
-
-        $item = new ilRadioGroupInputGUI($this->pl->txt('sort_type'), 'sort_type');
-        $item->setRequired(true);
-        $item->setInfo($this->pl->txt('album_sort_type_info'));
+        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
+        $this->ctrl->saveParameter($this, 'album_id');
+        // create input fields
+        $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_SAVE);
+        $form_submit_label = $this->pl->txt('create_album');
+        $form_title = $this->pl->txt('create_album');
+        $hidden_id_input = $this->ui_factory->input()->field()->hidden()->withValue(0);
+        $title_input = $this->ui_factory->input()->field()->text(
+            $this->pl->txt('albumtitle')
+        )->withRequired(true);
+        $description_input = $this->ui_factory->input()->field()->text(
+            $this->pl->txt('description')
+        );
+        $date_input = $this->ui_factory->input()->field()->dateTime(
+            $this->pl->txt('date')
+        )->withValue(new DateTimeImmutable("now"));
+        $sort_type_input = $this->ui_factory->input()->field()->radio(
+            $this->pl->txt('sort_type'),
+            $this->pl->txt('album_sort_type_info')
+        )->withRequired(true);
         foreach (srObjAlbum::$sort_types as $type) {
-            $item->addOption(new ilRadioOption($this->pl->txt("sort_type_$type"), $type));
+            $sort_type_input = $sort_type_input->withOption($type, $this->pl->txt("sort_type_$type"));
         }
-        $this->addItem($item);
+        $sort_direction_input = $this->ui_factory->input()->field()->radio(
+            $this->pl->txt('sort_direction'),
+            $this->pl->txt('album_sort_direction_info')
+        )->withOption(
+            'asc',
+            $this->pl->txt('sort_direction_asc')
+        )->withOption(
+            'desc',
+            $this->pl->txt('sort_direction_desc')
+        )->withRequired(true);
 
-        $item = new ilRadioGroupInputGUI($this->pl->txt('sort_direction'), 'sort_direction');
-        $item->setRequired(true);
-        $item->setInfo($this->pl->txt('album_sort_direction_info'));
-        $item->addOption(new ilRadioOption($this->pl->txt('sort_direction_asc'), 'asc'));
-        $item->addOption(new ilRadioOption($this->pl->txt('sort_direction_desc'), 'desc'));
-        $this->addItem($item);
-
-        if ($this->album->getId() == 0) {
-            $this->addCommandButton(atTableGUI::CMD_CREATE, $this->pl->txt('create_album'));
-            $this->addCommandButton(srObjAlbumGUI::CMD_REDIRECT_TO_GALLERY_LIST_ALBUMS, $this->pl->txt('cancel'));
-        } else {
-            $this->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
-            $this->addCommandButton(srObjAlbumGUI::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS, $this->pl->txt('cancel'));
-        }
-    }
-
-    public function fillForm(): void
-    {
-        $array = [
-            'title' => $this->album->getTitle(),
-            'description' => $this->album->getDescription(),
-            'sort_type' => $this->album->getSortType(),
-            'sort_direction' => $this->album->getSortDirection()
-        ];
-        $this->setValuesByArray($array, true);
-    }
-
-    /**
-     * returns whether checkinput was successful or not.
-     */
-    public function fillObject(): bool
-    {
-        if (!$this->checkInput()) {
-            return false;
-        }
-        $this->album->setTitle($this->getInput('title'));
-        $this->album->setDescription($this->getInput('description'));
-        $date_array = $this->getInput('create_date');
-        if (is_array($date_array)) {
-            $date = $date_array['date']['y'] . '-' . $date_array['date']['m'] . '-' . $date_array['date']['d'];
-        } else {
-            $date = date('Y-m-d', strtotime($date_array));
-        }
-        $this->album->setCreateDate($date);
-        $this->album->setObjectId(ilObject::_lookupObjectId($_GET['ref_id']));
-        $this->album->setUserId($this->user->getId());
-        $this->album->setSortType($this->getInput('sort_type'));
-        $this->album->setSortDirection($this->getInput('sort_direction'));
-        return true;
-    }
-
-    public function saveObject(): bool
-    {
-        if (!$this->fillObject()) {
-            return false;
-        }
+        // if editing existing album change the action, submit label and title of the form and fill the input fields
         if ($this->album->getId() !== 0) {
-            $this->album->update();
-        } else {
-            $this->album->create();
+            $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_UPDATE);
+            $form_submit_label = $this->pl->txt('save');
+            $form_title = $this->pl->txt('edit_album');
+            $hidden_id_input = $hidden_id_input->withValue($this->album->getId());
+            $title_input = $title_input->withValue($this->album->getTitle());
+            $description_input = $description_input->withValue($this->album->getDescription());
+            $date_input = $date_input->withValue(new DateTimeImmutable($this->album->getCreateDate()));
+            $sort_type_input = $sort_type_input->withValue($this->album->getSortType());
+            $sort_direction_input = $sort_direction_input->withValue($this->album->getSortDirection());
+        }
+
+        // create sections and assign fields
+        $main_section = $this->ui_factory->input()->field()->section(
+            [
+                "album_id" => $hidden_id_input,
+                "title" => $title_input,
+                "description" => $description_input,
+                "create_date" => $date_input
+            ],
+            $form_title
+        );
+        $settings_section = $this->ui_factory->input()->field()->section(
+            [
+                "sort_type" => $sort_type_input,
+                "sort_direction" => $sort_direction_input
+            ],
+            $this->lng->txt('settings')
+        );
+
+        // create form and assign sections
+        return $this->ui_factory->input()->container()->form()->standard(
+            $form_action,
+            [
+                "main_section" => $main_section,
+                "settings_section" => $settings_section
+            ]
+        )->withSubmitLabel($form_submit_label);
+
+    }
+
+    public function saveData($data): bool
+    {
+        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
+        $this->ctrl->saveParameter($this, 'album_id');
+
+        if(empty($data)) {
+            return false;
+        }
+
+        try {
+            $album = new srObjAlbum();
+            if ($data['main_section']['album_id'] !== 0) {
+                $album = srObjAlbum::find($data['main_section']['album_id']);
+            }
+
+            $album->setTitle($data['main_section']['title']);
+            $album->setDescription($data['main_section']['description']);
+            /**
+             * @var DateTimeImmutable $create_date
+             */
+            $create_date = $data['main_section']['create_date'];
+            $album->setCreateDate($create_date->format('Y-m-d'));
+            $album->setSortType($data['settings_section']['sort_type']);
+            $album->setSortDirection($data['settings_section']['sort_direction']);
+
+            if ($data['main_section']['album_id'] !== 0) {
+                $album->update();
+            } else {
+                $album->create();
+            }
+        } catch (Exception $e) {
+            return false;
         }
 
         return true;
