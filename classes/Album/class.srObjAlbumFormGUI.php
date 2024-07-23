@@ -35,15 +35,10 @@ class srObjAlbumFormGUI
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
-
-        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
-        $this->ctrl->saveParameter($this, 'album_id');
     }
 
     public function getForm(): StandardForm
     {
-        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
-        $this->ctrl->saveParameter($this, 'album_id');
         // create input fields
         $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_SAVE);
         $form_submit_label = $this->pl->txt('create_album');
@@ -120,9 +115,6 @@ class srObjAlbumFormGUI
 
     public function saveData($data): bool
     {
-        $this->ctrl->saveParameterByClass(srObjAlbumGUI::class, 'album_id');
-        $this->ctrl->saveParameter($this, 'album_id');
-
         if(empty($data)) {
             return false;
         }

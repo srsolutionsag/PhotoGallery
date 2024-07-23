@@ -111,8 +111,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->setTitleAndDescription();
         $this->setLocator();
 
-        //        $this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '.svg'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
-        //                . $this->getType()));
         switch ($next_class) {
             case 'ilpermissiongui':
                 $this->setTabs();
@@ -250,34 +248,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             ['gallery' => $section]
         );
     }
-
-//    protected function initEditForm(): ilPropertyFormGUI
-//    {
-//        $form = new ilPropertyFormGUI();
-//        $form->setTitle($this->pl->txt('edit'));
-//        // title
-//        $ti = new ilTextInputGUI($this->pl->txt('gallery_title'), 'title');
-//        $ti->setMaxLength(128);
-//        $ti->setSize(40);
-//        $ti->setRequired(true);
-//        $form->addItem($ti);
-//        // description
-//        $ta = new ilTextAreaInputGUI($this->pl->txt('description'), 'desc');
-//        $ta->setRows(2);
-//        $form->addItem($ta);
-//        $ta->setValue($this->object->getDescription());
-//        $ti->setValue($this->object->getTitle());
-//
-//        // tile image
-//        $obj_service = $this->getObjectService();
-//        $form = $obj_service->commonSettings()->legacyForm($form, $this->object)->addTileImage();
-//
-//        $form->setFormAction($this->ctrl->getFormAction($this));
-//        $form->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
-//        $form->addCommandButton(self::CMD_SHOW_CONTENT, $this->pl->txt('cancel'));
-//
-//        return $form;
-//    }
 
     public function update(): void
     {

@@ -66,7 +66,7 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
                 $url_builder->withURI($this->buildURI(srObjAlbumGUI::class ,self::CMD_DOWNLOAD_ALBUM)),
                 $id_token
             ),
-            'delete' => $this->ui_factory->table()->action()->standard( //TODO: implement retrieval of gallery_album_ids in srObjAlbumGUI similar to edit
+            'delete' => $this->ui_factory->table()->action()->standard(
                 $this->lng->txt('delete'),
                 $url_builder->withURI($this->buildURI(srObjAlbumGUI::class ,self::CMD_CONFIRM_DELETE)),
                 $id_token
