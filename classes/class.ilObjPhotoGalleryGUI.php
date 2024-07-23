@@ -21,9 +21,13 @@
     +-----------------------------------------------------------------------------+
 */
 
+use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
+use ILIAS\HTTP\Services AS HttpService;
+
 /**
  * User Interface class for example repository object.
- * @author            Fabian Schmid <fs@studer-raimann.ch>
+ * @author            Lukas Zehnder <lukas@sr.solutions>
+ * @author            Fabian Schmid <fabian@sr.solutions>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
  * @author            Gabriel Comte <gc@studer-raimann.ch>
@@ -65,6 +69,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
      */
     protected $event;
     public ILIAS\DI\UIServices $ui;
+    private HttpService $http;
 
     protected function afterConstructor(): void
     {
@@ -78,6 +83,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->event = $DIC->event();
         $this->ui = $DIC->ui();
+        $this->http = $DIC->http();
 
         // add a link pointing to this object in footer [The "Permanent Link" in the footer]
         if ($this->object instanceof \ilObject) {
@@ -200,61 +206,103 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     public function edit(): void
     {
         $this->tabs_gui->activateTab(self::TAB_SETTINGS);
-        $this->tpl->setContent($this->initEditForm()->getHTML());
+        $this->tpl->setContent($this->ui->renderer()->render($this->getEditForm()));
     }
 
     public function editObject(): void
     {
         $this->tabs_gui->activateTab(self::TAB_SETTINGS);
-        $this->tpl->setContent($this->initEditForm()->getHTML());
+        $this->tpl->setContent($this->ui->renderer()->render($this->getEditForm()));
     }
 
-    protected function initEditForm(): ilPropertyFormGUI
+    protected function getEditForm(): StandardForm
     {
-        $form = new ilPropertyFormGUI();
-        $form->setTitle($this->pl->txt('edit'));
-        // title
-        $ti = new ilTextInputGUI($this->pl->txt('gallery_title'), 'title');
-        $ti->setMaxLength(128);
-        $ti->setSize(40);
-        $ti->setRequired(true);
-        $form->addItem($ti);
-        // description
-        $ta = new ilTextAreaInputGUI($this->pl->txt('description'), 'desc');
-        $ta->setRows(2);
-        $form->addItem($ta);
-        $ta->setValue($this->object->getDescription());
-        $ti->setValue($this->object->getTitle());
+        // create input fields
+        $title_input = $this->ui->factory()->input()->field()->text(
+            $this->pl->txt('gallery_title')
+        )->withMaxLength(
+            128
+        )->withValue(
+            $this->object->getTitle()
+        )->withRequired(true);
+        $description_input = $this->ui->factory()->input()->field()->textarea(
+            $this->pl->txt('description')
+        )->withValue($this->object->getDescription());
+        $tile_image_input = $this->object->getObjectProperties()->getPropertyTileImage()->toForm(
+            $this->lng,
+            $this->ui->factory()->input()->field(),
+            $this->refinery
+        );
 
-        // tile image
-        $obj_service = $this->getObjectService();
-        $form = $obj_service->commonSettings()->legacyForm($form, $this->object)->addTileImage();
+        // create named section and add input fields
+        $section = $this->ui->factory()->input()->field()->section(
+            [
+                'title' => $title_input,
+                'description' => $description_input,
+                'tile_image' => $tile_image_input
+            ],
+            $this->pl->txt('edit')
+        );
 
-        $form->setFormAction($this->ctrl->getFormAction($this));
-        $form->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
-        $form->addCommandButton(self::CMD_SHOW_CONTENT, $this->pl->txt('cancel'));
-
-        return $form;
+        // create form and add section
+        return $this->ui->factory()->input()->container()->form()->standard(
+            $this->ctrl->getFormAction($this, atTableGUI::CMD_UPDATE),
+            ['gallery' => $section]
+        );
     }
+
+//    protected function initEditForm(): ilPropertyFormGUI
+//    {
+//        $form = new ilPropertyFormGUI();
+//        $form->setTitle($this->pl->txt('edit'));
+//        // title
+//        $ti = new ilTextInputGUI($this->pl->txt('gallery_title'), 'title');
+//        $ti->setMaxLength(128);
+//        $ti->setSize(40);
+//        $ti->setRequired(true);
+//        $form->addItem($ti);
+//        // description
+//        $ta = new ilTextAreaInputGUI($this->pl->txt('description'), 'desc');
+//        $ta->setRows(2);
+//        $form->addItem($ta);
+//        $ta->setValue($this->object->getDescription());
+//        $ti->setValue($this->object->getTitle());
+//
+//        // tile image
+//        $obj_service = $this->getObjectService();
+//        $form = $obj_service->commonSettings()->legacyForm($form, $this->object)->addTileImage();
+//
+//        $form->setFormAction($this->ctrl->getFormAction($this));
+//        $form->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
+//        $form->addCommandButton(self::CMD_SHOW_CONTENT, $this->pl->txt('cancel'));
+//
+//        return $form;
+//    }
 
     public function update(): void
     {
-        $form = $this->initEditForm();
+        $form = $this->getEditForm();
+        $form = $form->withRequest($this->http->request());
+        $data = $form->getData();
 
-        if (!$form->checkInput()) {
-            $form->setValuesByPost();
-            $this->ui->mainTemplate()->setOnScreenMessage(
-                "failure",
-                $GLOBALS['DIC']->language()->txt('err_check_input')
-            );
-            $this->editObject();
+        if($data === null) {
+            $this->setTabs();
+            $this->tpl->setContent($this->ui->renderer()->render([$form]));
+            return;
         }
 
-        // tile image
-        $obj_service = $this->getObjectService();
-        $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTileImage();
-        // title and description
-        parent::update();
+        // store title and description
+        $this->object->setTitle($data['gallery']['title']);
+        $this->object->setDescription($data['gallery']['description']);
+        $this->object->update();
+        // store tile image
+        if (($data['gallery']['tile_image'] ?? null) !== null) {
+            $this->object->getObjectProperties()->storePropertyTileImage($data['gallery']['tile_image']);
+        }
+
+        $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success_edit'), true);
+        $this->setTabs();
+        $this->editObject();
     }
 
     public function saveObject(): void
