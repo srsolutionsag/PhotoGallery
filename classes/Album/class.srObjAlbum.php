@@ -85,6 +85,21 @@ class srObjAlbum extends ActiveRecord
      */
     protected $sort_direction = self::SORT_TYPE_DIRECTION_ASC;
     /**
+     * @var string
+     * @db_has_field  true
+     * @db_fieldtype  text
+     * @db_length     64
+     */
+    protected $album_collection_rid;
+    /**
+     * @var string
+     * @db_has_field  true
+     * @db_fieldtype  text
+     * @db_length     64
+     */
+    protected $preview_picture_rid;
+
+    /**
      * @var array
      */
     public static $sort_types = [self::SORT_TYPE_CREATE_DATE, self::SORT_TYPE_TITLE];
@@ -215,6 +230,26 @@ class srObjAlbum extends ActiveRecord
     public function setSortDirection(string $sort_direction): void
     {
         $this->sort_direction = $sort_direction;
+    }
+
+    public function getAlbumCollectionRID(): string
+    {
+        return $this->album_collection_rid;
+    }
+
+    public function setAlbumCollectionRID(string $album_collection_rid): void
+    {
+        $this->album_collection_rid = $album_collection_rid;
+    }
+
+    public function getPreviewPictureRID(): string
+    {
+        return $this->preview_picture_rid;
+    }
+
+    public function setPreviewPictureRID(string $preview_picture_rid): void
+    {
+        $this->preview_picture_rid = $preview_picture_rid;
     }
 
     public function delete(): void

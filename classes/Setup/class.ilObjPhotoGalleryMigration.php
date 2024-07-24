@@ -1,0 +1,156 @@
+<?php
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ */
+
+declare(strict_types=1);
+
+namespace Setup;
+
+use ILIAS\Setup\Migration;
+use ILIAS\Setup\Environment;
+use ILIAS\Setup\Condition\ExternalConditionObjective;
+use ilException;
+
+/**
+ * @author Lukas Zehnder <lukas@sr.solutions>
+ */
+class ilObjPhotoGalleryMigration implements Migration
+{
+    protected \ilResourceStorageMigrationHelper $helper;
+
+
+    public function getLabel(): string
+    {
+        return "Migration of photo gallery albums and pictures to the resource storage service.";
+    }
+
+
+    public function getDefaultAmountOfStepsPerRun(): int
+    {
+        return 1000;
+    }
+
+
+    public function getPreconditions(Environment $environment): array
+    {
+        $preconditions = \ilResourceStorageMigrationHelper::getPreconditions();
+        $preconditions[] = new ExternalConditionObjective(
+            "Photo gallery migration requires that the plugin's database has been updated to contain the required new columns album_collection_rid and preview_picture_rid",
+            function () {
+                global $DIC;
+                $collection_column_exists = $DIC->database()->tableColumnExists('sr_obj_pg_album', 'album_collection_rid');
+                $preview_column_exists = $DIC->database()->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid');
+                return $collection_column_exists && $preview_column_exists;
+            }
+        );
+        return $preconditions;
+    }
+
+
+    public function prepare(Environment $environment): void
+    {
+        $this->helper = new \ilResourceStorageMigrationHelper(
+            new \ilObjPhotoGalleryStakeholder(),
+            $environment
+        );
+    }
+
+
+    public function step(Environment $environment): void
+    {
+        global $DIC;
+        $irss = $DIC->resourceStorage();
+        $query = $this->helper->getDatabase()->query(
+            "SELECT album.id AS album_id, album.preview_id, album.user_id AS album_owner_id, picture.id AS picture_id, picture.title AS picture_title, picture.user_id AS picture_owner_id FROM sr_obj_pg_pic AS picture" .
+            " JOIN (SELECT * FROM sr_obj_pg_album AS album WHERE album.album_collection_rid IS NULL OR album.album_collection_rid = '' LIMIT 1) AS album ON picture.album_id = album.id;"
+        );
+        $dataset = $this->helper->getDatabase()->fetchAssoc($query);
+
+        // build empty collection for album which will be filled later
+        $album_id = (int)$dataset[0]['album_id'];
+        $album_owner_id = (int)$dataset[0]['album_owner_id'];
+        $album_collection = $this->helper->getCollectionBuilder()->new($album_owner_id);
+        if ($this->helper->getCollectionBuilder()->store($album_collection)) {
+            $album_collection_rid = $album_collection->getIdentification()->serialize();
+        } else {
+            throw new ilException("Could not build collection of album with id " . $album_id);
+        }
+
+        // only move original picture files to irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that)
+        $preview_picture_rid = null;
+        foreach ($dataset as $entry) {
+            $picture_owner_id = (int)$entry['picture_owner_id'];
+            $picture_id = (int)$entry['picture_id'];
+            $file_path = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id );
+            // move original picture file to irss
+            if ( ($resource_identification = $this->helper->movePathToStorage($file_path, $picture_owner_id )) !== null) {
+                // change the title of the newly created revision from 'original' to the actual title of the picture
+                $current_revision = $irss->manage()->getCurrentRevision($resource_identification);
+                $current_revision->setTitle($entry['picture_title']);
+                $irss->manage()->updateRevision($current_revision);
+                $album_collection->add($resource_identification);
+                //check if the current picture is the preview picture of the album, if so remember this for the db update later on
+                if ((int)$entry['preview_id'] === $picture_id) {
+                    $preview_picture_rid = $resource_identification->serialize();
+                }
+            } else {
+                throw new ilException("Could not move file with picture id " . $picture_id . "to storage");
+            }
+        }
+
+        // update the album's db table with the new collection resource id
+        $this->helper->getDatabase()->update(
+            'sr_obj_pg_album',
+            [
+                'album_collection_rid' => ['text', $album_collection_rid]
+            ],
+            [
+                'id' => ['integer', $album_id]
+            ]
+        );
+
+        // update the album's db table with the new preview picture resource id if there is one
+        if ($preview_picture_rid !== null) {
+            $this->helper->getDatabase()->update(
+                'sr_obj_pg_album',
+                [
+                    'preview_picture_rid' => ['text', $preview_picture_rid]
+                ],
+                [
+                    'id' => ['integer', $album_id]
+                ]
+            );
+        }
+    }
+
+
+    public function getRemainingAmountOfSteps(): int
+    {
+        $r = $this->helper->getDatabase()->query(
+            "SELECT count(id) AS amount FROM sr_obj_pg_album WHERE album_collection_rid IS NULL OR album_collection_rid = ''"
+        );
+        $d = $this->helper->getDatabase()->fetchObject($r);
+
+        return (int)$d->amount;
+    }
+
+
+    protected function buildAbsolutePathToOriginalPicture(int $album_id, int $picture_id): string
+    {
+        return CLIENT_DATA_DIR . '/xpho/album_' . $album_id . '/picture_' . $picture_id . "/original.png";
+    }
+
+}

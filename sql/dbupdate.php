@@ -61,3 +61,36 @@ $DIC->database()->manipulate(
     ) . ", sort_direction = " . $ilDB->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text')
 );
 ?>
+<#6>
+<?php
+// Add a new column which will store the album's collection resource id after the irss migration
+global $DIC;
+if (!$this->db->tableColumnExists('sr_obj_pg_album', 'album_collection_rid')) {
+    $this->db->addTableColumn(
+        'sr_obj_pg_album',
+        'album_collection_rid',
+        [
+            'type' => 'text',
+            'notnull' => false,
+            'length' => 64,
+            'default' => ''
+        ]
+    );
+}
+?>
+<#7>
+<?php
+// Add a new column which will store the resource id of the album's of preview picture after the irss migration
+global $DIC;
+if (!$this->db->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid')) {
+    $this->db->addTableColumn(
+        'sr_obj_pg_album',
+        'preview_picture_rid',
+        [
+            'type' => 'text',
+            'notnull' => false,
+            'length' => 64,
+            'default' => ''
+        ]
+    );
+}
