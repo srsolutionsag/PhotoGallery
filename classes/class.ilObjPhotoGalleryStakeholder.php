@@ -65,7 +65,7 @@ class ilObjPhotoGalleryStakeholder extends AbstractResourceStakeholder
 
         $ref_ids = ilObject2::_getAllReferences($gallery_object_id);
         foreach ($ref_ids as $ref_id) {
-            // one must have read permissions on the photo gallery object to see the instruction files
+            // one must have read permissions on the photo gallery object to see the picture files
             if ($DIC->access()->checkAccessOfUser($this->current_user, 'read', '', $ref_id)) {
                 return true;
             }
