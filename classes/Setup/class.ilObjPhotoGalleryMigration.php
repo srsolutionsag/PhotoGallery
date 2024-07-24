@@ -70,8 +70,10 @@ class ilObjPhotoGalleryMigration implements Migration
         $irss_manager = $this->helper->getManager();
         $query = $this->helper->getDatabase()->query(
             "SELECT album.id AS album_id, album.preview_id, album.user_id AS album_owner_id, picture.id AS picture_id, picture.title AS picture_title, picture.user_id AS picture_owner_id FROM sr_obj_pg_album AS album"
-            . " JOIN (SELECT MAX(id) AS max_id FROM sr_obj_pg_album WHERE album_collection_rid IS NULL OR album_collection_rid = '') AS a ON album.id = a.max_id"
             . " JOIN sr_obj_pg_pic AS picture ON picture.album_id = album.id"
+            . " JOIN (SELECT MIN(a1.id) AS min_id FROM sr_obj_pg_album AS a1 JOIN sr_obj_pg_pic AS p ON p.album_id = a1.id"
+            . " JOIN (SELECT a.id FROM sr_obj_pg_album AS a WHERE album_collection_rid IS NULL OR album_collection_rid = '') AS a2 ON a1.id = a2.id) AS calc"
+            . " ON calc.min_id = album.id"
         );
         $dataset = $this->helper->getDatabase()->fetchAll($query);
 
@@ -137,7 +139,9 @@ class ilObjPhotoGalleryMigration implements Migration
     public function getRemainingAmountOfSteps(): int
     {
         $r = $this->helper->getDatabase()->query(
-            "SELECT count(id) AS amount FROM sr_obj_pg_album WHERE album_collection_rid IS NULL OR album_collection_rid = ''"
+            "SELECT COUNT(DISTINCT(a.id)) AS amount FROM sr_obj_pg_album AS a"
+            . " JOIN sr_obj_pg_pic AS p ON p.album_id = a.id"
+            . " WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '';"
         );
         $d = $this->helper->getDatabase()->fetchObject($r);
 
