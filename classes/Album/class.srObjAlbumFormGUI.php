@@ -4,6 +4,7 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
 use ILIAS\HTTP\Services AS HttpServices;
+use ILIAS\Refinery\Factory as Refinery;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -18,6 +19,7 @@ class srObjAlbumFormGUI
     private Renderer $ui_renderer;
     private ilObjUser $user;
     private HttpServices $http;
+    private Refinery $refinery;
     protected srObjAlbum $album;
     protected srObjAlbumGUI $parent_gui;
     protected ilPhotoGalleryPlugin $pl;
@@ -31,6 +33,7 @@ class srObjAlbumFormGUI
         $this->user = $DIC->user();
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
+        $this->refinery = $DIC->refinery();
         $this->album = $album;
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
@@ -40,7 +43,7 @@ class srObjAlbumFormGUI
     public function getForm(): StandardForm
     {
         // create input fields
-        $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_SAVE);
+        $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_CREATE);
         $form_submit_label = $this->pl->txt('create_album');
         $form_title = $this->pl->txt('create_album');
         $hidden_id_input = $this->ui_factory->input()->field()->hidden()->withValue(0);
@@ -115,13 +118,14 @@ class srObjAlbumFormGUI
 
     public function saveData($data): bool
     {
-        if(empty($data)) {
+        if(empty($data) || !$this->http->wrapper()->query()->has('ref_id')) {
             return false;
         }
 
         try {
+            $gallery_ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int());
             $album = new srObjAlbum();
-            if ($data['main_section']['album_id'] !== 0) {
+            if ((int)$data['main_section']['album_id'] !== 0) {
                 $album = srObjAlbum::find($data['main_section']['album_id']);
             }
 
@@ -134,8 +138,10 @@ class srObjAlbumFormGUI
             $album->setCreateDate($create_date->format('Y-m-d'));
             $album->setSortType($data['settings_section']['sort_type']);
             $album->setSortDirection($data['settings_section']['sort_direction']);
+            $album->setObjectId(ilObject::_lookupObjectId($gallery_ref_id));
+            $album->setUserId($this->user->getId());
 
-            if ($data['main_section']['album_id'] !== 0) {
+            if ((int)$data['main_section']['album_id'] !== 0) {
                 $album->update();
             } else {
                 $album->create();
