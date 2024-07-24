@@ -17,8 +17,6 @@
 
 declare(strict_types=1);
 
-namespace Setup;
-
 use ILIAS\Setup\Agent\NullAgent;
 
 /**

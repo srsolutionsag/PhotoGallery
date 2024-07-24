@@ -17,12 +17,8 @@
 
 declare(strict_types=1);
 
-namespace Setup;
-
 use ILIAS\Setup\Migration;
 use ILIAS\Setup\Environment;
-use ILIAS\Setup\Condition\ExternalConditionObjective;
-use ilException;
 
 /**
  * @author Lukas Zehnder <lukas@sr.solutions>
@@ -46,17 +42,7 @@ class ilObjPhotoGalleryMigration implements Migration
 
     public function getPreconditions(Environment $environment): array
     {
-        $preconditions = \ilResourceStorageMigrationHelper::getPreconditions();
-        $preconditions[] = new ExternalConditionObjective(
-            "Photo gallery migration requires that the plugin's database has been updated to contain the required new columns album_collection_rid and preview_picture_rid",
-            function () {
-                global $DIC;
-                $collection_column_exists = $DIC->database()->tableColumnExists('sr_obj_pg_album', 'album_collection_rid');
-                $preview_column_exists = $DIC->database()->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid');
-                return $collection_column_exists && $preview_column_exists;
-            }
-        );
-        return $preconditions;
+        return \ilResourceStorageMigrationHelper::getPreconditions();
     }
 
 
@@ -71,23 +57,28 @@ class ilObjPhotoGalleryMigration implements Migration
 
     public function step(Environment $environment): void
     {
-        global $DIC;
-        $irss = $DIC->resourceStorage();
+        //first check if the needed columns exist (unfortunately checking for them in the pre-conditions didn't work as the database was not yet available)
+        $collection_column_exists = $this->helper->getDatabase()->tableColumnExists('sr_obj_pg_album', 'album_collection_rid');
+        $preview_column_exists = $this->helper->getDatabase()->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid');
+        if (!$collection_column_exists) {
+            throw new ilException("The needed column album_collection_rid does not exist in the sr_obj_pg_album table.");
+        }
+        if (!$preview_column_exists) {
+            throw new ilException("The needed column preview_picture_rid does not exist in the sr_obj_pg_album table.");
+        }
+
+        $irss_manager = $this->helper->getManager();
         $query = $this->helper->getDatabase()->query(
-            "SELECT album.id AS album_id, album.preview_id, album.user_id AS album_owner_id, picture.id AS picture_id, picture.title AS picture_title, picture.user_id AS picture_owner_id FROM sr_obj_pg_pic AS picture" .
-            " JOIN (SELECT * FROM sr_obj_pg_album AS album WHERE album.album_collection_rid IS NULL OR album.album_collection_rid = '' LIMIT 1) AS album ON picture.album_id = album.id;"
+            "SELECT album.id AS album_id, album.preview_id, album.user_id AS album_owner_id, picture.id AS picture_id, picture.title AS picture_title, picture.user_id AS picture_owner_id FROM sr_obj_pg_album AS album"
+            . " JOIN (SELECT MAX(id) AS max_id FROM sr_obj_pg_album WHERE album_collection_rid IS NULL OR album_collection_rid = '') AS a ON album.id = a.max_id"
+            . " JOIN sr_obj_pg_pic AS picture ON picture.album_id = album.id"
         );
-        $dataset = $this->helper->getDatabase()->fetchAssoc($query);
+        $dataset = $this->helper->getDatabase()->fetchAll($query);
 
         // build empty collection for album which will be filled later
         $album_id = (int)$dataset[0]['album_id'];
         $album_owner_id = (int)$dataset[0]['album_owner_id'];
         $album_collection = $this->helper->getCollectionBuilder()->new($album_owner_id);
-        if ($this->helper->getCollectionBuilder()->store($album_collection)) {
-            $album_collection_rid = $album_collection->getIdentification()->serialize();
-        } else {
-            throw new ilException("Could not build collection of album with id " . $album_id);
-        }
 
         // only move original picture files to irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that)
         $preview_picture_rid = null;
@@ -98,17 +89,23 @@ class ilObjPhotoGalleryMigration implements Migration
             // move original picture file to irss
             if ( ($resource_identification = $this->helper->movePathToStorage($file_path, $picture_owner_id )) !== null) {
                 // change the title of the newly created revision from 'original' to the actual title of the picture
-                $current_revision = $irss->manage()->getCurrentRevision($resource_identification);
+                $current_revision = $irss_manager->getCurrentRevision($resource_identification);
                 $current_revision->setTitle($entry['picture_title']);
-                $irss->manage()->updateRevision($current_revision);
+                $irss_manager->updateRevision($current_revision);
                 $album_collection->add($resource_identification);
                 //check if the current picture is the preview picture of the album, if so remember this for the db update later on
                 if ((int)$entry['preview_id'] === $picture_id) {
                     $preview_picture_rid = $resource_identification->serialize();
                 }
             } else {
-                throw new ilException("Could not move file with picture id " . $picture_id . "to storage");
+                throw new ilException("Could not move file with picture id " . $picture_id . " to storage");
             }
+        }
+        // store the collection of the album (must be here so added resources are stored with it)
+        if ($this->helper->getCollectionBuilder()->store($album_collection)) {
+            $album_collection_rid = $album_collection->getIdentification()->serialize();
+        } else {
+            throw new ilException("Could not build collection of album with id " . $album_id);
         }
 
         // update the album's db table with the new collection resource id
