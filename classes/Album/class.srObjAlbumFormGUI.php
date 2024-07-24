@@ -63,6 +63,7 @@ class srObjAlbumFormGUI
         foreach (srObjAlbum::$sort_types as $type) {
             $sort_type_input = $sort_type_input->withOption($type, $this->pl->txt("sort_type_$type"));
         }
+        $sort_type_input = $sort_type_input->withValue(srObjAlbum::$sort_types[0]);
         $sort_direction_input = $this->ui_factory->input()->field()->radio(
             $this->pl->txt('sort_direction'),
             $this->pl->txt('album_sort_direction_info')
@@ -72,6 +73,8 @@ class srObjAlbumFormGUI
         )->withOption(
             'desc',
             $this->pl->txt('sort_direction_desc')
+        )->withValue(
+            'asc'
         )->withRequired(true);
 
         // if editing existing album change the action, submit label and title of the form and fill the input fields
