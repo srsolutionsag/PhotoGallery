@@ -14,6 +14,7 @@ class srObjAlbumGUI
     public const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
     public const TAB_LIST_PICTURES = 'list_pictures';
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
+    private ilToolbarGUI $toolbar;
 
     protected ilTabsGUI $tabs_gui;
     protected ilCtrl $ctrl;
@@ -41,6 +42,7 @@ class srObjAlbumGUI
         $this->ui = $DIC->ui();
         $this->tabs_gui = $DIC->tabs();
         $this->tabs_gui->clearTargets();
+        $this->toolbar = $DIC->toolbar();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
 
@@ -148,54 +150,64 @@ class srObjAlbumGUI
 
     public function listPictures(): void
     {
-        $this->tpl->addJavaScript($this->pl->getDirectory() . '/templates/libs/foundation-5.0.2/js/modernizr.js');
-        $this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
-        $tpl = $this->pl->getTemplate('default/Picture/tpl.clearing.html', false);
-        $tpl->setVariable('ALBUM_TITLE', $this->obj_album->getTitle());
-        if ($this->access->checkAccess('read', '', $this->parent_gui->getObject()->getRefId())) {
-            /**
-             * @var $srObjPicture srObjPicture
-             */
-            foreach ($this->obj_album->getPictureObjects() as $srObjPicture) {
-                $tpl->setCurrentBlock('picture');
-                $tpl->setVariable('TITLE', $srObjPicture->getTitle());
-
-                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
-                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
-                $src_preview = $this->ctrl->getLinkTargetByClass(
-                    srObjPictureGUI::class,
-                    srObjPictureGUI::CMD_SEND_FILE
-                );
-                $tpl->setVariable('SRC_PREVIEW', $src_preview);
-
-                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
-                $this->ctrl->setParameterByClass(
-                    srObjPictureGUI::class,
-                    'picture_type',
-                    srObjPicture::TITLE_PRESENTATION
-                );
-                $src_prensentation = $this->ctrl->getLinkTargetByClass(
-                    srObjPictureGUI::class,
-                    srObjPictureGUI::CMD_SEND_FILE
-                );
-                $tpl->setVariable('SRC_PRESENTATION', $src_prensentation);
-
-                $tpl->parseCurrentBlock();
-            }
-            if ($this->access->checkAccess('write', '', $this->parent_gui->getObject()->getRefId())) {
-                $tpl->setCurrentBlock('add_new');
-                $tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
-                $tpl->setVariable(
-                    'LINK',
-                    $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD)
-                );
-                $tpl->parseCurrentBlock();
-            }
-        } else {
+        if (!$this->access->checkAccess('read', '', $this->parent_gui->getObject()->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         }
-        $this->tpl->setContent($tpl->get());
+
+        // create add picture button and add it to toolbar
+        $add_picture_button = $this->ui->factory()->button()->primary(
+            $this->pl->txt('upload_pic'),
+            $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD)
+        );
+        $this->toolbar->addComponent($add_picture_button);
+
+        // picture cards
+        $cards = [];
+        /**
+         * @var $srObjPicture srObjPicture
+         */
+        foreach ($this->obj_album->getPictureObjects() as $srObjPicture) {
+            // image for the card
+            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
+            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
+            $src_preview = $this->ctrl->getLinkTargetByClass(
+                srObjPictureGUI::class,
+                srObjPictureGUI::CMD_SEND_FILE
+            );
+            $image = $this->ui->factory()->image()->responsive(
+                $src_preview,
+                $srObjPicture->getTitle()
+            );
+//            $this->ctrl->setParameterByClass(srObjPicture::class, 'picture_id', $srObjPicture->getId());
+            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
+            $this->ctrl->setParameterByClass(
+                srObjPictureGUI::class,
+                'picture_type',
+                srObjPicture::TITLE_PRESENTATION
+            );
+            $src_presentation = $this->ctrl->getLinkTargetByClass(
+                srObjPictureGUI::class,
+                srObjPictureGUI::CMD_SEND_FILE
+            );
+            $card = $this->ui->factory()->card()->standard(
+                "",
+                $image->withAction($src_presentation)
+            );
+            $cards[] = $card;
+        }
+        $add_new_picture_image = $this->ui->factory()->image()->responsive(
+            $this->pl->getDirectory() . '/templates/images/addnew.jpg',
+            $this->pl->txt('upload_pic')
+        );
+        $add_new_picture_action = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD);
+        $add_new_picture_card = $this->ui->factory()->card()->standard(
+            "",
+            $add_new_picture_image->withAction($add_new_picture_action)
+        );
+        $cards[] = $add_new_picture_card;
+        $deck = $this->ui->factory()->deck($cards);
+        $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
 
     public function managePictures(): void
