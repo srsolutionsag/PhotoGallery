@@ -16,6 +16,7 @@ actions#:#Aktionen
 edit#:#Bearbeiten
 title#:#Titel
 description#:#Beschreibung
+add_album#:#Album hinzufügen
 create_album#:#Album erstellen
 edit_album#:#Album bearbeiten
 enter_date#:#Datum angeben

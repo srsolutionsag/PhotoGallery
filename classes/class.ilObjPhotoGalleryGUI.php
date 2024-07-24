@@ -80,6 +80,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
         $this->tabs_gui = $DIC->tabs();
+        $this->toolbar = $DIC->toolbar();
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->event = $DIC->event();
         $this->ui = $DIC->ui();
@@ -348,6 +349,14 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this->parent, '');
         }
+        // create add album button and add it to toolbar
+        $add_album_button = $this->ui->factory()->button()->primary(
+            $this->pl->txt('add_album'),
+            $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD)
+        );
+        $this->toolbar->addComponent($add_album_button);
+
+        // album cards
         $cards = [];
         /**
          * @var $srObjAlbum srObjAlbum
