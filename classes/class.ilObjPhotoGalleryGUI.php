@@ -385,15 +385,25 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $srObjAlbum->getTitle()
             );
             $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $srObjAlbum->getId());
-            $title_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class);
+            $open_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class);
             $card = $this->ui->factory()->card()->standard(
                 $srObjAlbum->getTitle(),
-                $image
+                $image->withAction($open_album_action)
             )->withTitleAction(
-                $title_action
+                $open_album_action
             )->withSections($content);
             $cards[] = $card;
         }
+        $add_new_album_image = $this->ui->factory()->image()->responsive(
+            $this->pl->getDirectory() . '/templates/images/addnew.jpg',
+            $this->pl->txt('add_album')
+        );
+        $add_new_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD);
+        $add_new_album_card = $this->ui->factory()->card()->standard(
+            "",
+            $add_new_album_image->withAction($add_new_album_action)
+        );
+        $cards[] = $add_new_album_card;
         $deck = $this->ui->factory()->deck($cards);
         $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
