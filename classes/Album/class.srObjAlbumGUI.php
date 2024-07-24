@@ -216,8 +216,8 @@ class srObjAlbumGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            $tableGui = new srObjAlbumTableGUI($this, srObjAlbumGUI::CMD_MANAGE_PICTURES);
-            $this->tpl->setContent($tableGui->getHTML());
+            $table_gui = new srObjAlbumTableGUI();
+            $this->tpl->setContent($table_gui->getTableForRepresentation());
         }
     }
 
