@@ -368,7 +368,7 @@ class srObjAlbumGUI
         $gallery = $this->parent_gui->getObject();
         if (!$this->access->checkAccess('read', '', $gallery->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS);
+            $this->ctrl->redirect($this->parent_gui, '');
         }
         if (!$this->http->wrapper()->query()->has('gallery_album_ids')) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album_ids'), true);

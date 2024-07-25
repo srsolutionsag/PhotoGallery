@@ -18,6 +18,7 @@ class srObjPictureGUI
     public $pl;
     public const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
     public const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
+    public const CMD_UPLOAD = 'upload';
     public const CMD_SEND_FILE = 'sendFile';
 
     protected ilAccessHandler $access;
@@ -57,30 +58,37 @@ class srObjPictureGUI
 
     public function executeCommand(): bool
     {
+        $next_class = $this->ctrl->getNextClass();
         $cmd = $this->ctrl->getCmd();
-        //$this->ctrl->saveParameter($this, 'user_id');
-        //$this->ctrl->saveParameter($this, 'picture_id');
 
-        switch ($cmd) {
-            case self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES:
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
-                $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
+        switch ($next_class) {
+            case strtolower(ilObjPhotoGalleryUploadHandlerGUI::class):
+                $this->ctrl->forwardCommand(new ilObjPhotoGalleryUploadHandlerGUI());
                 break;
-            case self::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES:
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
-                $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
-                break;
-            case self::CMD_SEND_FILE:
-            case atTableGUI::CMD_ADD:
-            case atTableGUI::CMD_CREATE:
-            case atTableGUI::CMD_EDIT:
-            case atTableGUI::CMD_UPDATE:
-            case atTableGUI::CMD_DELETE:
-            case atTableGUI::CMD_CONFIRM_DELETE:
-            case atTableGUI::CMD_DOWNLOAD:
-                $this->$cmd();
+            default:
+                switch ($cmd) {
+                    case self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES:
+                        $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
+                        $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
+                        $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
+                        break;
+                    case self::CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES:
+                        $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picutre_id', null);
+                        $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
+                        $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+                        break;
+                    case self::CMD_SEND_FILE:
+                    case self::CMD_UPLOAD:
+                    case atTableGUI::CMD_ADD:
+                    case atTableGUI::CMD_CREATE:
+                    case atTableGUI::CMD_EDIT:
+                    case atTableGUI::CMD_UPDATE:
+                    case atTableGUI::CMD_DELETE:
+                    case atTableGUI::CMD_CONFIRM_DELETE:
+                    case atTableGUI::CMD_DOWNLOAD:
+                        $this->$cmd();
+                        break;
+                }
                 break;
         }
 
@@ -93,8 +101,8 @@ class srObjPictureGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            $form = new srObjPictureFormGUI($this, new srObjPicture());
-            $this->tpl->setContent($form->getHTML());
+            $form_gui = new srObjPictureFormGUI($this, new srObjPicture());
+            $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
         }
     }
 
@@ -103,16 +111,21 @@ class srObjPictureGUI
      */
     public function create(): void
     {
-        $response = '';
         if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this->parent);
+            $this->ctrl->redirect($this->parent, '');
         }
-        $form = new srObjPictureFormGUI($this, new srObjPicture());
-        $form->setValuesByPost();
-        $response = $form->saveObject();
 
-        $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        $form_gui = new srObjPictureFormGUI($this, new srObjPicture());
+        $form = $form_gui->getForm();
+        $form = $form->withRequest($this->http->request());
+        $data = $form->getData();
+        if ($form_gui->saveData($data)) {
+            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        } else {
+            $this->tpl->setContent($this->ui->renderer()->render([$form]));
+        }
     }
 
     public function edit(): void
@@ -126,8 +139,7 @@ class srObjPictureGUI
          */
         $picture = srObjPicture::find($picture_id);
         $form_gui = new srObjPictureFormGUI($this, $picture);
-        $form_gui->fillForm();
-        $this->tpl->setContent($form_gui->getHTML());
+        $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
     }
 
     public function update(): void
@@ -135,19 +147,26 @@ class srObjPictureGUI
         if (!$this->access->checkAccess('write', '', $this->parent->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
+        }
+        if (!$this->http->wrapper()->query()->has('picture_id')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture_id'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+        }
+        $to_int = $this->refinery->kindlyTo()->int();
+        $picture_id = $this->http->wrapper()->query()->retrieve('picture_id', $to_int);
+        /**
+         * @var $picture srObjPicture
+         */
+        $picture = srObjPicture ::find($picture_id);
+        $form_gui = new srObjPictureFormGUI($this, $picture);
+        $form = $form_gui->getForm();
+        $form = $form->withRequest($this->http->request());
+        $data = $form->getData();
+        if ($form_gui->saveData($data)) {
+            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success_edit'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
         } else {
-            $form = new srObjPictureFormGUI($this, $this->obj_picture);
-
-            if ($form->saveObject()) {
-                $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success_edit'), true);
-
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'picture_id', null);
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $this->obj_picture->getAlbumId());
-                $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
-            } else {
-                $form->setValuesByPost();
-                $this->tpl->setContent($form->getHTML());
-            }
+            $this->tpl->setContent($this->ui->renderer()->render([$form]));
         }
     }
 
