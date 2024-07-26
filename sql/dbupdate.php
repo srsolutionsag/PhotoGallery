@@ -95,3 +95,21 @@ if (!$DIC->database()->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid
     );
 }
 ?>
+<#8>
+<?php
+// Add a new column which will store the picture's resource id after the irss migration
+global $DIC;
+if (!$DIC->database()->tableColumnExists('sr_obj_pg_pic', 'picture_rid')) {
+    $DIC->database()->addTableColumn(
+        'sr_obj_pg_pic',
+        'picture_rid',
+        [
+            'type' => 'text',
+            'notnull' => false,
+            'length' => 64,
+            'default' => ''
+        ]
+    );
+}
+?>
+

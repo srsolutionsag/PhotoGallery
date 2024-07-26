@@ -83,6 +83,7 @@ class ilObjPhotoGalleryMigration implements Migration
         $album_collection = $this->helper->getCollectionBuilder()->new($album_owner_id);
 
         // only move original picture files to irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that)
+        $picture_rids = [];
         $preview_picture_rid = null;
         foreach ($dataset as $entry) {
             $picture_owner_id = (int)$entry['picture_owner_id'];
@@ -103,9 +104,11 @@ class ilObjPhotoGalleryMigration implements Migration
                 $current_revision->setTitle($entry['picture_title']);
                 $irss_manager->updateRevision($current_revision);
                 $album_collection->add($resource_identification);
+                $picture_rid = $resource_identification->serialize();
+                $picture_rids[] = $picture_rid;
                 //check if the current picture is the preview picture of the album, if so remember this for the db update later on
                 if ((int)$entry['preview_id'] === $picture_id) {
-                    $preview_picture_rid = $resource_identification->serialize();
+                    $preview_picture_rid = $picture_rid;
                 }
             } else {
                 throw new ilException("Could not move file with picture id " . $picture_id . " to storage");
@@ -138,6 +141,19 @@ class ilObjPhotoGalleryMigration implements Migration
                 ],
                 [
                     'id' => ['integer', $album_id]
+                ]
+            );
+        }
+
+        // update the picture's db table with the new resource ids
+        foreach ($picture_rids as $picture_rid) {
+            $this->helper->getDatabase()->update(
+                'sr_obj_pg_pic',
+                [
+                    'picture_rid' => ['text', $picture_rid]
+                ],
+                [
+                    'id' => ['integer', $picture_id]
                 ]
             );
         }

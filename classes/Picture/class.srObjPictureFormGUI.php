@@ -195,6 +195,7 @@ class srObjPictureFormGUI
             $picture->setSuffix($file_revision->getInformation()->getSuffix());
             $picture->setUserId($this->user->getId());
             $picture->setAlbumId($album_id);
+            $picture->setPictureRID($file_rid);
             $picture->create();
             $album_collection->add($file_identification);
         }

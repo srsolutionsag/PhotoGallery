@@ -76,6 +76,14 @@ class srObjPicture extends ActiveRecord
      * @db_length           4000
      */
     protected $description = '';
+    /**
+     * @var string
+     * @db_has_field  true
+     * @db_fieldtype  text
+     * @db_length     64
+     */
+    protected $picture_rid;
+
 
     /**
      * @return string
@@ -188,6 +196,17 @@ class srObjPicture extends ActiveRecord
     {
         $this->description = $description;
     }
+
+    public function getPictureRID(): string
+    {
+        return $this->picture_rid;
+    }
+
+    public function setPictureRID(string $picture_rid): void
+    {
+        $this->picture_rid = $picture_rid;
+    }
+
 
     public function getPicturePath(): string
     {
