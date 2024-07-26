@@ -337,10 +337,27 @@ class srObjAlbumGUI
         if ((is_countable($album_ids) ? count($album_ids) : 0) > 0) {
             // delete all selected items
             foreach ($album_ids as $album_id) {
+                /**
+                 * @var $album srObjAlbum
+                 */
                 $album = srObjAlbum::find($album_id);
                 if ($album === null) {
                     continue;
                 }
+                // delete album and its pictures in irss
+                $album_collection_rid = $album->getAlbumCollectionRID();
+                $collection_identifier = $this->irss->collection()->id($album_collection_rid);
+                $this->irss->collection()->remove(
+                    $collection_identifier,
+                    new ilObjPhotoGalleryStakeholder($album->getUserId()),
+                    true
+                );
+                $pictures = $album->getPictureObjects();
+                foreach ($pictures as $picture) {
+                    // delete pictures of album in db
+                    $picture->delete();
+                }
+                // delete album in db
                 $album->delete();
             }
             $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_album'), true);

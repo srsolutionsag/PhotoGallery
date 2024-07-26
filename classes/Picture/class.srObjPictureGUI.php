@@ -229,14 +229,32 @@ class srObjPictureGUI
                 if($picture === null) {
                     continue;
                 }
+                $picture_rid = $picture->getPictureRID();
                 //if the current picture serves as the album's preview image remove the preview before deletion
                 $album_id = $picture->getAlbumId();
+                /**
+                 * @var $album srObjAlbum
+                 */
                 $album = srObjAlbum::find($album_id);
-                if ($album !== null && ((int) $picture->getId() === $album->getPreviewId())) {
+                if ($album !== null && ((int) $picture->getId() === $album->getPreviewId() || $picture_rid === $album->getPreviewPictureRID())) {
                     $album->setPreviewId(0);
+                    $album->setPreviewPictureRID('');
                     $album->update();
                 }
-
+                // delete picture in IRSS
+                $picture_identifier = $this->irss->manage()->find($picture_rid);
+                $album_collection_rid = $album->getAlbumCollectionRID();
+                $collection_identifier = $this->irss->collection()->id($album_collection_rid);
+                if ($picture_identifier === null && $collection_identifier === null) {
+                    continue;
+                }
+                $collection = $this->irss->collection()->get($collection_identifier, $album->getUserId());
+                $collection->remove($picture_identifier);
+                $this->irss->manage()->remove(
+                    $picture_identifier,
+                    new ilObjPhotoGalleryStakeholder($picture->getUserId())
+                );
+                // delete picture in DB
                 $picture->delete();
             }
             $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_album'), true);
