@@ -2,7 +2,7 @@
 
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
-use ILIAS\Refinery\Factory AS Refinery;
+use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
@@ -164,7 +164,7 @@ class srObjPictureGUI
         /**
          * @var $picture srObjPicture
          */
-        $picture = srObjPicture ::find($picture_id);
+        $picture = srObjPicture::find($picture_id);
         $form_gui = new srObjPictureFormGUI($this, $picture);
         $form = $form_gui->getForm();
         $form = $form->withRequest($this->http->request());
@@ -230,7 +230,7 @@ class srObjPictureGUI
                  * @var $picture srObjPicture
                  */
                 $picture = srObjPicture::find($picture_id);
-                if($picture === null) {
+                if ($picture === null) {
                     continue;
                 }
                 $picture_rid = $picture->getPictureRID();
@@ -240,7 +240,8 @@ class srObjPictureGUI
                  * @var $album srObjAlbum
                  */
                 $album = srObjAlbum::find($album_id);
-                if ($album !== null && ((int) $picture->getId() === $album->getPreviewId() || $picture_rid === $album->getPreviewPictureRID())) {
+                if ($album !== null && ((int) $picture->getId() === $album->getPreviewId(
+                        ) || $picture_rid === $album->getPreviewPictureRID())) {
                     $album->setPreviewId(0);
                     $album->setPreviewPictureRID('');
                     $album->update();
@@ -345,7 +346,6 @@ class srObjPictureGUI
         $this->tpl->setContent($tpl->get());
     }
 
-
     protected function retrievePictureIDs(): array
     {
         $album_id = $this->retrieveAlbumID();
@@ -375,7 +375,7 @@ class srObjPictureGUI
         }
 
         // handle ALL_OBJECTS special case
-        if($picture_ids[0] === 'ALL_OBJECTS') {
+        if ($picture_ids[0] === 'ALL_OBJECTS') {
             $picture_ids = [];
             $pictures = $album->getPictureObjects();
             foreach ($pictures as $picture) {

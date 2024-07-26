@@ -7,7 +7,7 @@ use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Input\Field\UploadHandler;
 use ILIAS\FileUpload\MimeType;
-use ILIAS\ResourceStorage\Services AS ResourceStorage;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
 
 /**
  * GUI-Class srObjPictureFormGUI
@@ -46,14 +46,15 @@ class srObjPictureFormGUI
         $this->upload_handler = new ilObjPhotoGalleryUploadHandlerGUI();
         $this->refinery = $DIC->refinery();
         $this->picture = $picture;
-        $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int()) : 0;
+        $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->wrapper()->query()->retrieve(
+            'album_id', $this->refinery->kindlyTo()->int()
+        ) : 0;
         $this->album = new srObjAlbum($album_id);
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
         $this->ctrl->saveParameter($parent_gui, 'picture_id');
     }
-
 
     public function getForm(): StandardForm
     {
@@ -69,7 +70,6 @@ class srObjPictureFormGUI
                 throw new Exception("Unknown command $cmd");
         }
     }
-
 
     private function getCreateForm(): StandardForm
     {
@@ -101,7 +101,6 @@ class srObjPictureFormGUI
             [$section]
         )->withSubmitLabel($form_submit_label);
     }
-
 
     private function getUpdateForm(): StandardForm
     {
@@ -152,18 +151,16 @@ class srObjPictureFormGUI
         )->withSubmitLabel($form_submit_label);
     }
 
-
     public function saveData($data): bool
     {
         if (empty($data)) {
             return false;
         }
-        if ((int)$data[0]['picture_id'] === 0) {
+        if ((int) $data[0]['picture_id'] === 0) {
             return $this->storeUploadedPicture($data);
         }
         return $this->updatePictureData($data);
     }
-
 
     private function storeUploadedPicture($data): bool
     {
@@ -204,7 +201,6 @@ class srObjPictureFormGUI
         return true;
     }
 
-
     private function updatePictureData($data): bool
     {
         $picture_id = $data[0]['picture_id'];
@@ -230,7 +226,7 @@ class srObjPictureFormGUI
             $this->album->setPreviewId($picture_id);
             $this->album->setPreviewPictureRID($picture_rid);
         }
-        if (!$is_preview && ((int)$picture->getId() === $this->album->getPreviewId())) {
+        if (!$is_preview && ((int) $picture->getId() === $this->album->getPreviewId())) {
             $this->album->setPreviewId(0);
             $this->album->setPreviewPictureRID('');
         }

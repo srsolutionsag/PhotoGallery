@@ -64,7 +64,7 @@ class ilObjPhotoGallery extends ilObjectPlugin
         global $ilias;
 
         return $_SERVER['DOCUMENT_ROOT'] . '/' . ILIAS_WEB_DIR . '/' . $ilias->client_id . '/' . $this->getType(
-        ) . '/' . $this->getId();
+            ) . '/' . $this->getId();
     }
 
     /**

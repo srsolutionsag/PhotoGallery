@@ -1,23 +1,23 @@
 <?php
 
-use ILIAS\Data\Factory AS DataFactory;
-use ILIAS\Data\Range AS DataRange;
-use ILIAS\Data\Order AS DataOrder;
+use ILIAS\Data\Factory as DataFactory;
+use ILIAS\Data\Range as DataRange;
+use ILIAS\Data\Order as DataOrder;
 use ILIAS\UI\Component\Table\DataRetrieval;
-use ILIAS\UI\Component\Table\DataRowBuilder AS RowBuilder;
-use ILIAS\UI\Factory AS UIFactory;
-use ILIAS\HTTP\Services AS HttpServices;
+use ILIAS\UI\Component\Table\DataRowBuilder as RowBuilder;
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\Renderer;
 use ILIAS\Data\URI;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\ResourceStorage\Services AS ResourceStorage;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
 use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * Class ilObjPhotoGalleryTableGUI
  *
- * @author Lukas Zehnder <lukas@sr.solutions
+ * @author  Lukas Zehnder <lukas@sr.solutions
  * @author  Fabian Schmid <fabian@sr.solutions>
  * @author  Zeynep Karahan <zk@studer-raimann.ch>
  * @author  Martin Studer <ms@studer-raimann.ch>
@@ -50,7 +50,6 @@ class srObjAlbumTableGUI implements DataRetrieval
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
         $this->refinery = $DIC->refinery();
-
     }
 
     public function getTableForRepresentation(): string
@@ -65,17 +64,17 @@ class srObjAlbumTableGUI implements DataRetrieval
         $actions = [
             'edit' => $this->ui_factory->table()->action()->single(
                 $this->lng->txt('edit'),
-                $url_builder->withURI($this->buildURI(srObjPictureGUI::class ,self::CMD_EDIT)),
+                $url_builder->withURI($this->buildURI(srObjPictureGUI::class, self::CMD_EDIT)),
                 $id_token
             ),
             'download' => $this->ui_factory->table()->action()->standard(
                 $this->lng->txt('download'),
-                $url_builder->withURI($this->buildURI(srObjPictureGUI::class ,self::CMD_DOWNLOAD_PICTURE)),
+                $url_builder->withURI($this->buildURI(srObjPictureGUI::class, self::CMD_DOWNLOAD_PICTURE)),
                 $id_token
             ),
             'delete' => $this->ui_factory->table()->action()->standard(
                 $this->lng->txt('delete'),
-                $url_builder->withURI($this->buildURI(srObjPictureGUI::class ,self::CMD_CONFIRM_DELETE)),
+                $url_builder->withURI($this->buildURI(srObjPictureGUI::class, self::CMD_CONFIRM_DELETE)),
                 $id_token
             )->withAsync(),
         ];
@@ -100,7 +99,7 @@ class srObjAlbumTableGUI implements DataRetrieval
     ): \Generator {
         $records = $this->getRecords($range, $order);
         foreach ($records as $record) {
-            $picture_id = (string)$record['id'];
+            $picture_id = (string) $record['id'];
             $record['create_date'] = new DateTimeImmutable($record['create_date']);
             /**
              * @var srObjPicture $picture
@@ -128,11 +127,13 @@ class srObjAlbumTableGUI implements DataRetrieval
 
     protected function getColumsForRepresentation(): array
     {
-        return  [
+        return [
             'image' => $this->ui_factory->table()->column()->statusIcon("image")->withIsSortable(false),
             'title' => $this->ui_factory->table()->column()->text("title")->withHighlight(true),
             'description' => $this->ui_factory->table()->column()->text("description"),
-            'create_date' => $this->ui_factory->table()->column()->date("date", $this->data_factory->dateFormat()->germanLong())
+            'create_date' => $this->ui_factory->table()->column()->date(
+                "date", $this->data_factory->dateFormat()->germanLong()
+            )
         ];
     }
 
@@ -161,7 +162,8 @@ class srObjAlbumTableGUI implements DataRetrieval
     /**
      * @throws ilCtrlException
      */
-    private function buildURI(string $class, string $command): URI {
+    private function buildURI(string $class, string $command): URI
+    {
         return new URI(ILIAS_HTTP_PATH . '/' . $this->ctrl->getLinkTargetByClass($class, $command));
     }
 }

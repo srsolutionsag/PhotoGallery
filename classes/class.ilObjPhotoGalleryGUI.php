@@ -20,11 +20,11 @@
     | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
     +-----------------------------------------------------------------------------+
 */
+
 use ILIAS\DI\UIServices;
-use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
-use ILIAS\HTTP\Services AS HttpService;
-use ILIAS\ResourceStorage\Services AS ResourceStorage;
-use ILIAS\Services\ResourceStorage\Collections\View\PreviewDefinition;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\HTTP\Services as HttpService;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
 use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
@@ -261,7 +261,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $form = $form->withRequest($this->http->request());
         $data = $form->getData();
 
-        if($data === null) {
+        if ($data === null) {
             $this->setTabs();
             $this->tpl->setContent($this->ui->renderer()->render([$form]));
             return;
@@ -375,7 +375,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 ["1", date('d.m.Y', strtotime($srObjAlbum->getCreateDate())), false]
             ]);
             $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["2", $srObjAlbum->getPictureCount()  . ' ' . $this->pl->txt('pics'), false]
+                ["2", $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'), false]
             ]);
             // image for the card
             $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
@@ -444,7 +444,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             }
             $picture_rid = $picture->getPictureRid();
             $picture_identifier = $irss->manage()->find($picture_rid);
-            if($picture_identifier === null) {
+            if ($picture_identifier === null) {
                 continue;
             }
             $picture_identifiers[] = $picture_identifier;

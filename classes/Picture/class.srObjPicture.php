@@ -84,7 +84,6 @@ class srObjPicture extends ActiveRecord
      */
     protected $picture_rid;
 
-
     /**
      * @return string
      */
@@ -207,7 +206,6 @@ class srObjPicture extends ActiveRecord
         $this->picture_rid = $picture_rid;
     }
 
-
     public function getPicturePath(): string
     {
         return CLIENT_DATA_DIR . '/xpho/album_' . $this->getAlbumId() . '/picture_' . $this->getId();
@@ -307,8 +305,8 @@ class srObjPicture extends ActiveRecord
         }
 
         $convert_cmd = ilShellUtil::escapeShellArg($a_from) . " " . $size . $density . ilShellUtil::escapeShellArg(
-            $a_to
-        );
+                $a_to
+            );
         ilShellUtil::execConvert($convert_cmd);
     }
 }

@@ -2,6 +2,7 @@
 
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
+
 /**
  * Class atTableGUI
  * @author  Fabian Schmid <fs@studer-raimann.ch>

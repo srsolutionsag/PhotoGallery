@@ -17,7 +17,6 @@
 
 declare(strict_types=1);
 
-
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
 use ILIAS\FileUpload\Handler\BasicFileInfoResult;
@@ -27,7 +26,7 @@ use ILIAS\FileUpload\Handler\HandlerResult as HandlerResultInterface;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
 
 /**
- * @author Lukas Zehnder <lukas@sr.solutions>
+ * @author            Lukas Zehnder <lukas@sr.solutions>
  *
  * @ilCtrl_isCalledBy ilObjPhotoGalleryUploadHandlerGUI : srObjPictureGUI
  */
@@ -72,9 +71,14 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
         if ($id !== null) {
             $this->storage->manage()->remove($id, $this->stakeholder);
 
-            return new BasicHandlerResult($this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_OK, $identifier, 'file deleted');
+            return new BasicHandlerResult(
+                $this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_OK, $identifier, 'file deleted'
+            );
         } else {
-            return new BasicHandlerResult($this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_FAILED, $identifier, 'file not found');
+            return new BasicHandlerResult(
+                $this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_FAILED, $identifier,
+                'file not found'
+            );
         }
     }
 
@@ -105,7 +109,9 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
             }
             $r = $this->storage->manage()->getCurrentRevision($id)->getInformation();
 
-            $infos[] = new BasicFileInfoResult($this->getFileIdentifierParameterName(), $file_id, $r->getTitle(), $r->getSize(), $r->getMimeType());
+            $infos[] = new BasicFileInfoResult(
+                $this->getFileIdentifierParameterName(), $file_id, $r->getTitle(), $r->getSize(), $r->getMimeType()
+            );
         }
 
         return $infos;

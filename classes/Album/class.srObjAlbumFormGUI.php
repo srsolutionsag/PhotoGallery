@@ -2,10 +2,9 @@
 
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
-use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
-use ILIAS\HTTP\Services AS HttpServices;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\ResourceStorage\Services AS IRSS;
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
 use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
 use ILIAS\ResourceStorage\Events\Subject;
@@ -128,19 +127,18 @@ class srObjAlbumFormGUI
                 "settings_section" => $settings_section
             ]
         )->withSubmitLabel($form_submit_label);
-
     }
 
     public function saveData($data): bool
     {
-        if(empty($data) || !$this->http->wrapper()->query()->has('ref_id')) {
+        if (empty($data) || !$this->http->wrapper()->query()->has('ref_id')) {
             return false;
         }
 
         try {
             $gallery_ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int());
             $album = new srObjAlbum();
-            if ((int)$data['main_section']['album_id'] !== 0) {
+            if ((int) $data['main_section']['album_id'] !== 0) {
                 $album = srObjAlbum::find($data['main_section']['album_id']);
             }
 
@@ -156,7 +154,7 @@ class srObjAlbumFormGUI
             $album->setObjectId(ilObject::_lookupObjectId($gallery_ref_id));
             $album->setUserId($this->user->getId());
 
-            if ((int)$data['main_section']['album_id'] !== 0) {
+            if ((int) $data['main_section']['album_id'] !== 0) {
                 $album->update();
             } else {
                 $album_collection = $this->collection_builder->new(ResourceCollection::NO_SPECIFIC_OWNER);

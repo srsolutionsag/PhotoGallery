@@ -36,7 +36,6 @@ class srObjAlbumGUI
     public Factory $refinery;
     public \ILIAS\ResourceStorage\Services $irss;
 
-
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
         global $DIC;
@@ -189,7 +188,7 @@ class srObjAlbumGUI
                 $src_preview,
                 $srObjPicture->getTitle()
             );
-//            $this->ctrl->setParameterByClass(srObjPicture::class, 'picture_id', $srObjPicture->getId());
+            //            $this->ctrl->setParameterByClass(srObjPicture::class, 'picture_id', $srObjPicture->getId());
             $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
             $this->ctrl->setParameterByClass(
                 srObjPictureGUI::class,
@@ -273,7 +272,6 @@ class srObjAlbumGUI
         $album = srObjAlbum::find($album_id);
         $form_gui = new srObjAlbumFormGUI($this, $album);
         $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
-
     }
 
     public function update(): void
@@ -408,7 +406,7 @@ class srObjAlbumGUI
             $this->ctrl->redirect($this->parent_gui, '');
         }
         // handle ALL_OBJECTS special case
-        if($album_ids[0] === 'ALL_OBJECTS') {
+        if ($album_ids[0] === 'ALL_OBJECTS') {
             $album_ids = [];
 
             $albums = $gallery->getAlbumObjects();
