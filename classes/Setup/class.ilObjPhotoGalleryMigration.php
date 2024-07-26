@@ -88,8 +88,16 @@ class ilObjPhotoGalleryMigration implements Migration
             $picture_owner_id = (int)$entry['picture_owner_id'];
             $picture_id = (int)$entry['picture_id'];
             $file_path = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id );
-            // move original picture file to irss
-            if ( ($resource_identification = $this->helper->movePathToStorage($file_path, $picture_owner_id )) !== null) {
+            // copy original picture file to irss but leave the directory and files there in case something goes wrong
+            // TODO: remove old files and directories in a future version (once this migration has proven itself)
+            $resource_identification = $this->helper->movePathToStorage(
+                $file_path,
+                $picture_owner_id,
+                null,
+                null,
+                true
+            );
+            if ($resource_identification !== null) {
                 // change the title of the newly created revision from 'original' to the actual title of the picture
                 $current_revision = $irss_manager->getCurrentRevision($resource_identification);
                 $current_revision->setTitle($entry['picture_title']);
