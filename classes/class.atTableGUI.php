@@ -1,5 +1,7 @@
 <?php
 
+use ILIAS\HTTP\Services;
+use ILIAS\Refinery\Factory;
 /**
  * Class atTableGUI
  * @author  Fabian Schmid <fs@studer-raimann.ch>
@@ -26,8 +28,8 @@ abstract class atTableGUI extends ilTable2GUI
     protected ilObjUser $usr;
     protected ilAccessHandler $access;
     protected ilPhotoGalleryPlugin $pl;
-    protected \ILIAS\HTTP\Services $http;
-    protected \ILIAS\Refinery\Factory $refinery;
+    protected Services $http;
+    protected Factory $refinery;
 
     public function __construct(?object $a_parent_obj, string $a_parent_cmd)
     {

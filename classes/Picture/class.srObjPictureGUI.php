@@ -1,5 +1,6 @@
 <?php
 
+use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory AS Refinery;
 use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
@@ -35,7 +36,7 @@ class srObjPictureGUI
      * @var \ActiveRecord|null
      */
     public $obj_picture;
-    public ILIAS\DI\UIServices $ui;
+    public UIServices $ui;
     private \ILIAS\ResourceStorage\Services $irss;
 
     /**

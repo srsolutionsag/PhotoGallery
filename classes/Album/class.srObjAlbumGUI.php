@@ -1,5 +1,8 @@
 <?php
 
+use ILIAS\DI\UIServices;
+use ILIAS\HTTP\Services;
+use ILIAS\Refinery\Factory;
 use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
@@ -27,10 +30,10 @@ class srObjAlbumGUI
     protected ilAccessHandler $access;
     protected ilObjPhotoGalleryGUI $parent_gui;
     public ilLocatorGUI $locator;
-    public ILIAS\DI\UIServices $ui;
+    public UIServices $ui;
     public ilPhotoGalleryPlugin $pl;
-    public \ILIAS\HTTP\Services $http;
-    public \ILIAS\Refinery\Factory $refinery;
+    public Services $http;
+    public Factory $refinery;
     public \ILIAS\ResourceStorage\Services $irss;
 
 

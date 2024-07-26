@@ -20,7 +20,7 @@
     | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
     +-----------------------------------------------------------------------------+
 */
-
+use ILIAS\DI\UIServices;
 use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
 use ILIAS\HTTP\Services AS HttpService;
 use ILIAS\ResourceStorage\Services AS ResourceStorage;
@@ -71,7 +71,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
      * @var ilAppEventHandler
      */
     protected $event;
-    public ILIAS\DI\UIServices $ui;
+    public UIServices $ui;
     private HttpService $http;
     private ResourceStorage $irss;
 
