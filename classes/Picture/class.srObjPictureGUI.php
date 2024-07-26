@@ -290,7 +290,37 @@ class srObjPictureGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
             $this->ctrl->redirect($this, '');
         }
-        $this->irss->consume()->inline($picture_identifier)->run();
+//        $this->irss->consume()->inline($picture_identifier)->run();
+
+        $target_picture_src = $this->irss->consume()->src($picture_identifier)->getSrc();
+        $target_picture_text = $srObjPicture->getTitle();
+        $target_img_element = '<div class="w3-display-container mySlides">'
+            .'<img src="' . $target_picture_src . '" style="width:100%">'
+            .'<div class="w3-display-bottomleft w3-large w3-container w3-padding-16 w3-black">' . $target_picture_text . '</div></div>';
+
+        $img_elements[] = $target_img_element;
+        $album = srObjAlbum::find($srObjPicture->getAlbumId());
+        $pictures = $album->getPictureObjects();
+        /**
+         * @var $picture srObjPicture
+         */
+        foreach ($pictures AS $picture) {
+            if ($picture->getId() === $picture_id) {
+                continue;
+            }
+            $pic_id = $this->irss->manage()->find($picture->getPictureRID());
+            $other_picture_src = $this->irss->consume()->src($pic_id)->getSrc();
+            $other_picture_text = $picture->getTitle();
+            $other_img_element = '<div class="w3-display-container mySlides">'
+                .'<img src="' . $other_picture_src . '" style="width:100%">'
+                .'<div class="w3-display-bottomleft w3-large w3-container w3-padding-16 w3-black">' . $other_picture_text . '</div></div>';
+            $img_elements[] = $other_img_element;
+        }
+
+        $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
+
+        $tpl->setVariable('IMAGE_ELEMENTS', implode("      ", $img_elements));
+        $this->tpl->setContent($tpl->get());
     }
 
 
