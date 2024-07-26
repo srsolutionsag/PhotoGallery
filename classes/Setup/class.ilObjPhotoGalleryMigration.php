@@ -57,6 +57,9 @@ class ilObjPhotoGalleryMigration implements Migration
 
     public function step(Environment $environment): void
     {
+        //TODO: change migration to have multiple queries. first to get an album without an rid (albums shall get a collection whether they have pictures or not)
+        //TODO: afterwards get the album's pictures if it has any, copy them to the irss and add their rids to the collection
+        //TODO: also change the remaining steps query to check whether there are any albums without collection rid (and maybe pictures without rid)
         //first check if the needed columns exist (unfortunately checking for them in the pre-conditions didn't work as the database was not yet available)
         $collection_column_exists = $this->helper->getDatabase()->tableColumnExists('sr_obj_pg_album', 'album_collection_rid');
         $preview_column_exists = $this->helper->getDatabase()->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid');
