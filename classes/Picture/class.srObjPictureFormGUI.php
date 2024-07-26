@@ -226,10 +226,13 @@ class srObjPictureFormGUI
 
         $is_preview = $data[0]['preview'];
         if ($is_preview) {
+            $picture_rid = $picture->getPictureRID();
             $this->album->setPreviewId($picture_id);
+            $this->album->setPreviewPictureRID($picture_rid);
         }
         if (!$is_preview && ((int)$picture->getId() === $this->album->getPreviewId())) {
             $this->album->setPreviewId(0);
+            $this->album->setPreviewPictureRID('');
         }
         $this->album->update();
 

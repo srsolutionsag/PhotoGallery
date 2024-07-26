@@ -242,7 +242,7 @@ class srObjAlbum extends ActiveRecord
         $this->album_collection_rid = $album_collection_rid;
     }
 
-    public function getPreviewPictureRID(): string
+    public function getPreviewPictureRID(): string|null
     {
         return $this->preview_picture_rid;
     }

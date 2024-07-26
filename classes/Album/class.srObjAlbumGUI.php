@@ -1,5 +1,7 @@
 <?php
 
+use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
+
 /**
  * GUI-Class srObjAlbumGUI
  * @author            Fabian Schmid <fs@studer-raimann.ch>
@@ -29,6 +31,8 @@ class srObjAlbumGUI
     public ilPhotoGalleryPlugin $pl;
     public \ILIAS\HTTP\Services $http;
     public \ILIAS\Refinery\Factory $refinery;
+    public \ILIAS\ResourceStorage\Services $irss;
+
 
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
@@ -45,6 +49,7 @@ class srObjAlbumGUI
         $this->toolbar = $DIC->toolbar();
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
+        $this->irss = $DIC->resourceStorage();
 
         $album_id = $this->http->wrapper()->query()->has('album_id')
             ? $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int())
@@ -169,12 +174,14 @@ class srObjAlbumGUI
          */
         foreach ($this->obj_album->getPictureObjects() as $srObjPicture) {
             // image for the card
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
-            $src_preview = $this->ctrl->getLinkTargetByClass(
-                srObjPictureGUI::class,
-                srObjPictureGUI::CMD_SEND_FILE
-            );
+            $picture_rid = $srObjPicture->getPictureRID();
+            $picture_identifier = $this->irss->manage()->find($picture_rid);
+            if ($picture_identifier !== null) {
+                $picture_flavour = new CropToSquare(false, 512, 75);
+                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
+                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
+                $src_preview = $flavour_urls[0];
+            }
             $image = $this->ui->factory()->image()->responsive(
                 $src_preview,
                 $srObjPicture->getTitle()

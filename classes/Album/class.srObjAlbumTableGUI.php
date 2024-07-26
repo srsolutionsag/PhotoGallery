@@ -11,6 +11,8 @@ use ILIAS\UI\URLBuilder;
 use ILIAS\UI\Renderer;
 use ILIAS\Data\URI;
 use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\ResourceStorage\Services AS ResourceStorage;
+use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * Class ilObjPhotoGalleryTableGUI
@@ -34,6 +36,7 @@ class srObjAlbumTableGUI implements DataRetrieval
     private Renderer $ui_renderer;
     private ilCtrlInterface $ctrl;
     private Refinery $refinery;
+    private ResourceStorage $irss;
 
     public function __construct()
     {
@@ -41,6 +44,7 @@ class srObjAlbumTableGUI implements DataRetrieval
         $this->ctrl = $DIC->ctrl();
         $this->data_factory = new DataFactory();
         $this->http = $DIC->http();
+        $this->irss = $DIC->resourceStorage();
         $this->lng = $DIC->language();
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ui_factory = $DIC->ui()->factory();
@@ -98,9 +102,18 @@ class srObjAlbumTableGUI implements DataRetrieval
         foreach ($records as $record) {
             $picture_id = (string)$record['id'];
             $record['create_date'] = new DateTimeImmutable($record['create_date']);
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $picture_id);
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_PREVIEW);
-            $src_preview = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
+            /**
+             * @var srObjPicture $picture
+             */
+            $picture = srObjPicture::find($picture_id);
+            $picture_rid = $picture->getPictureRID();
+            $picture_identifier = $this->irss->manage()->find($picture_rid);
+            if ($picture_identifier !== null) {
+                $picture_flavour = new CropToSquare(false, 96, 75);
+                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
+                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
+                $src_preview = $flavour_urls[0];
+            }
             $record['image'] = $this->ui_factory->symbol()->icon()->custom($src_preview, $record['title'], "large");
             yield $row_builder->buildDataRow($picture_id, $record);
         }

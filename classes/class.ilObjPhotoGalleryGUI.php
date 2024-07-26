@@ -23,6 +23,9 @@
 
 use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
 use ILIAS\HTTP\Services AS HttpService;
+use ILIAS\ResourceStorage\Services AS ResourceStorage;
+use ILIAS\Services\ResourceStorage\Collections\View\PreviewDefinition;
+use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * User Interface class for example repository object.
@@ -70,6 +73,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     protected $event;
     public ILIAS\DI\UIServices $ui;
     private HttpService $http;
+    private ResourceStorage $irss;
 
     protected function afterConstructor(): void
     {
@@ -85,6 +89,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->event = $DIC->event();
         $this->ui = $DIC->ui();
         $this->http = $DIC->http();
+        $this->irss = $DIC->resourceStorage();
 
         // add a link pointing to this object in footer [The "Permanent Link" in the footer]
         if ($this->object instanceof \ilObject) {
@@ -375,10 +380,14 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             // image for the card
             $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
             if ($srObjAlbum->getPreviewId() > 0) {
-                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $srObjAlbum->getId());
-                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
-                $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
-                $src_mosaic = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
+                $preview_rid = $srObjAlbum->getPreviewPictureRid();
+                $preview_identifier = $this->irss->manage()->find($preview_rid);
+                if ($preview_identifier !== null) {
+                    $preview_flavour = new CropToSquare(false, 512, 75);
+                    $flavour = $this->irss->flavours()->get($preview_identifier, $preview_flavour);
+                    $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
+                    $src_mosaic = $flavour_urls[0];
+                }
             }
             $image = $this->ui->factory()->image()->responsive(
                 $src_mosaic,
@@ -419,63 +428,28 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         }
     }
 
-    /**
-     * @param $arr_picture_ids
-     * @throws ilFileException
-     */
-    public static function executeDownload($arr_picture_ids)
+    public static function executeDownload(array $picture_ids): void
     {
         global $DIC;
-        $ilCtrl = $DIC->ctrl();
-        $pl = ilPhotoGalleryPlugin::getInstance();
-        //TODO bringen wir hier das GET weg?
-        if (!$DIC->access()->checkAccess('read', '', $_GET['ref_id'])) {
-            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $pl->txt('permission_denied'), true);
-            $ilCtrl->redirectByClass(self::class, '');
-        }
-        if ((is_countable($arr_picture_ids) ? count($arr_picture_ids) : 0) === 0) {
-            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $pl->txt('no_checkbox'), true);
-            $ilCtrl->redirectByClass(self::class, '');
-        } elseif ((is_countable($arr_picture_ids) ? count($arr_picture_ids) : 0) == 1) {
-            // only one picture ==> do not make a .zip !
-            $picture_id = $arr_picture_ids[0];
+        $irss = $DIC->resourceStorage();
+
+        $picture_identifiers = [];
+        foreach ($picture_ids as $picture_id) {
+            /**
+             * @var $picture srObjPicture
+             */
             $picture = srObjPicture::find($picture_id);
-            $title = $picture->getTitle();
-            $oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-            try {
-                ilFileDelivery::deliverFileLegacy($oldPictureFilename, $title);
-            } catch (ilFileException $e) {
-                $DIC->ui()->mainTemplate()->setOnScreenMessage("info", $e->getMessage(), true);
+            if ($picture === null) {
+                continue;
             }
-        } else {
-            $tmpdir = ilFileUtils::ilTempnam();
-            ilFileUtils::makeDir($tmpdir);
-            $zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
-            ilFileUtils::makeDir($zipbasedir);
-            $tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
-            foreach ($arr_picture_ids as $picture_id) {
-                $picture = srObjPicture::find($picture_id);
-                $title = $picture->getTitle();
-                $oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-                $newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilFileUtils::getASCIIFilename(
-                    $title . '_' . $picture->getId() . '.'
-                        . $picture->getSuffix()
-                );
-                // copy to temporal directory
-                if (!copy($oldPictureFilename, $newPictureFilename)) {
-                    throw new ilFileException('Could not copy ' . $oldPictureFilename . ' to ' . $newPictureFilename);
-                }
-                touch($newPictureFilename, filectime($oldPictureFilename));
+            $picture_rid = $picture->getPictureRid();
+            $picture_identifier = $irss->manage()->find($picture_rid);
+            if($picture_identifier === null) {
+                continue;
             }
-            try {
-                ilFileUtils::zip($zipbasedir, $tmpzipfile);
-                rename($tmpzipfile, $zipfile = ilFileUtils::ilTempnam());
-                ilFileUtils::delDir($tmpdir);
-                ilFileDelivery::deliverFileLegacy($zipfile, 'pictures.zip');
-            } catch (ilFileException $e) {
-                $DIC->ui()->mainTemplate()->setOnScreenMessage("info", $e->getMessage(), true);
-            }
+            $picture_identifiers[] = $picture_identifier;
         }
+        $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
     }
 
     protected function afterSave(ilObject $new_object): void

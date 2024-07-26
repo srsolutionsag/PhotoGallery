@@ -2,6 +2,7 @@
 
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory AS Refinery;
+use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * GUI-Class srObjPictureGUI
@@ -32,6 +33,7 @@ class srObjPictureGUI
     protected ilGlobalTemplateInterface $tpl;
     public \ActiveRecord|null $obj_picture;
     public ILIAS\DI\UIServices $ui;
+    private \ILIAS\ResourceStorage\Services $irss;
 
     /**
      * @param $parent_gui
@@ -51,6 +53,7 @@ class srObjPictureGUI
         $this->obj_picture = srObjPicture::find($_GET['picture_id']);
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ui = $DIC->ui();
+        $this->irss = $DIC->resourceStorage();
 
         $this->ctrl->setParameterByClass(self::class, 'album_id', $_GET['album_id']);
         srObjAlbumGUI::setLocator($_GET['album_id']);
@@ -186,9 +189,17 @@ class srObjPictureGUI
                 continue;
             }
             $picture_title = $picture->getTitle();
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $picture_id);
-            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_PREVIEW);
-            $src_preview = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
+            /**
+             * @var srObjPicture $picture
+             */
+            $picture_rid = $picture->getPictureRID();
+            $picture_identifier = $this->irss->manage()->find($picture_rid);
+            if ($picture_identifier !== null) {
+                $picture_flavour = new CropToSquare(false, 48, 75);
+                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
+                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
+                $src_preview = $flavour_urls[0];
+            }
             $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
             $items[] = $this->ui->factory()->modal()->interruptiveItem()->standard(
                 $picture_id,
@@ -246,12 +257,22 @@ class srObjPictureGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         }
+        if (!$this->http->wrapper()->query()->has('picture_id')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture_id'), true);
+            $this->ctrl->redirect($this, '');
+        }
+        $picture_id = $this->http->wrapper()->query()->retrieve('picture_id', $this->refinery->kindlyTo()->int());
         /**
          * @var $srObjPicture srObjPicture
          */
-        $srObjPicture = srObjPicture::find($_GET['picture_id']);
-        $path_to_file = $srObjPicture->getSrc($_GET['picture_type']);
-        ilFileDelivery::deliverFileInline($path_to_file, $srObjPicture->getTitle() . '.' . $srObjPicture->getSuffix());
+        $srObjPicture = srObjPicture::find($picture_id);
+        $picture_rid = $srObjPicture->getPictureRID();
+        $picture_identifier = $this->irss->manage()->find($picture_rid);
+        if ($picture_identifier === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
+            $this->ctrl->redirect($this, '');
+        }
+        $this->irss->consume()->inline($picture_identifier)->run();
     }
 
 
