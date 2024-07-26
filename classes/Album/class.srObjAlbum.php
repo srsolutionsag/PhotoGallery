@@ -186,9 +186,8 @@ class srObjAlbum extends ActiveRecord
             $srObjPicture = srObjPicture::find($this->getPreviewId());
 
             return $srObjPicture->getMosaicWebSrc();
-        } else {
-            return $pl->getDirectory() . '/templates/images/nopreview.jpg';
         }
+        return $pl->getDirectory() . '/templates/images/nopreview.jpg';
     }
 
     /**

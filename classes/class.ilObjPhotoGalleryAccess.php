@@ -59,9 +59,12 @@ class ilObjPhotoGalleryAccess extends ilObjectPluginAccess
     {
         global $DIC;
         $ilAccess = $DIC->access();
-
-        return $ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id)
-            || $ilAccess->checkAccess('write', '', $ref_id)
-            || $ilAccess->checkAccess('delete', '', $ref_id);
+        if ($ilAccess->checkAccess('rep_robj_xpho_download_images', '', $ref_id)) {
+            return true;
+        }
+        if ($ilAccess->checkAccess('write', '', $ref_id)) {
+            return true;
+        }
+        return (bool) $ilAccess->checkAccess('delete', '', $ref_id);
     }
 }
