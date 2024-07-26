@@ -5,6 +5,10 @@ use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
 use ILIAS\HTTP\Services AS HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\ResourceStorage\Services AS IRSS;
+use ILIAS\ResourceStorage\Collection\CollectionBuilder;
+use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
+use ILIAS\ResourceStorage\Events\Subject;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -13,7 +17,9 @@ use ILIAS\Refinery\Factory as Refinery;
  */
 class srObjAlbumFormGUI
 {
+    private CollectionBuilder $collection_builder;
     private ilCtrlInterface $ctrl;
+    private ilDBInterface $db;
     private ilLanguage $lng;
     private Factory $ui_factory;
     private Renderer $ui_renderer;
@@ -28,6 +34,7 @@ class srObjAlbumFormGUI
     {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
+        $this->db = $DIC->database();
         $this->http = $DIC->http();
         $this->lng = $DIC->language();
         $this->user = $DIC->user();
@@ -38,6 +45,10 @@ class srObjAlbumFormGUI
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
+        $this->collection_builder = new CollectionBuilder(
+            new CollectionDBRepository($this->db),
+            new Subject()
+        );
     }
 
     public function getForm(): StandardForm
@@ -147,6 +158,10 @@ class srObjAlbumFormGUI
             if ((int)$data['main_section']['album_id'] !== 0) {
                 $album->update();
             } else {
+                $album_collection = $this->collection_builder->new($this->user->getId());
+                $this->collection_builder->store($album_collection);
+                $album_collection_rid = $album_collection->getIdentification()->serialize();
+                $album->setAlbumCollectionRID($album_collection_rid);
                 $album->create();
             }
         } catch (Exception $e) {

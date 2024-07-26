@@ -7,6 +7,7 @@ use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Input\Field\UploadHandler;
 use ILIAS\FileUpload\MimeType;
+use ILIAS\ResourceStorage\Services AS ResourceStorage;
 
 /**
  * GUI-Class srObjPictureFormGUI
@@ -17,6 +18,7 @@ use ILIAS\FileUpload\MimeType;
 class srObjPictureFormGUI
 {
     private ilCtrlInterface $ctrl;
+    private ilDBInterface $db;
     private ilLanguage $lng;
     private Factory $ui_factory;
     private Renderer $ui_renderer;
@@ -24,6 +26,7 @@ class srObjPictureFormGUI
     private ilObjUser $user;
     private HttpServices $http;
     private Refinery $refinery;
+    private ResourceStorage $irss;
     protected srObjPicture $picture;
     protected srObjAlbum $album;
     protected srObjPictureGUI $parent_gui;
@@ -33,7 +36,9 @@ class srObjPictureFormGUI
     {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
+        $this->db = $DIC->database();
         $this->http = $DIC->http();
+        $this->irss = $DIC->resourceStorage();
         $this->lng = $DIC->language();
         $this->user = $DIC->user();
         $this->ui_factory = $DIC->ui()->factory();
@@ -79,13 +84,13 @@ class srObjPictureFormGUI
             $this->pl->txt('upload_files')
         )->withAcceptedMimeTypes(
             [MimeType::IMAGE__JPEG, MimeType::IMAGE__PNG, MimeType::IMAGE__GIF]
-        )->withRequired(true);
+        )->withMaxFiles(100)->withRequired(true);
 
         // create section and assign fields
         $section = $this->ui_factory->input()->field()->section(
             [
                 "picture_id" => $hidden_input,
-                "picture_file" => $upload_input
+                "picture_files" => $upload_input
             ],
             $form_title
         );
@@ -162,10 +167,40 @@ class srObjPictureFormGUI
 
     private function storeUploadedPicture($data): bool
     {
-        $file_rid = $data[0]['picture_file'] ?? []; //TODO: figure out how to upload several files and handle the upload.
-        //TODO: Create an irss collection upon creatin an album. access this collection here and store the rid within it.
+        if (empty($data) || empty($data[0]['picture_files']) || !$this->http->wrapper()->query()->has('album_id')) {
+            return false;
+        }
+        $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+        /**
+         * @var srObjAlbum $album
+         */
+        $album = srObjAlbum::find($album_id);
+        if ($album === null) {
+            return false;
+        }
+        $collection_identification = $this->irss->collection()->id($album->getAlbumCollectionRID());
+        $album_collection = $this->irss->collection()->get($collection_identification, $album->getUserId());
 
-        return false;
+        $file_rids = $data[0]['picture_files'];
+        foreach ($file_rids as $file_rid) {
+            $file_identification = $this->irss->manage()->find($file_rid);
+            if ($file_identification === null) {
+                return false;
+            }
+            $file_revision = $this->irss->manage()->getCurrentRevision($file_identification);
+            $picture = new srObjPicture();
+            $picture->setTitle($file_revision->getInformation()->getTitle());
+            $picture->setDescription('');
+            $picture->setCreateDate($file_revision->getInformation()->getCreationDate()->format('Y-m-d'));
+            $picture->setSuffix($file_revision->getInformation()->getSuffix());
+            $picture->setUserId($this->user->getId());
+            $picture->setAlbumId($album_id);
+            $picture->create();
+            $album_collection->add($file_identification);
+        }
+        $this->irss->collection()->store($album_collection);
+
+        return true;
     }
 
 
