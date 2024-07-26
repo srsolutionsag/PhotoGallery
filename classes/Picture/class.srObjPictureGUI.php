@@ -31,7 +31,10 @@ class srObjPictureGUI
     private ilLanguage $lng;
     private Refinery $refinery;
     protected ilGlobalTemplateInterface $tpl;
-    public \ActiveRecord|null $obj_picture;
+    /**
+     * @var \ActiveRecord|null
+     */
+    public $obj_picture;
     public ILIAS\DI\UIServices $ui;
     private \ILIAS\ResourceStorage\Services $irss;
 
