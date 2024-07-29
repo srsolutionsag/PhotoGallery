@@ -78,3 +78,5 @@ back_to_album#:#Back to Album
 album#:#Album
 gallery#:#Gallery
 picture#:#Picture
+migration_not_completed#:#This album has not yet been migrated to the new ILIAS Resource Storage. Please contact your system administrator.
+after_update_migration_info#:#Important: Due to a file system change, all albums and images of this plugin must be migrated. Please carry out the migration as described in the readme file of the plugin.

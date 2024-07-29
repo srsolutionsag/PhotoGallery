@@ -78,3 +78,5 @@ back_to_album#:#Zurück zum Album
 album#:#Album
 gallery#:#Galerie
 picture#:#Bild
+migration_not_completed#:#Dieses Album wurde noch nicht in den neuen ILIAS Resource Storage migriert. Bitte wenden Sie sich an Ihre Sytemadministration.
+after_update_migration_info#:#Wichtig: Aufgrund eines Dateisystem-Wechsels müssen alle Alben und Bilder dieses Plugins migriert werden. Bitte führen Sie die Migration wie in der Readme-Datei des Plugins beschrieben durch.

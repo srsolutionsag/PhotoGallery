@@ -53,4 +53,15 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
         $this->db->dropTable(srObjPhotoData::TABLE_NAME, false);
         $this->db->dropTable(srObjPicture::TABLE_NAME, false);
     }
+
+    protected function afterUpdate(): void
+    {
+        global $DIC;
+        $ui = $DIC->ui();
+        parent::afterUpdate();
+        $migration = new ilObjPhotoGalleryMigration();
+        if(PHP_SAPI !== 'cli' && $migration->getRemainingAmountOfSteps() > 0) {
+            $ui->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
+        }
+    }
 }

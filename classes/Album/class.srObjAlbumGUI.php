@@ -17,6 +17,7 @@ class srObjAlbumGUI
     public const TAB_LIST_PICTURES = 'list_pictures';
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
     private ilToolbarGUI $toolbar;
+    private ilDBInterface $db;
 
     protected ilTabsGUI $tabs_gui;
     protected ilCtrl $ctrl;
@@ -50,6 +51,7 @@ class srObjAlbumGUI
         $this->http = $DIC->http();
         $this->refinery = $DIC->refinery();
         $this->irss = $DIC->resourceStorage();
+        $this->db = $DIC->database();
 
         $album_id = $this->http->wrapper()->query()->has('album_id')
             ? $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int())
@@ -91,6 +93,10 @@ class srObjAlbumGUI
             case '':
             case self::CMD_LIST_PICTURES:
                 $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+                if(!$this->isMigrationOfAlbumCompleted($album_id)) {
+                    $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_not_completed'), true);
+                    $this->ctrl->redirect($this->parent_gui, '');
+                }
                 self::setLocator($album_id);
                 $this->setTabs();
                 $this->setSubTabs();
@@ -99,6 +105,10 @@ class srObjAlbumGUI
                 break;
             case self::CMD_MANAGE_PICTURES:
                 $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+                if(!$this->isMigrationOfAlbumCompleted($album_id)) {
+                    $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_not_completed'), true);
+                    $this->ctrl->redirect($this->parent_gui, '');
+                }
                 self::setLocator($album_id);
                 $this->setTabs();
                 $this->setSubTabs();
@@ -415,6 +425,25 @@ class srObjAlbumGUI
         } else {
             $album_ids = array_map('intval', $album_ids);
         }
+        foreach ($album_ids as $album_id) {
+            if(!$this->isMigrationOfAlbumCompleted($album_id)) {
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_not_completed'), true);
+                $this->ctrl->redirect($this->parent_gui, '');
+            }
+        }
         return $album_ids;
+    }
+
+    protected function isMigrationOfAlbumCompleted(int $album_id): bool
+    {
+        $query = $this->db->queryF(
+            "SELECT COUNT(DISTINCT(picture.id)) AS amount FROM sr_obj_pg_pic AS picture"
+            ." JOIN sr_obj_pg_album AS album ON picture.album_id = album.id"
+            ." WHERE album.id = %s AND (picture.picture_rid IS NULL OR picture.picture_rid = '');",
+            ['integer'],
+            [$album_id]
+        );
+        $result = $this->db->fetchAssoc($query);
+        return $result['amount'] <= 0;
     }
 }
