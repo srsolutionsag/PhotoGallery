@@ -11,7 +11,6 @@ use ILIAS\DI\UIServices;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\HTTP\Services as HttpService;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * User Interface class for example repository object.
@@ -23,7 +22,7 @@ use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
  * $Id$
  * @ilCtrl_isCalledBy ilObjPhotoGalleryGUI: ilRepositoryGUI, ilObjPluginDispatchGUI, ilAdministrationGUI
  * @ilCtrl_Calls      ilObjPhotoGalleryGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI
- * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI, srObjExifGUI
+ * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 {

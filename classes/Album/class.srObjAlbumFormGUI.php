@@ -14,10 +14,6 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\ResourceStorage\Collection\CollectionBuilder;
-use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
-use ILIAS\ResourceStorage\Events\Subject;
-use ILIAS\ResourceStorage\Collection\ResourceCollection;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -26,16 +22,15 @@ use ILIAS\ResourceStorage\Collection\ResourceCollection;
  */
 class srObjAlbumFormGUI
 {
-    private CollectionBuilder $collection_builder;
-    private ilCtrlInterface $ctrl;
-    private ilDBInterface $db;
-    private ilLanguage $lng;
-    private Factory $ui_factory;
-    private Renderer $ui_renderer;
-    private ilObjUser $user;
-    private HttpServices $http;
-    private Refinery $refinery;
     protected Collections $collections;
+    protected ilCtrlInterface $ctrl;
+    protected ilDBInterface $db;
+    protected ilLanguage $lng;
+    protected Factory $ui_factory;
+    protected Renderer $ui_renderer;
+    protected ilObjUser $user;
+    protected HttpServices $http;
+    protected Refinery $refinery;
     protected srObjAlbum $album;
     protected srObjAlbumGUI $parent_gui;
     protected ilPhotoGalleryPlugin $pl;
