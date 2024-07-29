@@ -11,7 +11,6 @@
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * GUI-Class srObjPictureGUI
@@ -323,7 +322,9 @@ class srObjPictureGUI
             $pic_id = $this->irss->manage()->find($picture['picture_rid']);
             $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
             $description = $picture['description'];
-            $optional_description_info = ($description !== "") ? ($this->pl->txt('description') . ': ' . $description . ' | ') : "";
+            $optional_description_info = ($description !== "") ? ($this->pl->txt(
+                'description'
+            ) . ': ' . $description . ' | ') : "";
             $picture_infos = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
                 . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
                 . $this->pl->txt('picture') . ': ' . $picture['title'] . ' | '
@@ -334,7 +335,7 @@ class srObjPictureGUI
                 . '<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
                 . '</div>';
             $img_elements[] = $img_element;
-            if($picture_key < $key_of_target_picture) {
+            if ($picture_key < $key_of_target_picture) {
                 $nr_elements_before_target++;
             }
         }
@@ -415,15 +416,15 @@ class srObjPictureGUI
     {
         if ($sort_type === srObjAlbum::SORT_TYPE_TITLE) {
             usort($pictures, function ($a, $b) {
-                return strcmp($a["title"], $b["title"]);
+                return strcmp($a["title"] ?? '', $b["title"] ?? '');
             });
         } elseif ($sort_type === srObjAlbum::SORT_TYPE_CREATE_DATE) {
             usort($pictures, function ($a, $b) {
-                return strtotime($a["date"]) - strtotime($b["date"]);
+                return strtotime($a["date"] ?? '') - strtotime($b["date"] ?? '');
             });
         }
 
-        if($sort_direction === srObjAlbum::SORT_TYPE_DIRECTION_DESC) {
+        if ($sort_direction === srObjAlbum::SORT_TYPE_DIRECTION_DESC) {
             $pictures = array_reverse($pictures);
         }
 
