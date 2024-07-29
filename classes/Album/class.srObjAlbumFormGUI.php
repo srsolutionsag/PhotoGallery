@@ -8,9 +8,10 @@
  *
  *********************************************************************/
 
+use ILIAS\ResourceStorage\Collection\Collections;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
-use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
@@ -34,6 +35,7 @@ class srObjAlbumFormGUI
     private ilObjUser $user;
     private HttpServices $http;
     private Refinery $refinery;
+    protected Collections $collections;
     protected srObjAlbum $album;
     protected srObjAlbumGUI $parent_gui;
     protected ilPhotoGalleryPlugin $pl;
@@ -53,13 +55,10 @@ class srObjAlbumFormGUI
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
-        $this->collection_builder = new CollectionBuilder(
-            new CollectionDBRepository($this->db),
-            new Subject()
-        );
+        $this->collections = $DIC->resourceStorage()->collection();
     }
 
-    public function getForm(): StandardForm
+    public function getForm(): Standard
     {
         // create input fields
         $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_CREATE);
@@ -165,8 +164,9 @@ class srObjAlbumFormGUI
             if ((int) $data['main_section']['album_id'] !== 0) {
                 $album->update();
             } else {
-                $album_collection = $this->collection_builder->new(ResourceCollection::NO_SPECIFIC_OWNER);
-                $this->collection_builder->store($album_collection);
+                $album_collection_id = $this->collections->id();
+                $album_collection = $this->collections->get($album_collection_id);
+                $this->collections->store($album_collection);
                 $album_collection_rid = $album_collection->getIdentification()->serialize();
                 $album->setAlbumCollectionRID($album_collection_rid);
                 $album->create();
