@@ -8,25 +8,24 @@
  *********************************************************************/
 
 use ILIAS\DI\UIServices;
-use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\HTTP\Services as HttpService;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 
 /**
- * User Interface class for example repository object.
  * @author            Lukas Zehnder <lukas@sr.solutions>
  * @author            Fabian Schmid <fabian@sr.solutions>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
  * @author            Gabriel Comte <gc@studer-raimann.ch>
- * $Id$
+ *
  * @ilCtrl_isCalledBy ilObjPhotoGalleryGUI: ilRepositoryGUI, ilObjPluginDispatchGUI, ilAdministrationGUI
  * @ilCtrl_Calls      ilObjPhotoGalleryGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI
  * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 {
-    public $parent;
+    protected object $parent; // TODO this is currently unknown and never set, problably remove it
     public const CMD_INFO_SCREEN = 'infoScreen';
     public const CMD_EDIT_PROPERTIES = 'editProperties';
     public const CMD_LIST_ALBUMS = 'list_albums';
@@ -40,25 +39,13 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     public const TAB_MANAGE_ALBUMS = 'manage_albums';
     public const TAB_PERMISSIONS = 'permissions';
     public const TAB_SETTINGS = 'settings';
-    /**
-     * @var ilPhotoGalleryPlugin
-     */
-    protected $pl;
-    /**
-     * @var ilPropertyFormGUI
-     */
-    protected $form;
-    /**
-     * @var ilNavigationHistory
-     */
-    protected $history;
-    /**
-     * @var ilAppEventHandler
-     */
-    protected $event;
-    public UIServices $ui;
-    private HttpService $http;
-    private ResourceStorage $irss;
+    protected ilPhotoGalleryPlugin $pl;
+    protected ?ilPropertyFormGUI $form = null;
+    protected ilNavigationHistory $history;
+    protected ilAppEventHandler $event;
+    protected UIServices $ui;
+    protected HttpService $http;
+    protected ResourceStorage $irss;
 
     protected function afterConstructor(): void
     {
@@ -117,20 +104,19 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $this->ctrl->forwardCommand($info_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'srobjalbumgui':
+            case strtolower(srObjAlbumGUI::class):
                 $this->setTabs();
                 $this->tabs_gui->activateTab(self::TAB_CONTENT);
                 $album_gui = new srObjAlbumGUI($this);
                 $this->ctrl->forwardCommand($album_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'srobjpicturegui':
+            case strtolower(srObjPictureGUI::class):
                 $picture_gui = new srObjPictureGUI($this);
                 $this->ctrl->forwardCommand($picture_gui);
                 $this->tpl->printToStdout();
                 break;
             case 'ilcommonactiondispatchergui':
-                include_once(__DIR__ . "/Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
                 $this->ctrl->forwardCommand($gui);
                 break;
@@ -204,7 +190,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->tpl->setContent($this->ui->renderer()->render($this->getEditForm()));
     }
 
-    protected function getEditForm(): StandardForm
+    protected function getEditForm(): Standard
     {
         // create input fields
         $title_input = $this->ui->factory()->input()->field()->text(
@@ -357,7 +343,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 ["0", $srObjAlbum->getDescription(), false]
             ]);
             $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["1", date('d.m.Y', strtotime($srObjAlbum->getCreateDate())), false]
+                ["1", date('d.m.Y', strtotime((string) $srObjAlbum->getCreateDate())), false]
             ]);
             $content[] = $this->ui->factory()->listing()->property()->withItems([
                 ["2", $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'), false]
