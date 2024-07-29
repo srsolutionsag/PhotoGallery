@@ -8,9 +8,9 @@
  *
  *********************************************************************/
 
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
-use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\UI\Component\Input\Field\UploadHandler;
@@ -65,7 +65,7 @@ class srObjPictureFormGUI
         $this->ctrl->saveParameter($parent_gui, 'picture_id');
     }
 
-    public function getForm(): StandardForm
+    public function getForm(): Standard
     {
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
@@ -80,7 +80,7 @@ class srObjPictureFormGUI
         }
     }
 
-    private function getCreateForm(): StandardForm
+    private function getCreateForm(): Standard
     {
         $form_action = $this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_CREATE);
         $form_submit_label = $this->pl->txt('upload_pic');
@@ -111,7 +111,7 @@ class srObjPictureFormGUI
         )->withSubmitLabel($form_submit_label);
     }
 
-    private function getUpdateForm(): StandardForm
+    private function getUpdateForm(): Standard
     {
         $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_UPDATE);
         $form_submit_label = $this->pl->txt('edit_pic');

@@ -20,11 +20,8 @@ use ILIAS\Refinery\Factory as Refinery;
  */
 class srObjPictureGUI
 {
-    public $parent;
-    /**
-     * @var \ilPhotoGalleryPlugin
-     */
-    public $pl;
+    protected ilObjPhotoGalleryGUI $parent;
+    protected ilPhotoGalleryPlugin $pl;
     public const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
     public const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
     public const CMD_UPLOAD = 'upload';
@@ -35,21 +32,18 @@ class srObjPictureGUI
     protected ilPropertyFormGUI $form;
     protected ilToolbarGUI $toolbar;
     protected ilCtrl $ctrl;
-    private Services $http;
-    private ilLanguage $lng;
-    private Refinery $refinery;
+    protected Services $http;
+    protected ilLanguage $lng;
+    protected Refinery $refinery;
     protected ilGlobalTemplateInterface $tpl;
-    /**
-     * @var \ActiveRecord|null
-     */
-    public $obj_picture;
-    public UIServices $ui;
-    private \ILIAS\ResourceStorage\Services $irss;
+    protected ?srObjPicture $obj_picture = null;
+    protected UIServices $ui;
+    protected \ILIAS\ResourceStorage\Services $irss;
 
     /**
      * @param $parent_gui
      */
-    public function __construct($parent_gui)
+    public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
         global $DIC;
         $this->tpl = $DIC->ui()->mainTemplate();
@@ -330,8 +324,7 @@ class srObjPictureGUI
                 . $this->pl->txt('picture') . ': ' . $picture['title'] . ' | '
                 . $optional_description_info
                 . $this->lng->txt('create_date') . ': ' . $picture['create_date'];
-            $img_element = '<div class="xpho_slideshow_slide_container">'
-                . '<img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
+            $img_element = '<div class="xpho_slideshow_slide_container"><img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
                 . '<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
                 . '</div>';
             $img_elements[] = $img_element;
@@ -412,7 +405,7 @@ class srObjPictureGUI
         return $album_id;
     }
 
-    private function sortPictures(array $pictures, string $sort_type, string $sort_direction)
+    private function sortPictures(array $pictures, string $sort_type, string $sort_direction): array
     {
         if ($sort_type === srObjAlbum::SORT_TYPE_TITLE) {
             usort($pictures, static fn($a, $b): int => strcmp($a["title"] ?? '', $b["title"] ?? ''));

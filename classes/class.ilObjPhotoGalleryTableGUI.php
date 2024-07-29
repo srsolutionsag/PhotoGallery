@@ -131,9 +131,6 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
     {
         $records = srObjAlbum::where(['object_id' => ilObject::_lookupObjectId($_GET['ref_id'])], '=')->getArray();
 
-        if ($order) {
-            list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
-            usort($records, fn($a, $b) => $a[$order_field] <=> $b[$order_field]);
         if ($order !== null) {
             [$order_field, $order_direction] = $order->join([], fn($ret, $key, $value): array => [$key, $value]);
             usort($records, fn($a, $b): int => $a[$order_field] <=> $b[$order_field]);
