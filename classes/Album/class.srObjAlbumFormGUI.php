@@ -9,6 +9,7 @@ use ILIAS\ResourceStorage\Services AS IRSS;
 use ILIAS\ResourceStorage\Collection\CollectionBuilder;
 use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
 use ILIAS\ResourceStorage\Events\Subject;
+use ILIAS\ResourceStorage\Collection\ResourceCollection;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -158,7 +159,7 @@ class srObjAlbumFormGUI
             if ((int)$data['main_section']['album_id'] !== 0) {
                 $album->update();
             } else {
-                $album_collection = $this->collection_builder->new($this->user->getId());
+                $album_collection = $this->collection_builder->new(ResourceCollection::NO_SPECIFIC_OWNER);
                 $this->collection_builder->store($album_collection);
                 $album_collection_rid = $album_collection->getIdentification()->serialize();
                 $album->setAlbumCollectionRID($album_collection_rid);

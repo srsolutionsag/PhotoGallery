@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 use ILIAS\Setup\Migration;
 use ILIAS\Setup\Environment;
+use ILIAS\ResourceStorage\Collection\ResourceCollection;
 
 /**
  * @author Lukas Zehnder <lukas@sr.solutions>
@@ -55,7 +56,8 @@ class ilObjPhotoGalleryMigration implements Migration
     }
 
 
-    public function step(Environment $environment): void
+    public function step(Environment $environment): void //TODO: bei alben prüfen ob alle gallery alben migriert, wenn nicht keine alben in content anzeigen, stattdessen info dass migriert werden muss.
+        //TODO: Readme um migrations-Vorgehen ergänzen. Ev. in After-Update (in Plugin-Klasse) von plugin prüfen, ob migration gemacht. Wenn nicht migrations-info ausgeben. Zudem prüfen ob in Web oder cli kontext via (PHP_SAPI !== 'cli') damit nur msg angezeigt in Webkontext.
     {
         //TODO: change migration to have multiple queries. first to get an album without an rid (albums shall get a collection whether they have pictures or not)
         //TODO: afterwards get the album's pictures if it has any, copy them to the irss and add their rids to the collection
@@ -82,8 +84,7 @@ class ilObjPhotoGalleryMigration implements Migration
 
         // build empty collection for album which will be filled later
         $album_id = (int)$dataset[0]['album_id'];
-        $album_owner_id = (int)$dataset[0]['album_owner_id'];
-        $album_collection = $this->helper->getCollectionBuilder()->new($album_owner_id);
+        $album_collection = $this->helper->getCollectionBuilder()->new(ResourceCollection::NO_SPECIFIC_OWNER);
 
         // only move original picture files to irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that)
         $picture_rids = [];
