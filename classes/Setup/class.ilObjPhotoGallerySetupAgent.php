@@ -1,29 +1,46 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
  *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
+ * https://sr.solutions
  *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
-use ILIAS\Setup\Agent\NullAgent;
+use ILIAS\Refinery\Factory;
 
 /**
  * @author Lukas Zehnder <lukas@sr.solutions>
  */
-class ilObjPhotoGallerySetupAgent extends NullAgent
+class ilObjPhotoGallerySetupAgent extends \ilPluginDefaultAgent
 {
+    /**
+     * @readonly
+     */
+    private \ILIAS\Data\Factory $data_factory;
+    /**
+     * @readonly
+     */
+    private \ilLanguage $lng;
+    /**
+     * @readonly
+     */
+    private Factory $refinery;
+
+    public function __construct(
+        Factory $refinery,
+        \ILIAS\Data\Factory $data_factory,
+        \ilLanguage $lng
+    ) {
+        $this->data_factory = $data_factory;
+        $this->lng = $lng;
+        $this->refinery = $refinery;
+        parent::__construct('PhotoGallery');
+    }
+
     public function getMigrations(): array
     {
         return [new ilObjPhotoGalleryMigration()];
