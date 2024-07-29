@@ -214,7 +214,7 @@ class srObjPictureGUI
         }
         $interruptive_modal = $this->ui->factory()->modal()->interruptive(
             $this->lng->txt('delete'),
-            $this->pl->txt('delete_picture'),
+            $this->pl->txt('delete_pic'),
             $delete_action
         )->withAffectedItems($items);
         echo($this->ui->renderer()->renderAsync([$interruptive_modal]));
@@ -323,7 +323,7 @@ class srObjPictureGUI
                 . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
                 . $this->pl->txt('picture') . ': ' . $picture['title'] . ' | '
                 . $optional_description_info
-                . $this->lng->txt('create_date') . ': ' . $picture['create_date'];
+                . $this->lng->txt('date') . ': ' . $picture['create_date'];
             $img_element = '<div class="xpho_slideshow_slide_container"><img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
                 . '<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
                 . '</div>';

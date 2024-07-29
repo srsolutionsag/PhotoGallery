@@ -18,6 +18,7 @@ use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\Renderer;
 use ILIAS\Data\URI;
+use ILIAS\Refinery\Factory;
 
 /**
  * Class ilObjPhotoGalleryTableGUI
@@ -40,6 +41,7 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
     private UIFactory $ui_factory;
     private Renderer $ui_renderer;
     private ilCtrlInterface $ctrl;
+    private Factory $refinery;
 
     public function __construct()
     {
@@ -51,6 +53,7 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
+        $this->refinery = $DIC->refinery();
     }
 
     public function getTableForRepresentation(): string
@@ -79,8 +82,14 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
                 $id_token
             )->withAsync(),
         ];
+        $gallery_ref_id = $this->http->wrapper()->query()->has('ref_id') ? $this->http->request()->getQueryParams()['ref_id'] : 0;
+        $gallery = ilObjectFactory::getInstanceByRefId($gallery_ref_id);
+        $gallery_title = $this->lng->txt('unknown');
+        if($gallery !== null){
+            $gallery_title = $gallery->getTitle();
+        }
         $table = $this->ui_factory->table()->data(
-            $this->pl->txt('manage_album'),
+            sprintf($this->pl->txt('manage_albums'), $gallery_title),
             $this->getColumsForRepresentation(),
             $this
         )->withActions($actions);
@@ -116,14 +125,14 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
     protected function getColumsForRepresentation(): array
     {
         return [
-            'title' => $this->ui_factory->table()->column()->text("title")->withHighlight(true),
-            'description' => $this->ui_factory->table()->column()->text("description"),
+            'title' => $this->ui_factory->table()->column()->text($this->lng->txt('title'))->withHighlight(true),
+            'description' => $this->ui_factory->table()->column()->text($this->lng->txt('description')),
             'create_date' => $this->ui_factory->table()->column()->date(
-                "date",
+                $this->lng->txt('date'),
                 $this->data_factory->dateFormat()->germanLong()
             ),
-            'sort_type' => $this->ui_factory->table()->column()->text("sort_type"),
-            'sort_direction' => $this->ui_factory->table()->column()->text("sort_direrction"),
+            'sort_type' => $this->ui_factory->table()->column()->text($this->pl->txt("sort_type")),
+            'sort_direction' => $this->ui_factory->table()->column()->text($this->pl->txt("sort_direction")),
         ];
     }
 

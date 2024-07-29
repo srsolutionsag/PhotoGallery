@@ -11,34 +11,34 @@ delete_album#:#Delete object(s)?
 cancel#:#Cancel
 delete#:#Delete
 msg_removed_album#:#Object(s) deleted!
-albumtitle#:#Album title
+albumtitle#:#Album Title
 actions#:#Actions
 edit#:#Edit
 title#:#Title
 description#:#Description
 add_album#:#Add album
-create_album#:#Create album
-edit_album#:#Edit album
-enter_date#:#Select date
+create_album#:#Create Album
+edit_album#:#Edit Album
+enter_date#:#Select Date
 date#:#Date
 save#:#Save
 cancel#:#Cancel
 success_edit#:#Changes saved!
-upload_pic#:#Upload picture
-edit_pic#:#Edit picture
-pic_title#:#Picture title
+upload_pic#:#Upload Picture
+edit_pic#:#Edit Picture
+pic_title#:#Picture Title
 pic#:#Picture
 select_preview#:#Set as preview picture
 add_pic#:#Upload
-back_to_gallery#:#Back to gallery
+back_to_gallery#:#Back to Gallery
 success_pic#:#Picture is created!
 delete_pic#:#Delete object(s)?
 msg_removed_pic#:#Object(s) is deleted!
-add_new_pic#:#Add new picture
-back_to_pictures#:#Back to pictures
+add_new_pic#:#Add New Picture
+back_to_pictures#:#Back to Pictures
 exif_data#:#Exif data
-gallery_title#:#Gallery title
-back_to_diashow#:#Back to diashow
+gallery_title#:#Gallery Title
+back_to_diashow#:#Back to Diashow
 download#:#Download
 move#:#Move
 take_pic_date#:#Take exposure date
@@ -66,11 +66,11 @@ root_create_xpho#:#Create Photogallery
 fold_create_xpho#:#Create Photogallery
 rbac_create_xpho#:#Create Photogallery
 sorting#:#Sorting
-sort_type#:#Sort type
-sort_type_create_date#:#Upload date
+sort_type#:#Sort Type
+sort_type_create_date#:#Upload Date
 sort_type_title#:#Title
 album_sort_type_info#:#Controls how pictures in this album are sorted, either by upload date or title
-sort_direction#:#Sort direction
+sort_direction#:#Sort Direction
 sort_direction_asc#:#Ascending
 sort_direction_desc#:#Descending
 album_sort_direction_info#:#Influences the sort direction of the sort type selected above
@@ -80,3 +80,5 @@ gallery#:#Gallery
 picture#:#Picture
 migration_not_completed#:#This album has not yet been migrated to the new ILIAS Resource Storage. Please contact your system administrator.
 after_update_migration_info#:#Important: Due to a file system change, all albums and images of this plugin must be migrated. Please carry out the migration as described in the readme file of the plugin.
+manage_albums#:#Manage Albums of Gallery "%s"
+manage_pictures#:#Manage Pictures of Album "%s"

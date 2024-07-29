@@ -86,8 +86,14 @@ class srObjAlbumTableGUI implements DataRetrieval
                 $id_token
             )->withAsync(),
         ];
+        $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->request()->getQueryParams()['album_id'] : 0;
+        $album = srObjAlbum::find($album_id);
+        $album_title = $this->lng->txt('unknown');
+        if($album !== null){
+            $album_title = $album->getTitle();
+        }
         $table = $this->ui_factory->table()->data(
-            $this->pl->txt('manage_picture'),
+            sprintf($this->pl->txt('manage_pictures'), $album_title),
             $this->getColumsForRepresentation(),
             $this
         )->withActions($actions);
@@ -136,11 +142,11 @@ class srObjAlbumTableGUI implements DataRetrieval
     protected function getColumsForRepresentation(): array
     {
         return [
-            'image' => $this->ui_factory->table()->column()->statusIcon("image")->withIsSortable(false),
-            'title' => $this->ui_factory->table()->column()->text("title")->withHighlight(true),
-            'description' => $this->ui_factory->table()->column()->text("description"),
+            'image' => $this->ui_factory->table()->column()->statusIcon($this->lng->txt('image'))->withIsSortable(false),
+            'title' => $this->ui_factory->table()->column()->text($this->lng->txt('title'))->withHighlight(true),
+            'description' => $this->ui_factory->table()->column()->text($this->lng->txt('description')),
             'create_date' => $this->ui_factory->table()->column()->date(
-                "date",
+                $this->lng->txt('date'),
                 $this->data_factory->dateFormat()->germanLong()
             )
         ];
