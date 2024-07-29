@@ -279,6 +279,10 @@ class srObjPictureGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture_id'), true);
             $this->ctrl->redirect($this, '');
         }
+
+        $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
+
+        // get data for image elements
         $picture_id = $this->http->wrapper()->query()->retrieve('picture_id', $this->refinery->kindlyTo()->int());
         /**
          * @var $srObjPicture srObjPicture
@@ -290,36 +294,49 @@ class srObjPictureGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
             $this->ctrl->redirect($this, '');
         }
-//        $this->irss->consume()->inline($picture_identifier)->run();
-
-        $target_picture_src = $this->irss->consume()->src($picture_identifier)->getSrc();
-        $target_picture_text = $srObjPicture->getTitle();
-        $target_img_element = '<div class="w3-display-container mySlides">'
-            .'<img src="' . $target_picture_src . '" style="width:100%">'
-            .'<div class="w3-display-bottomleft w3-large w3-container w3-padding-16 w3-black">' . $target_picture_text . '</div></div>';
-
-        $img_elements[] = $target_img_element;
-        $album = srObjAlbum::find($srObjPicture->getAlbumId());
-        $pictures = $album->getPictureObjects();
         /**
-         * @var $picture srObjPicture
+         * @var $album srObjAlbum
          */
-        foreach ($pictures AS $picture) {
-            if ($picture->getId() === $picture_id) {
-                continue;
-            }
+        $album = srObjAlbum::find($srObjPicture->getAlbumId());
+        $gallery_obj_id = $album->getObjectId();
+        $gallery = ilObjectFactory::getInstanceByObjId($gallery_obj_id);
+
+        // create image elements for slideshow
+        $nr_elements_before_target = 0;
+        $pictures = $album->getPictureObjects();
+        $key_of_target_picture = array_search($srObjPicture, $pictures);
+        foreach ($pictures AS $picture_key => $picture) {
             $pic_id = $this->irss->manage()->find($picture->getPictureRID());
-            $other_picture_src = $this->irss->consume()->src($pic_id)->getSrc();
-            $other_picture_text = $picture->getTitle();
-            $other_img_element = '<div class="w3-display-container mySlides">'
-                .'<img src="' . $other_picture_src . '" style="width:100%">'
-                .'<div class="w3-display-bottomleft w3-large w3-container w3-padding-16 w3-black">' . $other_picture_text . '</div></div>';
-            $img_elements[] = $other_img_element;
+            $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
+            $description = $picture->getDescription();
+            $optional_description_info = ($description !== "") ? ($this->pl->txt('description') . ': ' . $description . ', ') : "";
+            $picture_infos = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ', '
+                . $this->pl->txt('album') . ': ' . $album->getTitle() . ', '
+                . $this->pl->txt('picture') . ': ' . $picture->getTitle() . ', '
+                . $optional_description_info
+                . $this->lng->txt('create_date') . ': ' . $picture->getCreateDate();
+            $img_element = '<div class="xpho_slideshow_slide_container">'
+                .'<img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
+                .'<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
+                .'</div>';
+            $img_elements[] = $img_element;
+            if($picture_key < $key_of_target_picture) {
+                $nr_elements_before_target++;
+            }
         }
-
-        $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
-
+        // order image elements
+        $elements_before = array_slice($img_elements, 0, $nr_elements_before_target);
+        $target_element = $img_elements[$nr_elements_before_target];
+        $elements_after = array_slice($img_elements, $nr_elements_before_target + 1);
+        $img_elements = array_merge([$target_element], $elements_after, $elements_before);
+        // add image elements to template
         $tpl->setVariable('IMAGE_ELEMENTS', implode("      ", $img_elements));
+        // add back button to template
+        $back_target = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
+        $tpl->setVariable('BACK_BUTTON_TARGET', $back_target);
+        $tpl->setVariable('BACK_BUTTON_TEXT', $this->pl->txt('back_to_album'));
+
+        $this->tpl->addCss($this->pl->getStyleSheetLocation('default/picture_slideshow.css'));
         $this->tpl->setContent($tpl->get());
     }
 
