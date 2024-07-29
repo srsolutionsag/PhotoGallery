@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
@@ -179,7 +187,7 @@ class srObjAlbumGUI
             $picture_rid = $srObjPicture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare( 512, 75);
+                $picture_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
                 $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
                 $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                 $src_preview = $flavour_urls[0];

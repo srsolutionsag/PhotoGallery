@@ -1,19 +1,12 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
  *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
+ * https://sr.solutions
  *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -57,7 +50,7 @@ class ilObjPhotoGalleryMigration implements Migration
 
 
     public function step(Environment $environment): void //TODO: bei alben prüfen ob alle gallery alben migriert, wenn nicht keine alben in content anzeigen, stattdessen info dass migriert werden muss.
-        //TODO: Readme um migrations-Vorgehen ergänzen. Ev. in After-Update (in Plugin-Klasse) von plugin prüfen, ob migration gemacht. Wenn nicht migrations-info ausgeben. Zudem prüfen ob in Web oder cli kontext via (PHP_SAPI !== 'cli') damit nur msg angezeigt in Webkontext.
+    //TODO: Readme um migrations-Vorgehen ergänzen. Ev. in After-Update (in Plugin-Klasse) von plugin prüfen, ob migration gemacht. Wenn nicht migrations-info ausgeben. Zudem prüfen ob in Web oder cli kontext via (PHP_SAPI !== 'cli') damit nur msg angezeigt in Webkontext.
     {
         //TODO: change migration to have multiple queries. first to get an album without an rid (albums shall get a collection whether they have pictures or not)
         //TODO: afterwards get the album's pictures if it has any, copy them to the irss and add their rids to the collection
@@ -83,16 +76,16 @@ class ilObjPhotoGalleryMigration implements Migration
         $dataset = $this->helper->getDatabase()->fetchAll($query);
 
         // build empty collection for album which will be filled later
-        $album_id = (int)$dataset[0]['album_id'];
+        $album_id = (int) $dataset[0]['album_id'];
         $album_collection = $this->helper->getCollectionBuilder()->new(ResourceCollection::NO_SPECIFIC_OWNER);
 
         // only move original picture files to irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that)
         $picture_rids = [];
         $preview_picture_rid = null;
         foreach ($dataset as $entry) {
-            $picture_owner_id = (int)$entry['picture_owner_id'];
-            $picture_id = (int)$entry['picture_id'];
-            $file_path = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id );
+            $picture_owner_id = (int) $entry['picture_owner_id'];
+            $picture_id = (int) $entry['picture_id'];
+            $file_path = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id);
             // copy original picture file to irss but leave the directory and files there in case something goes wrong
             // TODO: remove old files and directories in a future version (once this migration has proven itself)
             $resource_identification = $this->helper->movePathToStorage(
@@ -111,7 +104,7 @@ class ilObjPhotoGalleryMigration implements Migration
                 $picture_rid = $resource_identification->serialize();
                 $picture_rids[] = $picture_rid;
                 //check if the current picture is the preview picture of the album, if so remember this for the db update later on
-                if ((int)$entry['preview_id'] === $picture_id) {
+                if ((int) $entry['preview_id'] === $picture_id) {
                     $preview_picture_rid = $picture_rid;
                 }
             } else {
@@ -173,7 +166,7 @@ class ilObjPhotoGalleryMigration implements Migration
         );
         $d = $this->helper->getDatabase()->fetchObject($r);
 
-        return (int)$d->amount;
+        return (int) $d->amount;
     }
 
 

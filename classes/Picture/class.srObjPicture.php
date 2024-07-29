@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 /**
  * srObjPicture
  * @author  Fabian Schmid <fs@studer-raimann.ch>
@@ -305,8 +313,8 @@ class srObjPicture extends ActiveRecord
         }
 
         $convert_cmd = ilShellUtil::escapeShellArg($a_from) . " " . $size . $density . ilShellUtil::escapeShellArg(
-                $a_to
-            );
+            $a_to
+        );
         ilShellUtil::execConvert($convert_cmd);
     }
 }

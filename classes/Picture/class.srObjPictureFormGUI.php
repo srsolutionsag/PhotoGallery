@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
@@ -47,7 +55,8 @@ class srObjPictureFormGUI
         $this->refinery = $DIC->refinery();
         $this->picture = $picture;
         $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->wrapper()->query()->retrieve(
-            'album_id', $this->refinery->kindlyTo()->int()
+            'album_id',
+            $this->refinery->kindlyTo()->int()
         ) : 0;
         $this->album = new srObjAlbum($album_id);
         $this->parent_gui = $parent_gui;

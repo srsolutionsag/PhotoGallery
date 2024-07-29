@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\Range as DataRange;
 use ILIAS\Data\Order as DataOrder;
@@ -111,7 +119,8 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
             'title' => $this->ui_factory->table()->column()->text("title")->withHighlight(true),
             'description' => $this->ui_factory->table()->column()->text("description"),
             'create_date' => $this->ui_factory->table()->column()->date(
-                "date", $this->data_factory->dateFormat()->germanLong()
+                "date",
+                $this->data_factory->dateFormat()->germanLong()
             ),
             'sort_type' => $this->ui_factory->table()->column()->text("sort_type"),
             'sort_direction' => $this->ui_factory->table()->column()->text("sort_direrction"),

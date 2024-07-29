@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 use ILIAS\Data\Factory as DataFactory;
 use ILIAS\Data\Range as DataRange;
 use ILIAS\Data\Order as DataOrder;
@@ -108,7 +116,7 @@ class srObjAlbumTableGUI implements DataRetrieval
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare( 96, 75);
+                $picture_flavour = new ilObjPhotoGalleryCropToSquare(96, 75);
                 $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
                 $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                 $src_preview = $flavour_urls[0];
@@ -132,7 +140,8 @@ class srObjAlbumTableGUI implements DataRetrieval
             'title' => $this->ui_factory->table()->column()->text("title")->withHighlight(true),
             'description' => $this->ui_factory->table()->column()->text("description"),
             'create_date' => $this->ui_factory->table()->column()->date(
-                "date", $this->data_factory->dateFormat()->germanLong()
+                "date",
+                $this->data_factory->dateFormat()->germanLong()
             )
         ];
     }

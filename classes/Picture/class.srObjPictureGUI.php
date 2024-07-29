@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory as Refinery;
@@ -199,7 +207,7 @@ class srObjPictureGUI
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare( 48, 75);
+                $picture_flavour = new ilObjPhotoGalleryCropToSquare(48, 75);
                 $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
                 $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                 $src_preview = $flavour_urls[0];
@@ -241,7 +249,7 @@ class srObjPictureGUI
                  */
                 $album = srObjAlbum::find($album_id);
                 if ($album !== null && ((int) $picture->getId() === $album->getPreviewId(
-                        ) || $picture_rid === $album->getPreviewPictureRID())) {
+                ) || $picture_rid === $album->getPreviewPictureRID())) {
                     $album->setPreviewId(0);
                     $album->setPreviewPictureRID('');
                     $album->update();
@@ -311,7 +319,7 @@ class srObjPictureGUI
         $pictures = $album->getPictureArrays();
         $pictures = $this->sortPictures($pictures, $album->getSortType(), $album->getSortDirection());
         $key_of_target_picture = array_search($srObjPicture->asArray(), $pictures);
-        foreach ($pictures AS $picture_key => $picture) {
+        foreach ($pictures as $picture_key => $picture) {
             $pic_id = $this->irss->manage()->find($picture['picture_rid']);
             $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
             $description = $picture['description'];
@@ -322,9 +330,9 @@ class srObjPictureGUI
                 . $optional_description_info
                 . $this->lng->txt('create_date') . ': ' . $picture['create_date'];
             $img_element = '<div class="xpho_slideshow_slide_container">'
-                .'<img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
-                .'<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
-                .'</div>';
+                . '<img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
+                . '<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
+                . '</div>';
             $img_elements[] = $img_element;
             if($picture_key < $key_of_target_picture) {
                 $nr_elements_before_target++;

@@ -1,19 +1,12 @@
 <?php
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
  *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
+ * https://sr.solutions
  *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- */
+ *********************************************************************/
 
 declare(strict_types=1);
 
@@ -72,11 +65,16 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
             $this->storage->manage()->remove($id, $this->stakeholder);
 
             return new BasicHandlerResult(
-                $this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_OK, $identifier, 'file deleted'
+                $this->getFileIdentifierParameterName(),
+                HandlerResultInterface::STATUS_OK,
+                $identifier,
+                'file deleted'
             );
         } else {
             return new BasicHandlerResult(
-                $this->getFileIdentifierParameterName(), HandlerResultInterface::STATUS_FAILED, $identifier,
+                $this->getFileIdentifierParameterName(),
+                HandlerResultInterface::STATUS_FAILED,
+                $identifier,
                 'file not found'
             );
         }
@@ -110,7 +108,11 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
             $r = $this->storage->manage()->getCurrentRevision($id)->getInformation();
 
             $infos[] = new BasicFileInfoResult(
-                $this->getFileIdentifierParameterName(), $file_id, $r->getTitle(), $r->getSize(), $r->getMimeType()
+                $this->getFileIdentifierParameterName(),
+                $file_id,
+                $r->getTitle(),
+                $r->getSize(),
+                $r->getMimeType()
             );
         }
 

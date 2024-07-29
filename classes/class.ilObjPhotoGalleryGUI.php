@@ -1,25 +1,11 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2009 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
 
 use ILIAS\DI\UIServices;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
@@ -383,7 +369,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $preview_rid = $srObjAlbum->getPreviewPictureRid();
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
                 if ($preview_identifier !== null) {
-                    $preview_flavour = new ilObjPhotoGalleryCropToSquare( 512, 75);
+                    $preview_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
                     $flavour = $this->irss->flavours()->get($preview_identifier, $preview_flavour);
                     $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                     $src_mosaic = $flavour_urls[0];
