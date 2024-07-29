@@ -383,7 +383,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $preview_rid = $srObjAlbum->getPreviewPictureRid();
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
                 if ($preview_identifier !== null) {
-                    $preview_flavour = new CropToSquare(false, 512, 75);
+                    $preview_flavour = new ilObjPhotoGalleryCropToSquare( 512, 75);
                     $flavour = $this->irss->flavours()->get($preview_identifier, $preview_flavour);
                     $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                     $src_mosaic = $flavour_urls[0];

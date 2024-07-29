@@ -199,7 +199,7 @@ class srObjPictureGUI
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new CropToSquare(false, 48, 75);
+                $picture_flavour = new ilObjPhotoGalleryCropToSquare( 48, 75);
                 $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
                 $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                 $src_preview = $flavour_urls[0];

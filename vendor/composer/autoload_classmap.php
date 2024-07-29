@@ -177,6 +177,7 @@ return array(
     'ilObjComponentSettingsGUI' => $baseDir . '/../../../../../../../Services/Component/classes/Settings/class.ilObjComponentSettingsGUI.php',
     'ilObjPhotoGallery' => $baseDir . '/classes/class.ilObjPhotoGallery.php',
     'ilObjPhotoGalleryAccess' => $baseDir . '/classes/class.ilObjPhotoGalleryAccess.php',
+    'ilObjPhotoGalleryFlavourDefinition' => $baseDir . '/classes/class.ilObjPhotoGalleryFlavourDefinition.php',
     'ilObjPhotoGalleryGUI' => $baseDir . '/classes/class.ilObjPhotoGalleryGUI.php',
     'ilObjPhotoGalleryListGUI' => $baseDir . '/classes/class.ilObjPhotoGalleryListGUI.php',
     'ilObjPhotoGalleryMigration' => $baseDir . '/classes/Setup/class.ilObjPhotoGalleryMigration.php',

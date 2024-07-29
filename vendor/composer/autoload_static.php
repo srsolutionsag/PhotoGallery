@@ -178,6 +178,7 @@ class ComposerStaticInit43ea9c67701149a85fe160b4d2ad7aff
         'ilObjComponentSettingsGUI' => __DIR__ . '/../..' . '/../../../../../../../Services/Component/classes/Settings/class.ilObjComponentSettingsGUI.php',
         'ilObjPhotoGallery' => __DIR__ . '/../..' . '/classes/class.ilObjPhotoGallery.php',
         'ilObjPhotoGalleryAccess' => __DIR__ . '/../..' . '/classes/class.ilObjPhotoGalleryAccess.php',
+        'ilObjPhotoGalleryFlavourDefinition' => __DIR__ . '/../..' . '/classes/class.ilObjPhotoGalleryFlavourDefinition.php',
         'ilObjPhotoGalleryGUI' => __DIR__ . '/../..' . '/classes/class.ilObjPhotoGalleryGUI.php',
         'ilObjPhotoGalleryListGUI' => __DIR__ . '/../..' . '/classes/class.ilObjPhotoGalleryListGUI.php',
         'ilObjPhotoGalleryMigration' => __DIR__ . '/../..' . '/classes/Setup/class.ilObjPhotoGalleryMigration.php',
