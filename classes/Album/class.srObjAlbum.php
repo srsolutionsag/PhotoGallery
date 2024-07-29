@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 /**
  * srObjAlbum
  * @author  Fabian Schmid <fs@studer-raimann.ch>
@@ -186,9 +194,8 @@ class srObjAlbum extends ActiveRecord
             $srObjPicture = srObjPicture::find($this->getPreviewId());
 
             return $srObjPicture->getMosaicWebSrc();
-        } else {
-            return $pl->getDirectory() . '/templates/images/nopreview.jpg';
         }
+        return $pl->getDirectory() . '/templates/images/nopreview.svg';
     }
 
     /**
@@ -250,7 +257,7 @@ class srObjAlbum extends ActiveRecord
         $this->album_collection_rid = $album_collection_rid;
     }
 
-    public function getPreviewPictureRID(): string|null
+    public function getPreviewPictureRID(): ?string
     {
         return $this->preview_picture_rid;
     }

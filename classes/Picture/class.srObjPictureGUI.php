@@ -1,8 +1,16 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
+use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
-use ILIAS\Refinery\Factory AS Refinery;
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
+use ILIAS\Refinery\Factory as Refinery;
 
 /**
  * GUI-Class srObjPictureGUI
@@ -12,11 +20,8 @@ use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
  */
 class srObjPictureGUI
 {
-    public $parent;
-    /**
-     * @var \ilPhotoGalleryPlugin
-     */
-    public $pl;
+    protected ilObjPhotoGalleryGUI $parent;
+    protected ilPhotoGalleryPlugin $pl;
     public const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
     public const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
     public const CMD_UPLOAD = 'upload';
@@ -27,18 +32,18 @@ class srObjPictureGUI
     protected ilPropertyFormGUI $form;
     protected ilToolbarGUI $toolbar;
     protected ilCtrl $ctrl;
-    private Services $http;
-    private ilLanguage $lng;
-    private Refinery $refinery;
+    protected Services $http;
+    protected ilLanguage $lng;
+    protected Refinery $refinery;
     protected ilGlobalTemplateInterface $tpl;
-    public \ActiveRecord|null $obj_picture;
-    public ILIAS\DI\UIServices $ui;
-    private \ILIAS\ResourceStorage\Services $irss;
+    protected ?srObjPicture $obj_picture = null;
+    protected UIServices $ui;
+    protected \ILIAS\ResourceStorage\Services $irss;
 
     /**
      * @param $parent_gui
      */
-    public function __construct($parent_gui)
+    public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
         global $DIC;
         $this->tpl = $DIC->ui()->mainTemplate();
@@ -160,7 +165,7 @@ class srObjPictureGUI
         /**
          * @var $picture srObjPicture
          */
-        $picture = srObjPicture ::find($picture_id);
+        $picture = srObjPicture::find($picture_id);
         $form_gui = new srObjPictureFormGUI($this, $picture);
         $form = $form_gui->getForm();
         $form = $form->withRequest($this->http->request());
@@ -195,7 +200,7 @@ class srObjPictureGUI
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new CropToSquare(false, 48, 75);
+                $picture_flavour = new ilObjPhotoGalleryCropToSquare(48, 75);
                 $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
                 $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                 $src_preview = $flavour_urls[0];
@@ -226,7 +231,7 @@ class srObjPictureGUI
                  * @var $picture srObjPicture
                  */
                 $picture = srObjPicture::find($picture_id);
-                if($picture === null) {
+                if ($picture === null) {
                     continue;
                 }
                 $picture_rid = $picture->getPictureRID();
@@ -236,7 +241,8 @@ class srObjPictureGUI
                  * @var $album srObjAlbum
                  */
                 $album = srObjAlbum::find($album_id);
-                if ($album !== null && ((int) $picture->getId() === $album->getPreviewId() || $picture_rid === $album->getPreviewPictureRID())) {
+                if ($album !== null && ((int) $picture->getId() === $album->getPreviewId(
+                ) || $picture_rid === $album->getPreviewPictureRID())) {
                     $album->setPreviewId(0);
                     $album->setPreviewPictureRID('');
                     $album->update();
@@ -306,22 +312,23 @@ class srObjPictureGUI
         $pictures = $album->getPictureArrays();
         $pictures = $this->sortPictures($pictures, $album->getSortType(), $album->getSortDirection());
         $key_of_target_picture = array_search($srObjPicture->asArray(), $pictures);
-        foreach ($pictures AS $picture_key => $picture) {
+        foreach ($pictures as $picture_key => $picture) {
             $pic_id = $this->irss->manage()->find($picture['picture_rid']);
             $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
             $description = $picture['description'];
-            $optional_description_info = ($description !== "") ? ($this->pl->txt('description') . ': ' . $description . ' | ') : "";
+            $optional_description_info = ($description !== "") ? ($this->pl->txt(
+                'description'
+            ) . ': ' . $description . ' | ') : "";
             $picture_infos = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
                 . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
                 . $this->pl->txt('picture') . ': ' . $picture['title'] . ' | '
                 . $optional_description_info
                 . $this->lng->txt('create_date') . ': ' . $picture['create_date'];
-            $img_element = '<div class="xpho_slideshow_slide_container">'
-                .'<img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
-                .'<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
-                .'</div>';
+            $img_element = '<div class="xpho_slideshow_slide_container"><img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
+                . '<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
+                . '</div>';
             $img_elements[] = $img_element;
-            if($picture_key < $key_of_target_picture) {
+            if ($picture_key < $key_of_target_picture) {
                 $nr_elements_before_target++;
             }
         }
@@ -340,7 +347,6 @@ class srObjPictureGUI
         $this->tpl->addCss($this->pl->getStyleSheetLocation('default/picture_slideshow.css'));
         $this->tpl->setContent($tpl->get());
     }
-
 
     protected function retrievePictureIDs(): array
     {
@@ -371,7 +377,7 @@ class srObjPictureGUI
         }
 
         // handle ALL_OBJECTS special case
-        if($picture_ids[0] === 'ALL_OBJECTS') {
+        if ($picture_ids[0] === 'ALL_OBJECTS') {
             $picture_ids = [];
             $pictures = $album->getPictureObjects();
             foreach ($pictures as $picture) {
@@ -399,20 +405,16 @@ class srObjPictureGUI
         return $album_id;
     }
 
-    private function sortPictures(array $pictures, string $sort_type, string $sort_direction)
+    private function sortPictures(array $pictures, string $sort_type, string $sort_direction): array
     {
         if ($sort_type === srObjAlbum::SORT_TYPE_TITLE) {
-            usort($pictures, function ($a, $b) {
-                return strcmp($a["title"], $b["title"]);
-            });
+            usort($pictures, static fn($a, $b): int => strcmp($a["title"] ?? '', $b["title"] ?? ''));
         } elseif ($sort_type === srObjAlbum::SORT_TYPE_CREATE_DATE) {
-            usort($pictures, function ($a, $b) {
-                return strtotime($a["date"]) - strtotime($b["date"]);
-            });
+            usort($pictures, static fn($a, $b): int => strtotime($a["date"] ?? '') - strtotime($b["date"] ?? ''));
         }
 
-        if($sort_direction === srObjAlbum::SORT_TYPE_DIRECTION_DESC) {
-            $pictures = array_reverse($pictures);
+        if ($sort_direction === srObjAlbum::SORT_TYPE_DIRECTION_DESC) {
+            return array_reverse($pictures);
         }
 
         return $pictures;

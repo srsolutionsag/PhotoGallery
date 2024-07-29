@@ -1,47 +1,31 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2009 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
 
-use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
-use ILIAS\HTTP\Services AS HttpService;
-use ILIAS\ResourceStorage\Services AS ResourceStorage;
-use ILIAS\Services\ResourceStorage\Collections\View\PreviewDefinition;
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
+use ILIAS\DI\UIServices;
+use ILIAS\HTTP\Services as HttpService;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 
 /**
- * User Interface class for example repository object.
  * @author            Lukas Zehnder <lukas@sr.solutions>
  * @author            Fabian Schmid <fabian@sr.solutions>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
  * @author            Gabriel Comte <gc@studer-raimann.ch>
- * $Id$
+ *
  * @ilCtrl_isCalledBy ilObjPhotoGalleryGUI: ilRepositoryGUI, ilObjPluginDispatchGUI, ilAdministrationGUI
  * @ilCtrl_Calls      ilObjPhotoGalleryGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI
- * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI, srObjExifGUI
+ * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 {
-    public $parent;
+    protected object $parent; // TODO this is currently unknown and never set, problably remove it
     public const CMD_INFO_SCREEN = 'infoScreen';
     public const CMD_EDIT_PROPERTIES = 'editProperties';
     public const CMD_LIST_ALBUMS = 'list_albums';
@@ -55,25 +39,13 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     public const TAB_MANAGE_ALBUMS = 'manage_albums';
     public const TAB_PERMISSIONS = 'permissions';
     public const TAB_SETTINGS = 'settings';
-    /**
-     * @var ilPhotoGalleryPlugin
-     */
-    protected $pl;
-    /**
-     * @var ilPropertyFormGUI
-     */
-    protected $form;
-    /**
-     * @var ilNavigationHistory
-     */
-    protected $history;
-    /**
-     * @var ilAppEventHandler
-     */
-    protected $event;
-    public ILIAS\DI\UIServices $ui;
-    private HttpService $http;
-    private ResourceStorage $irss;
+    protected ilPhotoGalleryPlugin $pl;
+    protected ?ilPropertyFormGUI $form = null;
+    protected ilNavigationHistory $history;
+    protected ilAppEventHandler $event;
+    protected UIServices $ui;
+    protected HttpService $http;
+    protected ResourceStorage $irss;
 
     protected function afterConstructor(): void
     {
@@ -132,20 +104,19 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $this->ctrl->forwardCommand($info_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'srobjalbumgui':
+            case strtolower(srObjAlbumGUI::class):
                 $this->setTabs();
                 $this->tabs_gui->activateTab(self::TAB_CONTENT);
                 $album_gui = new srObjAlbumGUI($this);
                 $this->ctrl->forwardCommand($album_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'srobjpicturegui':
+            case strtolower(srObjPictureGUI::class):
                 $picture_gui = new srObjPictureGUI($this);
                 $this->ctrl->forwardCommand($picture_gui);
                 $this->tpl->printToStdout();
                 break;
             case 'ilcommonactiondispatchergui':
-                include_once(__DIR__ . "/Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
                 $this->ctrl->forwardCommand($gui);
                 break;
@@ -219,7 +190,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->tpl->setContent($this->ui->renderer()->render($this->getEditForm()));
     }
 
-    protected function getEditForm(): StandardForm
+    protected function getEditForm(): Standard
     {
         // create input fields
         $title_input = $this->ui->factory()->input()->field()->text(
@@ -261,7 +232,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $form = $form->withRequest($this->http->request());
         $data = $form->getData();
 
-        if($data === null) {
+        if ($data === null) {
             $this->setTabs();
             $this->tpl->setContent($this->ui->renderer()->render([$form]));
             return;
@@ -372,18 +343,18 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 ["0", $srObjAlbum->getDescription(), false]
             ]);
             $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["1", date('d.m.Y', strtotime($srObjAlbum->getCreateDate())), false]
+                ["1", date('d.m.Y', strtotime((string) $srObjAlbum->getCreateDate())), false]
             ]);
             $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["2", $srObjAlbum->getPictureCount()  . ' ' . $this->pl->txt('pics'), false]
+                ["2", $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'), false]
             ]);
             // image for the card
-            $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
+            $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.svg';
             if ($srObjAlbum->getPreviewId() > 0) {
                 $preview_rid = $srObjAlbum->getPreviewPictureRid();
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
                 if ($preview_identifier !== null) {
-                    $preview_flavour = new CropToSquare(false, 512, 75);
+                    $preview_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
                     $flavour = $this->irss->flavours()->get($preview_identifier, $preview_flavour);
                     $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                     $src_mosaic = $flavour_urls[0];
@@ -404,7 +375,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             $cards[] = $card;
         }
         $add_new_album_image = $this->ui->factory()->image()->responsive(
-            $this->pl->getDirectory() . '/templates/images/addnew.jpg',
+            $this->pl->getDirectory() . '/templates/images/addnew.svg',
             $this->pl->txt('add_album')
         );
         $add_new_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD);
@@ -444,7 +415,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             }
             $picture_rid = $picture->getPictureRid();
             $picture_identifier = $irss->manage()->find($picture_rid);
-            if($picture_identifier === null) {
+            if ($picture_identifier === null) {
                 continue;
             }
             $picture_identifiers[] = $picture_identifier;

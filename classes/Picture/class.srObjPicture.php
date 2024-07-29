@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 /**
  * srObjPicture
  * @author  Fabian Schmid <fs@studer-raimann.ch>
@@ -83,7 +91,6 @@ class srObjPicture extends ActiveRecord
      * @db_length     64
      */
     protected $picture_rid;
-
 
     /**
      * @return string
@@ -207,7 +214,6 @@ class srObjPicture extends ActiveRecord
         $this->picture_rid = $picture_rid;
     }
 
-
     public function getPicturePath(): string
     {
         return CLIENT_DATA_DIR . '/xpho/album_' . $this->getAlbumId() . '/picture_' . $this->getId();
@@ -216,7 +222,7 @@ class srObjPicture extends ActiveRecord
     /**
      * @param $usage
      */
-    public function getSrc($usage): string
+    public function getSrc(string $usage): string
     {
         return $this->getPicturePath() . '/' . $usage . '.' . $this->getSuffix();
     }
@@ -261,7 +267,7 @@ class srObjPicture extends ActiveRecord
      * @param $a_width
      * @param $a_height
      */
-    public static function cropImage(string $a_from, string $a_to, $a_width, $a_height): void
+    public static function cropImage(string $a_from, string $a_to, string $a_width, string $a_height): void
     {
         $crop = "-resize " . $a_width . "x" . $a_height . "^ -gravity Center -crop " . $a_width . "x" . $a_height . "+0+0 +repage ";
         $convert_cmd = ilShellUtil::escapeShellArg($a_from) . " " . $crop . ilShellUtil::escapeShellArg($a_to);
@@ -275,7 +281,7 @@ class srObjPicture extends ActiveRecord
      * @param $a_height
      * @param $dpi
      */
-    public static function resizeImage(string $a_from, string $a_to, $a_width, $a_height, $dpi): void
+    public static function resizeImage(string $a_from, string $a_to, $a_width, $a_height, ?string $dpi): void
     {
         $resize_factor = null;
         [$width, $height] = getimagesize($a_from);

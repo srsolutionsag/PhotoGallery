@@ -1,6 +1,16 @@
 <?php
 
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
+use ILIAS\DI\UIServices;
+use ILIAS\HTTP\Services;
+use ILIAS\Refinery\Factory;
 
 /**
  * GUI-Class srObjAlbumGUI
@@ -16,24 +26,23 @@ class srObjAlbumGUI
     public const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
     public const TAB_LIST_PICTURES = 'list_pictures';
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
-    private ilToolbarGUI $toolbar;
-    private ilDBInterface $db;
+    protected ilToolbarGUI $toolbar;
+    protected ilDBInterface $db;
 
     protected ilTabsGUI $tabs_gui;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
-    public ilObjPhotoGallery $obj_photo_gallery;
-    public ?ActiveRecord $obj_album;
+    protected ilObjPhotoGallery $obj_photo_gallery;
+    protected ?ActiveRecord $obj_album;
     protected ilAccessHandler $access;
     protected ilObjPhotoGalleryGUI $parent_gui;
-    public ilLocatorGUI $locator;
-    public ILIAS\DI\UIServices $ui;
-    public ilPhotoGalleryPlugin $pl;
-    public \ILIAS\HTTP\Services $http;
-    public \ILIAS\Refinery\Factory $refinery;
-    public \ILIAS\ResourceStorage\Services $irss;
-
+    protected ilLocatorGUI $locator;
+    protected UIServices $ui;
+    protected ilPhotoGalleryPlugin $pl;
+    protected Services $http;
+    protected Factory $refinery;
+    protected \ILIAS\ResourceStorage\Services $irss;
 
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
@@ -187,7 +196,7 @@ class srObjAlbumGUI
             $picture_rid = $srObjPicture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new CropToSquare(false, 512, 75);
+                $picture_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
                 $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
                 $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
                 $src_preview = $flavour_urls[0];
@@ -196,7 +205,7 @@ class srObjAlbumGUI
                 $src_preview,
                 $srObjPicture->getTitle()
             );
-//            $this->ctrl->setParameterByClass(srObjPicture::class, 'picture_id', $srObjPicture->getId());
+            //            $this->ctrl->setParameterByClass(srObjPicture::class, 'picture_id', $srObjPicture->getId());
             $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjPicture->getId());
             $this->ctrl->setParameterByClass(
                 srObjPictureGUI::class,
@@ -214,7 +223,7 @@ class srObjAlbumGUI
             $cards[] = $card;
         }
         $add_new_picture_image = $this->ui->factory()->image()->responsive(
-            $this->pl->getDirectory() . '/templates/images/addnew.jpg',
+            $this->pl->getDirectory() . '/templates/images/addnew.svg',
             $this->pl->txt('upload_pic')
         );
         $add_new_picture_action = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD);
@@ -280,7 +289,6 @@ class srObjAlbumGUI
         $album = srObjAlbum::find($album_id);
         $form_gui = new srObjAlbumFormGUI($this, $album);
         $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
-
     }
 
     public function update(): void
@@ -415,7 +423,7 @@ class srObjAlbumGUI
             $this->ctrl->redirect($this->parent_gui, '');
         }
         // handle ALL_OBJECTS special case
-        if($album_ids[0] === 'ALL_OBJECTS') {
+        if ($album_ids[0] === 'ALL_OBJECTS') {
             $album_ids = [];
 
             $albums = $gallery->getAlbumObjects();

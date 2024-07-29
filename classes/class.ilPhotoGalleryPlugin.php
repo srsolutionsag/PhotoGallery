@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 require_once(__DIR__ . '/../vendor/autoload.php');
 
 /**
@@ -50,7 +58,7 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
     {
         $this->db->dropTable(srObjExif::TABLE_NAME, false);
         $this->db->dropTable(srObjAlbum::TABLE_NAME, false);
-        $this->db->dropTable(srObjPhotoData::TABLE_NAME, false);
+        $this->db->dropTable('rep_robj_xpho_data', false);
         $this->db->dropTable(srObjPicture::TABLE_NAME, false);
     }
 
@@ -59,9 +67,13 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
         global $DIC;
         $ui = $DIC->ui();
         parent::afterUpdate();
-        $migration = new ilObjPhotoGalleryMigration();
-        if(PHP_SAPI !== 'cli' && $migration->getRemainingAmountOfSteps() > 0) {
-            $ui->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
+        if (PHP_SAPI === 'cli') {
+            return;
         }
+        $migration = new ilObjPhotoGalleryMigration();
+        if ($migration->getRemainingAmountOfSteps() <= 0) {
+            return;
+        }
+        $ui->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
     }
 }

@@ -1,15 +1,19 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
+use ILIAS\ResourceStorage\Collection\Collections;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
-use ILIAS\UI\Component\Input\Container\Form\Standard AS StandardForm;
-use ILIAS\HTTP\Services AS HttpServices;
+use ILIAS\HTTP\Services as HttpServices;
 use ILIAS\Refinery\Factory as Refinery;
-use ILIAS\ResourceStorage\Services AS IRSS;
-use ILIAS\ResourceStorage\Collection\CollectionBuilder;
-use ILIAS\ResourceStorage\Resource\Repository\CollectionDBRepository;
-use ILIAS\ResourceStorage\Events\Subject;
-use ILIAS\ResourceStorage\Collection\ResourceCollection;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -18,15 +22,15 @@ use ILIAS\ResourceStorage\Collection\ResourceCollection;
  */
 class srObjAlbumFormGUI
 {
-    private CollectionBuilder $collection_builder;
-    private ilCtrlInterface $ctrl;
-    private ilDBInterface $db;
-    private ilLanguage $lng;
-    private Factory $ui_factory;
-    private Renderer $ui_renderer;
-    private ilObjUser $user;
-    private HttpServices $http;
-    private Refinery $refinery;
+    protected Collections $collections;
+    protected ilCtrlInterface $ctrl;
+    protected ilDBInterface $db;
+    protected ilLanguage $lng;
+    protected Factory $ui_factory;
+    protected Renderer $ui_renderer;
+    protected ilObjUser $user;
+    protected HttpServices $http;
+    protected Refinery $refinery;
     protected srObjAlbum $album;
     protected srObjAlbumGUI $parent_gui;
     protected ilPhotoGalleryPlugin $pl;
@@ -46,13 +50,10 @@ class srObjAlbumFormGUI
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ctrl->saveParameter($parent_gui, 'album_id');
-        $this->collection_builder = new CollectionBuilder(
-            new CollectionDBRepository($this->db),
-            new Subject()
-        );
+        $this->collections = $DIC->resourceStorage()->collection();
     }
 
-    public function getForm(): StandardForm
+    public function getForm(): Standard
     {
         // create input fields
         $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_CREATE);
@@ -128,19 +129,18 @@ class srObjAlbumFormGUI
                 "settings_section" => $settings_section
             ]
         )->withSubmitLabel($form_submit_label);
-
     }
 
     public function saveData($data): bool
     {
-        if(empty($data) || !$this->http->wrapper()->query()->has('ref_id')) {
+        if (empty($data) || !$this->http->wrapper()->query()->has('ref_id')) {
             return false;
         }
 
         try {
             $gallery_ref_id = $this->http->wrapper()->query()->retrieve('ref_id', $this->refinery->kindlyTo()->int());
             $album = new srObjAlbum();
-            if ((int)$data['main_section']['album_id'] !== 0) {
+            if ((int) $data['main_section']['album_id'] !== 0) {
                 $album = srObjAlbum::find($data['main_section']['album_id']);
             }
 
@@ -156,11 +156,12 @@ class srObjAlbumFormGUI
             $album->setObjectId(ilObject::_lookupObjectId($gallery_ref_id));
             $album->setUserId($this->user->getId());
 
-            if ((int)$data['main_section']['album_id'] !== 0) {
+            if ((int) $data['main_section']['album_id'] !== 0) {
                 $album->update();
             } else {
-                $album_collection = $this->collection_builder->new(ResourceCollection::NO_SPECIFIC_OWNER);
-                $this->collection_builder->store($album_collection);
+                $album_collection_id = $this->collections->id();
+                $album_collection = $this->collections->get($album_collection_id);
+                $this->collections->store($album_collection);
                 $album_collection_rid = $album_collection->getIdentification()->serialize();
                 $album->setAlbumCollectionRID($album_collection_rid);
                 $album->create();

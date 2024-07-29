@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => 'studer-raimann/photogallery',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => '5e8a7cadf5a9f493aac7ccf7872db78df95229d1',
+        'name' => 'srsolutions/photogallery',
+        'pretty_version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
+        'version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
+        'reference' => '58492c65492a81e9b0970a2a7206ce30b391987f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        'studer-raimann/photogallery' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '5e8a7cadf5a9f493aac7ccf7872db78df95229d1',
+        'srsolutions/photogallery' => array(
+            'pretty_version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
+            'version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
+            'reference' => '58492c65492a81e9b0970a2a7206ce30b391987f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
