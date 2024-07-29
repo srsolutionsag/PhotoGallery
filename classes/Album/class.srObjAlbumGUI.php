@@ -206,7 +206,7 @@ class srObjAlbumGUI
             $cards[] = $card;
         }
         $add_new_picture_image = $this->ui->factory()->image()->responsive(
-            $this->pl->getDirectory() . '/templates/images/addnew.jpg',
+            $this->pl->getDirectory() . '/templates/images/addnew.svg',
             $this->pl->txt('upload_pic')
         );
         $add_new_picture_action = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD);

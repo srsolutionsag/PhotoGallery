@@ -378,7 +378,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 ["2", $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'), false]
             ]);
             // image for the card
-            $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
+            $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.svg';
             if ($srObjAlbum->getPreviewId() > 0) {
                 $preview_rid = $srObjAlbum->getPreviewPictureRid();
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
@@ -404,7 +404,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             $cards[] = $card;
         }
         $add_new_album_image = $this->ui->factory()->image()->responsive(
-            $this->pl->getDirectory() . '/templates/images/addnew.jpg',
+            $this->pl->getDirectory() . '/templates/images/addnew.svg',
             $this->pl->txt('add_album')
         );
         $add_new_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD);
