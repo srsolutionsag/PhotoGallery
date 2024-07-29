@@ -50,7 +50,7 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
     {
         $this->db->dropTable(srObjExif::TABLE_NAME, false);
         $this->db->dropTable(srObjAlbum::TABLE_NAME, false);
-        $this->db->dropTable(srObjPhotoData::TABLE_NAME, false);
+        $this->db->dropTable('rep_robj_xpho_data', false);
         $this->db->dropTable(srObjPicture::TABLE_NAME, false);
     }
 }

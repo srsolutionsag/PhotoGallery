@@ -1,7 +1,7 @@
 <#1>
 <?php
 require_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPhotoData.php';
-if (!$ilDB->tableExists(srObjPhotoData::TABLE_NAME)) {
+if (!$ilDB->tableExists('rep_robj_xpho_data')) {
     $fields = array(
         'id' => array(
             'type' => 'integer',
@@ -15,8 +15,8 @@ if (!$ilDB->tableExists(srObjPhotoData::TABLE_NAME)) {
         ),
     );
 
-    $ilDB->createTable(srObjPhotoData::TABLE_NAME, $fields);
-    $ilDB->addPrimaryKey(srObjPhotoData::TABLE_NAME, array("id"));
+    $ilDB->createTable('rep_robj_xpho_data', $fields);
+    $ilDB->addPrimaryKey('rep_robj_xpho_data', array("id"));
 }
 ?>
 
