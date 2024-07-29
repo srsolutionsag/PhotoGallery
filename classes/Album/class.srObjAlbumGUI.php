@@ -11,7 +11,6 @@
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * GUI-Class srObjAlbumGUI
@@ -27,22 +26,22 @@ class srObjAlbumGUI
     public const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
     public const TAB_LIST_PICTURES = 'list_pictures';
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
-    private ilToolbarGUI $toolbar;
+    protected ilToolbarGUI $toolbar;
 
     protected ilTabsGUI $tabs_gui;
     protected ilCtrl $ctrl;
     protected ilLanguage $lng;
     protected ilGlobalTemplateInterface $tpl;
-    public ilObjPhotoGallery $obj_photo_gallery;
-    public ?ActiveRecord $obj_album;
+    protected ilObjPhotoGallery $obj_photo_gallery;
+    protected ?ActiveRecord $obj_album;
     protected ilAccessHandler $access;
     protected ilObjPhotoGalleryGUI $parent_gui;
-    public ilLocatorGUI $locator;
-    public UIServices $ui;
-    public ilPhotoGalleryPlugin $pl;
-    public Services $http;
-    public Factory $refinery;
-    public \ILIAS\ResourceStorage\Services $irss;
+    protected ilLocatorGUI $locator;
+    protected UIServices $ui;
+    protected ilPhotoGalleryPlugin $pl;
+    protected Services $http;
+    protected Factory $refinery;
+    protected \ILIAS\ResourceStorage\Services $irss;
 
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
