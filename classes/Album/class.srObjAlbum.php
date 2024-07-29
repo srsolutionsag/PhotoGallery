@@ -202,6 +202,14 @@ class srObjAlbum extends ActiveRecord
         )->get();
     }
 
+    public function getPictureArrays(): array
+    {
+        return srObjPicture::where(['album_id' => $this->getId()])->orderBy(
+            $this->getSortType(),
+            $this->getSortDirection()
+        )->getArray();
+    }
+
     public function getPictureCount(): int
     {
         return srObjPicture::where(['album_id' => $this->getId()])->count();

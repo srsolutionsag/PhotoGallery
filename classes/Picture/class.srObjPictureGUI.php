@@ -303,18 +303,19 @@ class srObjPictureGUI
 
         // create image elements for slideshow
         $nr_elements_before_target = 0;
-        $pictures = $album->getPictureObjects();
-        $key_of_target_picture = array_search($srObjPicture, $pictures);
+        $pictures = $album->getPictureArrays();
+        $pictures = $this->sortPictures($pictures, $album->getSortType(), $album->getSortDirection());
+        $key_of_target_picture = array_search($srObjPicture->asArray(), $pictures);
         foreach ($pictures AS $picture_key => $picture) {
-            $pic_id = $this->irss->manage()->find($picture->getPictureRID());
+            $pic_id = $this->irss->manage()->find($picture['picture_rid']);
             $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
-            $description = $picture->getDescription();
-            $optional_description_info = ($description !== "") ? ($this->pl->txt('description') . ': ' . $description . ', ') : "";
-            $picture_infos = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ', '
-                . $this->pl->txt('album') . ': ' . $album->getTitle() . ', '
-                . $this->pl->txt('picture') . ': ' . $picture->getTitle() . ', '
+            $description = $picture['description'];
+            $optional_description_info = ($description !== "") ? ($this->pl->txt('description') . ': ' . $description . ' | ') : "";
+            $picture_infos = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
+                . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
+                . $this->pl->txt('picture') . ': ' . $picture['title'] . ' | '
                 . $optional_description_info
-                . $this->lng->txt('create_date') . ': ' . $picture->getCreateDate();
+                . $this->lng->txt('create_date') . ': ' . $picture['create_date'];
             $img_element = '<div class="xpho_slideshow_slide_container">'
                 .'<img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
                 .'<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
@@ -396,5 +397,24 @@ class srObjPictureGUI
         }
 
         return $album_id;
+    }
+
+    private function sortPictures(array $pictures, string $sort_type, string $sort_direction)
+    {
+        if ($sort_type === srObjAlbum::SORT_TYPE_TITLE) {
+            usort($pictures, function ($a, $b) {
+                return strcmp($a["title"], $b["title"]);
+            });
+        } elseif ($sort_type === srObjAlbum::SORT_TYPE_CREATE_DATE) {
+            usort($pictures, function ($a, $b) {
+                return strtotime($a["date"]) - strtotime($b["date"]);
+            });
+        }
+
+        if($sort_direction === srObjAlbum::SORT_TYPE_DIRECTION_DESC) {
+            $pictures = array_reverse($pictures);
+        }
+
+        return $pictures;
     }
 }

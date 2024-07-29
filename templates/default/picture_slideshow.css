@@ -10,7 +10,7 @@
 
 .xpho_slideshow_slide_container {
     z-index: 1010;
-    position: absolute;
+    position: relative;
     width: 100%;
     height: 100%;
 }
@@ -18,18 +18,21 @@
 .xpho_slideshow_slide_image {
     z-index: 1020;
     position: absolute;
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .xpho_slideshow_slide_label_wrapper {
     z-index: 1030;
     position: absolute;
     bottom: 0;
-    left: 100px;
-    right: 100px;
-    height: 25%;
-    width: calc(100% - 200px);
+    left: 50px;
+    right: 50px;
+    height: 33%;
+    width: calc(100% - 10px);
 }
 
 .xpho_slideshow_slide_label_wrapper:hover {
@@ -43,11 +46,13 @@
     position: relative;
     left: 0;
     right: 0;
+    top: calc(100% - 50px);
     bottom: 0;
-    height: 100px;
+    height: 50px;
     width: 100%;
-    font-size: 24px;
+    font-size: 18px;
     text-align: center;
+    line-height: 50px;
     border-color: transparent;
     border-radius: 50px 50px 0 0;
     background-color: #000;
@@ -56,24 +61,13 @@
     visibility: hidden;
 }
 
-/*.xpho_slideshow_slide_label {*/
-/*    z-index: 1030;*/
-/*    position: absolute;*/
-/*    bottom: 0;*/
-/*    width: 100%;*/
-/*    height: 50px;*/
-/*    background-color: rgba(0, 0, 0, 0.5);*/
-/*    color: white;*/
-/*    text-align: center;*/
-/*}*/
-
 .xpho_slideshow_btn_wrapper {
     z-index: 1040;
     position: absolute;
-    top: 100px;
-    bottom: 100px;
-    height: calc(100% - 200px);
-    width: 25%;
+    top: 50px;
+    bottom: 50px;
+    height: calc(100% - 100px);
+    width: 33%;
 }
 
 .xpho_slideshow_btn_wrapper:hover {
@@ -88,8 +82,8 @@
     top: 0;
     bottom: 0;
     height: 100%;
-    width: 100px;
-    font-size: 80px;
+    width: 50px;
+    font-size: 64px;
     border-color: transparent;
     background-color: #000;
     color: #fff;
@@ -116,6 +110,7 @@
 
 .xpho_slideshow_btn_next {
     border-radius: 50px 0 0 50px;
+    left: calc(100% - 50px);
     right: 0;
 }
 
@@ -123,10 +118,10 @@
     z-index: 1050;
     position: absolute;
     top: 0;
-    left: 100px;
-    right: 100px;
-    height: 25%;
-    width: calc(100% - 200px);
+    left: 50px;
+    right: 50px;
+    height: 33%;
+    width: calc(100% - 100px);
 }
 
 .xpho_slideshow_btn_wrapper_close:hover {
@@ -140,9 +135,9 @@
     position: relative;
     left: 0;
     right: 0;
-    height: 100px;
+    height: 50px;
     width: 100%;
-    font-size: 36px;
+    font-size: 24px;
     border-color: transparent;
     border-radius: 0 0 50px 50px;
     background-color: #000;
