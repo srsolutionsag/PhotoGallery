@@ -134,12 +134,15 @@ class ilObjPhotoGalleryTableGUI implements DataRetrieval
         if ($order) {
             list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
             usort($records, fn($a, $b) => $a[$order_field] <=> $b[$order_field]);
+        if ($order !== null) {
+            [$order_field, $order_direction] = $order->join([], fn($ret, $key, $value): array => [$key, $value]);
+            usort($records, fn($a, $b): int => $a[$order_field] <=> $b[$order_field]);
             if ($order_direction === 'DESC') {
                 $records = array_reverse($records);
             }
         }
-        if ($range) {
-            $records = array_slice($records, $range->getStart(), $range->getLength());
+        if ($range !== null) {
+            return array_slice($records, $range->getStart(), $range->getLength());
         }
 
         return $records;

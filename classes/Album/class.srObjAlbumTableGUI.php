@@ -154,15 +154,15 @@ class srObjAlbumTableGUI implements DataRetrieval
         $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
         $records = srObjPicture::where(['album_id' => $album_id], '=')->getArray();
 
-        if ($order) {
-            list($order_field, $order_direction) = $order->join([], fn($ret, $key, $value) => [$key, $value]);
-            usort($records, fn($a, $b) => $a[$order_field] <=> $b[$order_field]);
+        if ($order !== null) {
+            [$order_field, $order_direction] = $order->join([], fn($ret, $key, $value): array => [$key, $value]);
+            usort($records, fn(array $a, array $b): int => $a[$order_field] <=> $b[$order_field]);
             if ($order_direction === 'DESC') {
                 $records = array_reverse($records);
             }
         }
-        if ($range) {
-            $records = array_slice($records, $range->getStart(), $range->getLength());
+        if ($range !== null) {
+            return array_slice($records, $range->getStart(), $range->getLength());
         }
 
         return $records;

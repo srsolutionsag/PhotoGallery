@@ -70,14 +70,13 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
                 $identifier,
                 'file deleted'
             );
-        } else {
-            return new BasicHandlerResult(
-                $this->getFileIdentifierParameterName(),
-                HandlerResultInterface::STATUS_FAILED,
-                $identifier,
-                'file not found'
-            );
         }
+        return new BasicHandlerResult(
+            $this->getFileIdentifierParameterName(),
+            HandlerResultInterface::STATUS_FAILED,
+            $identifier,
+            'file not found'
+        );
     }
 
     public function getInfoResult(string $identifier): ?FileInfoResult

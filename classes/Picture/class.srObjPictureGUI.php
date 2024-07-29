@@ -415,17 +415,13 @@ class srObjPictureGUI
     private function sortPictures(array $pictures, string $sort_type, string $sort_direction)
     {
         if ($sort_type === srObjAlbum::SORT_TYPE_TITLE) {
-            usort($pictures, function ($a, $b) {
-                return strcmp($a["title"] ?? '', $b["title"] ?? '');
-            });
+            usort($pictures, static fn($a, $b): int => strcmp($a["title"] ?? '', $b["title"] ?? ''));
         } elseif ($sort_type === srObjAlbum::SORT_TYPE_CREATE_DATE) {
-            usort($pictures, function ($a, $b) {
-                return strtotime($a["date"] ?? '') - strtotime($b["date"] ?? '');
-            });
+            usort($pictures, static fn($a, $b): int => strtotime($a["date"] ?? '') - strtotime($b["date"] ?? ''));
         }
 
         if ($sort_direction === srObjAlbum::SORT_TYPE_DIRECTION_DESC) {
-            $pictures = array_reverse($pictures);
+            return array_reverse($pictures);
         }
 
         return $pictures;
