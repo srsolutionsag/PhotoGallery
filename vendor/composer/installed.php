@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => 'studer-raimann/photogallery',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => '5e8a7cadf5a9f493aac7ccf7872db78df95229d1',
+        'name' => 'srsolutions/photogallery',
+        'pretty_version' => 'dev-fix/9',
+        'version' => 'dev-fix/9',
+        'reference' => '0131fd7a89b38de49ef573f0d524ba94634dfa4b',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        'studer-raimann/photogallery' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '5e8a7cadf5a9f493aac7ccf7872db78df95229d1',
+        'srsolutions/photogallery' => array(
+            'pretty_version' => 'dev-fix/9',
+            'version' => 'dev-fix/9',
+            'reference' => '0131fd7a89b38de49ef573f0d524ba94634dfa4b',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
