@@ -358,7 +358,7 @@ class srObjAlbumGUI
                 /**
                  * @var $album srObjAlbum
                  */
-                $album = srObjAlbum::find($album_id); // TODO: noch "sr rector::plugin . -i8" im plugin-dir ausführen, um zu schauen was es noch an Code-Improvements vorschlagen würde. FS hat noch MR gemacht mir Verbesserungen.
+                $album = srObjAlbum::find($album_id);
                 if ($album === null) {
                     continue;
                 }
