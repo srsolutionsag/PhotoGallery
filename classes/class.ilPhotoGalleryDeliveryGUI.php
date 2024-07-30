@@ -34,7 +34,6 @@ class ilPhotoGalleryDeliveryGUI
     public function executeCommand(): void
     {
         $cmd = $this->ctrl->getCmd('deliver');
-
         if ($cmd === 'deliver') {
             $this->deliver();
         }
@@ -54,6 +53,12 @@ class ilPhotoGalleryDeliveryGUI
             $this->notFound();
             return;
         }
+        // TODO: Prüfen, ob die ResourceIdentification
+        // a) als Stakeholder den ilObjPhotoGalleryStakeholder hat
+        // b) Die resource zu einem album un damit zu einem PhotoGallery-Object gehört, zu dem der aktuelle use
+        // c) das ganze möglichst performant, d.h. möglichst unkomplexe abfragen auf DB Lesezugriff hat. Bild -> Album -> Gallery (object_id) -> Ref-Ids: wenn eine der ref-Ids leserecht für user, dann ok, sonst $this->notFound();
+        // Ein Query für Ref-Ids, diese dann jeweils an Rbac prüfen.
+
         $this->irss->consume()->inline($rid)->run();
     }
 
