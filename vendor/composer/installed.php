@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'srsolutions/photogallery',
-        'pretty_version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
-        'version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
-        'reference' => '58492c65492a81e9b0970a2a7206ce30b391987f',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'srsolutions/photogallery' => array(
-            'pretty_version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
-            'version' => 'dev-feature/9/major-refactoring-and-ilias-9-support',
-            'reference' => '58492c65492a81e9b0970a2a7206ce30b391987f',
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
