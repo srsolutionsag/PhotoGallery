@@ -11,6 +11,7 @@ use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services as HttpService;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
 use ILIAS\UI\Component\Input\Container\Form\Standard;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -46,10 +47,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     protected UIServices $ui;
     protected HttpService $http;
     protected ResourceStorage $irss;
+    protected PreviewGenerator $previews;
 
     protected function afterConstructor(): void
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
 
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->history = $DIC["ilNavigationHistory"];
@@ -62,6 +64,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->ui = $DIC->ui();
         $this->http = $DIC->http();
         $this->irss = $DIC->resourceStorage();
+        $this->previews = $xphoDIC[PreviewGenerator::class];
 
         // add a link pointing to this object in footer [The "Permanent Link" in the footer]
         if ($this->object instanceof \ilObject) {
@@ -354,10 +357,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $preview_rid = $srObjAlbum->getPreviewPictureRid();
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
                 if ($preview_identifier !== null) {
-                    $preview_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
-                    $flavour = $this->irss->flavours()->get($preview_identifier, $preview_flavour);
-                    $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
-                    $src_mosaic = $flavour_urls[0];
+                    $src_mosaic = $this->previews->getURL($preview_identifier, 512);
                 }
             }
             $image = $this->ui->factory()->image()->responsive(

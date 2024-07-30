@@ -1,6 +1,5 @@
 <#1>
 <?php
-require_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPhotoData.php';
 if (!$ilDB->tableExists('rep_robj_xpho_data')) {
     $fields = array(
         'id' => array(
@@ -112,4 +111,32 @@ if (!$DIC->database()->tableColumnExists('sr_obj_pg_pic', 'picture_rid')) {
     );
 }
 ?>
+<#9>
+<?php
+// Create a table to use for fake flavours
+global $DIC;
+if (!$DIC->database()->tableExists('sr_obj_pg_flavour')) {
+    $fields = [
+        'rid' => [
+            'type' => 'text',
+            'length' => 64,
+            'notnull' => true
+        ],
+        'max_size' => [
+            'type' => 'integer',
+            'length' => 8,
+            'notnull' => true
+        ],
+        'flavour_rid' => [
+            'type' => 'text',
+            'length' => 64,
+            'notnull' => true
+        ],
+    ];
+
+    $DIC->database()->createTable('sr_obj_pg_flavour', $fields);
+    $DIC->database()->addPrimaryKey('sr_obj_pg_flavour', ['rid', 'max_size', 'flavour_rid']);
+}
+?>
+
 

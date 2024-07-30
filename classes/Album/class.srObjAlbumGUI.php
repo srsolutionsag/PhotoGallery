@@ -11,6 +11,7 @@
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * GUI-Class srObjAlbumGUI
@@ -26,6 +27,7 @@ class srObjAlbumGUI
     public const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
     public const TAB_LIST_PICTURES = 'list_pictures';
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
+    protected PreviewGenerator $previews;
     protected ilToolbarGUI $toolbar;
     protected ilDBInterface $db;
 
@@ -46,7 +48,7 @@ class srObjAlbumGUI
 
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
@@ -70,6 +72,8 @@ class srObjAlbumGUI
         $this->pl = ilPhotoGalleryPlugin::getInstance();
 
         $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $album_id);
+
+        $this->previews = $xphoDIC[PreviewGenerator::class];
     }
 
     public function executeCommand(): bool
@@ -196,10 +200,7 @@ class srObjAlbumGUI
             $picture_rid = $srObjPicture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
-                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
-                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
-                $src_preview = $flavour_urls[0];
+                $src_preview = $this->previews->getURL($picture_identifier, 512);
             }
             $image = $this->ui->factory()->image()->responsive(
                 $src_preview,
@@ -446,8 +447,8 @@ class srObjAlbumGUI
     {
         $query = $this->db->queryF(
             "SELECT COUNT(DISTINCT(picture.id)) AS amount FROM sr_obj_pg_pic AS picture"
-            ." JOIN sr_obj_pg_album AS album ON picture.album_id = album.id"
-            ." WHERE album.id = %s AND (picture.picture_rid IS NULL OR picture.picture_rid = '');",
+            . " JOIN sr_obj_pg_album AS album ON picture.album_id = album.id"
+            . " WHERE album.id = %s AND (picture.picture_rid IS NULL OR picture.picture_rid = '');",
             ['integer'],
             [$album_id]
         );
