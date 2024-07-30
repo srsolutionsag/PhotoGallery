@@ -445,14 +445,27 @@ class srObjAlbumGUI
 
     protected function isMigrationOfAlbumCompleted(int $album_id): bool
     {
-        $query = $this->db->queryF(
+        $han_no_collection = true;
+        $query_album = $this->db->queryF(
+            "SELECT album.album_collection_rid FROM sr_obj_pg_album AS album WHERE album.id = %s;",
+            ['integer'],
+            [$album_id]
+        );
+        $result_album = $this->db->fetchAssoc($query_album);
+        if($result_album['album_collection_rid'] !== null && $result_album['album_collection_rid'] !== '') {
+            $han_no_collection = false;
+        }
+
+        $query_pictures = $this->db->queryF(
             "SELECT COUNT(DISTINCT(picture.id)) AS amount FROM sr_obj_pg_pic AS picture"
             . " JOIN sr_obj_pg_album AS album ON picture.album_id = album.id"
             . " WHERE album.id = %s AND (picture.picture_rid IS NULL OR picture.picture_rid = '');",
             ['integer'],
             [$album_id]
         );
-        $result = $this->db->fetchAssoc($query);
-        return $result['amount'] <= 0;
+        $result_pictures = $this->db->fetchAssoc($query_pictures);
+        $has_unmigrated_pictures = $result_pictures['amount'] > 0;
+
+        return !($han_no_collection || $has_unmigrated_pictures);
     }
 }
