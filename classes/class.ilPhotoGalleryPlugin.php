@@ -11,6 +11,8 @@
 use srag\Plugins\PhotoGallery\DIC;
 use srag\Plugins\PhotoGallery\Init;
 
+use ILIAS\DI\UIServices;
+
 require_once(__DIR__ . '/../vendor/autoload.php');
 
 /**
@@ -23,6 +25,7 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 {
     public const PLUGIN_ID = 'xpho';
     public const PLUGIN_NAME = 'PhotoGallery';
+    private static UIServices $ui;
 
     protected static $instance;
     private DIC $container;
@@ -33,6 +36,10 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
         string $id
     ) {
         global $xphoDIC;
+        global $DIC;
+        self::$ui = $DIC->ui();
+        self::$database = $db;
+        self::$component_repo = $component_repository;
         parent::__construct($db, $component_repository, $id);
         $this->container = $xphoDIC = Init::init($this, $this->getLanguageHandler());
     }
@@ -59,7 +66,7 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 
     protected function uninstallCustom(): void
     {
-        $this->db->dropTable(srObjExif::TABLE_NAME, false);
+        $this->db->dropTable('sr_obj_pg_exif_data', false);
         $this->db->dropTable(srObjAlbum::TABLE_NAME, false);
         $this->db->dropTable('rep_robj_xpho_data', false);
         $this->db->dropTable(srObjPicture::TABLE_NAME, false);
@@ -67,16 +74,25 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 
     protected function afterUpdate(): void
     {
-        global $DIC;
-        $ui = $DIC->ui();
+
         parent::afterUpdate();
         if (PHP_SAPI === 'cli') {
             return;
         }
-        $migration = new ilObjPhotoGalleryMigration();
-        if ($migration->getRemainingAmountOfSteps() <= 0) {
+        if ($this->getNumberOfUnmigratedAlbums() <= 0) {
             return;
         }
-        $ui->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
+        self::$ui->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
+    }
+
+    private function getNumberOfUnmigratedAlbums(): int
+    {
+        $query = self::$database->query(
+            "SELECT COUNT(DISTINCT(a.id)) AS amount FROM sr_obj_pg_album AS a"
+            ." WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '';"
+        );
+        $result = self::$database->fetchObject($query);
+
+        return (int) $result->amount;
     }
 }
