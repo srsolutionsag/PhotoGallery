@@ -176,7 +176,7 @@ class ilObjPhotoGalleryMigration implements Migration
     }
 
     /**
-     * only original picture files are relevant for the migration to the irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that through flavours)
+     * only original picture files are relevant for the migration to the irss (other files - mosaic.png, presentation.png, preview.png - are no longer needed)
      */
     protected function buildAbsolutePathToOriginalPicture(int $album_id, int $picture_id): string
     {

@@ -128,7 +128,7 @@ class srObjAlbumFormGUI
                 "main_section" => $main_section,
                 "settings_section" => $settings_section
             ]
-        )->withSubmitLabel($form_submit_label);
+        )->withSubmitCaption($form_submit_label);
     }
 
     public function saveData($data): bool

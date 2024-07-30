@@ -108,7 +108,7 @@ class srObjPictureFormGUI
         return $this->ui_factory->input()->container()->form()->standard(
             $form_action,
             [$section]
-        )->withSubmitLabel($form_submit_label);
+        )->withSubmitCaption($form_submit_label);
     }
 
     private function getUpdateForm(): Standard
@@ -157,7 +157,7 @@ class srObjPictureFormGUI
         return $this->ui_factory->input()->container()->form()->standard(
             $form_action,
             [$section]
-        )->withSubmitLabel($form_submit_label);
+        )->withSubmitCaption($form_submit_label);
     }
 
     public function saveData($data): bool

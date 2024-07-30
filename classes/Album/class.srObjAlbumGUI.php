@@ -196,10 +196,7 @@ class srObjAlbumGUI
             $picture_rid = $srObjPicture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
-                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
-                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
-                $src_preview = $flavour_urls[0];
+                $src_preview = $this->irss->consume()->src($picture_identifier)->getSrc();
             }
             $image = $this->ui->factory()->image()->responsive(
                 $src_preview,
@@ -233,6 +230,7 @@ class srObjAlbumGUI
         );
         $cards[] = $add_new_picture_card;
         $deck = $this->ui->factory()->deck($cards);
+        $this->tpl->addInlineCss(".il-card img.img-responsive { height: 100%; width: auto; object-fit: cover; }");
         $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
 
@@ -243,6 +241,8 @@ class srObjAlbumGUI
             $this->ctrl->redirect($this, '');
         } else {
             $table_gui = new srObjAlbumTableGUI();
+            $this->tpl->addInlineCss(".img-standard { height: 45px; width: 45px; object-fit: cover; }");
+            $this->tpl->addInlineCss(".icon.large { height: auto; width: 45px; object-fit: cover; }");
             $this->tpl->setContent($table_gui->getTableForRepresentation());
         }
     }

@@ -350,10 +350,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $preview_rid = $srObjAlbum->getPreviewPictureRid() ?? "";
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
                 if ($preview_identifier !== null) {
-                    $preview_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
-                    $flavour = $this->irss->flavours()->get($preview_identifier, $preview_flavour);
-                    $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
-                    $src_mosaic = $flavour_urls[0];
+                    $src_mosaic = $this->irss->consume()->src($preview_identifier)->getSrc();
                 }
             }
             $image = $this->ui->factory()->image()->responsive(
@@ -381,6 +378,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         );
         $cards[] = $add_new_album_card;
         $deck = $this->ui->factory()->deck($cards);
+        $this->tpl->addInlineCss(".il-card img.img-responsive { height: 100%; width: auto; object-fit: cover; }");
         $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
 

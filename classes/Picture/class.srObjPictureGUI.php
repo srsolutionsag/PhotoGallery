@@ -200,13 +200,10 @@ class srObjPictureGUI
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare(48, 75);
-                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
-                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
-                $src_preview = $flavour_urls[0];
+                $src_preview = $this->irss->consume()->src($picture_identifier)->getSrc();
             }
             $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
-            $items[] = $this->ui->factory()->modal()->interruptiveItem()->standard(
+            $items[] = $this->ui->factory()->modal()->interruptiveItem(
                 $picture_id,
                 $picture_title,
                 $image

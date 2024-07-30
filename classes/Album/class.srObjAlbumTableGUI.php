@@ -20,7 +20,6 @@ use ILIAS\UI\Renderer;
 use ILIAS\Data\URI;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
-use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
 
 /**
  * Class ilObjPhotoGalleryTableGUI
@@ -122,10 +121,7 @@ class srObjAlbumTableGUI implements DataRetrieval
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $picture_flavour = new ilObjPhotoGalleryCropToSquare(96, 75);
-                $flavour = $this->irss->flavours()->get($picture_identifier, $picture_flavour);
-                $flavour_urls = $this->irss->consume()->flavourUrls($flavour)->getURLsAsArray();
-                $src_preview = $flavour_urls[0];
+                $src_preview = $this->irss->consume()->src($picture_identifier)->getSrc();
             }
             $record['image'] = $this->ui_factory->symbol()->icon()->custom($src_preview, $record['title'], "large");
             yield $row_builder->buildDataRow($picture_id, $record);
