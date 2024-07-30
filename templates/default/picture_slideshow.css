@@ -1,3 +1,40 @@
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.75;
+    }
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.75;
+    }
+}
+
+
 .xpho_slideshow_container {
     background-color: #484848;
     z-index: 1000;
@@ -37,7 +74,9 @@
 
 .xpho_slideshow_slide_label_wrapper:hover {
     .xpho_slideshow_slide_label {
-        visibility: visible;
+        animation: fadeIn 0.5s 1;
+        -webkit-animation: fadeIn 0.5s 1;
+        animation-fill-mode: forwards;
     }
 }
 
@@ -58,7 +97,14 @@
     background-color: #000;
     color: #fff;
     opacity: 0.75;
-    visibility: hidden;
+
+    animation: fadeOut 0.5s 1;
+    -webkit-animation: fadeOut 0.5s 1;
+    animation-fill-mode: forwards;
+
+    animation-delay: 2s;
+    -webkit-animation-delay: 2s; /* Safari and Chrome */
+    -webkit-animation-fill-mode: forwards;
 }
 
 .xpho_slideshow_btn_wrapper {
@@ -72,7 +118,9 @@
 
 .xpho_slideshow_btn_wrapper:hover {
     .xpho_slideshow_btn {
-        visibility: visible;
+        animation: fadeIn 0.5s 1;
+        -webkit-animation: fadeIn 0.5s 1;
+        animation-fill-mode: forwards;
     }
 }
 
@@ -88,12 +136,16 @@
     background-color: #000;
     color: #fff;
     opacity: 0.5;
-    visibility: hidden;
+
+    animation: fadeOut 0.5s 1;
+    -webkit-animation: fadeOut 0.5s 1;
+    animation-fill-mode: forwards;
+
+    animation-delay: 2s;
+    -webkit-animation-delay: 2s; /* Safari and Chrome */
+    -webkit-animation-fill-mode: forwards;
 }
 
-.xpho_slideshow_btn:hover {
-    opacity: 0.75;
-}
 
 .xpho_slideshow_btn_wrapper_prev {
     left: 0
@@ -126,7 +178,9 @@
 
 .xpho_slideshow_btn_wrapper_close:hover {
     .xpho_slideshow_btn_close {
-        visibility: visible;
+        animation: fadeIn 0.5s 1;
+        -webkit-animation: fadeIn 0.5s 1;
+        animation-fill-mode: forwards;
     }
 }
 
@@ -143,7 +197,14 @@
     background-color: #000;
     color: #fff;
     opacity: 0.5;
-    visibility: hidden;
+
+    animation: fadeOut 0.5s 1;
+    -webkit-animation: fadeOut 0.5s 1;
+    animation-fill-mode: forwards;
+
+    animation-delay: 2s;
+    -webkit-animation-delay: 2s; /* Safari and Chrome */
+    -webkit-animation-fill-mode: forwards;
 }
 
 .xpho_slideshow_btn_close:hover {
