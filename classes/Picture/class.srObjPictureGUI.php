@@ -206,7 +206,7 @@ class srObjPictureGUI
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $src_preview = $this->previews->getURL($picture_identifier96);
+                $src_preview = $this->previews->getURL($picture_identifier, 96);
             }
             $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
             $items[] = $this->ui->factory()->modal()->interruptiveItem()->standard(
