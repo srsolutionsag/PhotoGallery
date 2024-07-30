@@ -11,6 +11,8 @@
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory as Refinery;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
+use srag\Plugins\PhotoGallery\URL\URLBuilder;
 
 /**
  * GUI-Class srObjPictureGUI
@@ -20,6 +22,8 @@ use ILIAS\Refinery\Factory as Refinery;
  */
 class srObjPictureGUI
 {
+    protected URLBuilder $url_builder;
+    protected PreviewGenerator $previews;
     protected ilObjPhotoGalleryGUI $parent;
     protected ilPhotoGalleryPlugin $pl;
     public const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
@@ -45,7 +49,7 @@ class srObjPictureGUI
      */
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
@@ -62,6 +66,8 @@ class srObjPictureGUI
 
         $this->ctrl->setParameterByClass(self::class, 'album_id', $_GET['album_id']);
         srObjAlbumGUI::setLocator($_GET['album_id']);
+        $this->previews = $xphoDIC[PreviewGenerator::class];
+        $this->url_builder = $xphoDIC[URLBuilder::class];
     }
 
     public function executeCommand(): bool
@@ -200,7 +206,7 @@ class srObjPictureGUI
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $src_preview = $this->irss->consume()->src($picture_identifier)->getSrc();
+                $src_preview = $this->previews->getURL($picture_identifier96);
             }
             $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
             $items[] = $this->ui->factory()->modal()->interruptiveItem(
@@ -311,7 +317,7 @@ class srObjPictureGUI
         $key_of_target_picture = array_search($picture_id, array_column($pictures, 'id'));
         foreach ($pictures as $picture_key => $picture) {
             $pic_id = $this->irss->manage()->find($picture['picture_rid']);
-            $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
+            $picture_src = $this->url_builder->getForRid($pic_id);
             $description = $picture['description'];
             $optional_description_info = ($description !== "") ? ($this->pl->txt(
                 'description'

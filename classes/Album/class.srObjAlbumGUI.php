@@ -11,6 +11,7 @@
 use ILIAS\DI\UIServices;
 use ILIAS\HTTP\Services;
 use ILIAS\Refinery\Factory;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * GUI-Class srObjAlbumGUI
@@ -26,6 +27,7 @@ class srObjAlbumGUI
     public const CMD_REDIRECT_TO_GALLERY_MANAGE_ALBUMS = 'redirectToGalleryManageAlbums';
     public const TAB_LIST_PICTURES = 'list_pictures';
     public const TAB_MANAGE_PICTURES = 'manage_pictures';
+    protected PreviewGenerator $previews;
     protected ilToolbarGUI $toolbar;
     protected ilDBInterface $db;
 
@@ -46,7 +48,7 @@ class srObjAlbumGUI
 
     public function __construct(ilObjPhotoGalleryGUI $parent_gui)
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
@@ -70,6 +72,8 @@ class srObjAlbumGUI
         $this->pl = ilPhotoGalleryPlugin::getInstance();
 
         $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $album_id);
+
+        $this->previews = $xphoDIC[PreviewGenerator::class];
     }
 
     public function executeCommand(): bool
@@ -194,7 +198,7 @@ class srObjAlbumGUI
             $picture_rid = $srObjPicture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $src_preview = $this->irss->consume()->src($picture_identifier)->getSrc();
+                $src_preview = $this->previews->getURL($picture_identifier, 512);
             }
             $image = $this->ui->factory()->image()->responsive(
                 $src_preview,
@@ -228,7 +232,6 @@ class srObjAlbumGUI
         );
         $cards[] = $add_new_picture_card;
         $deck = $this->ui->factory()->deck($cards);
-        $this->tpl->addInlineCss(".il-card img.img-responsive { height: 100%; width: auto; object-fit: cover; }");
         $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
 
@@ -239,8 +242,6 @@ class srObjAlbumGUI
             $this->ctrl->redirect($this, '');
         } else {
             $table_gui = new srObjAlbumTableGUI();
-            $this->tpl->addInlineCss(".img-standard { height: 45px; width: 45px; object-fit: cover; }");
-            $this->tpl->addInlineCss(".icon.large { height: auto; width: 45px; object-fit: cover; }");
             $this->tpl->setContent($table_gui->getTableForRepresentation());
         }
     }

@@ -20,6 +20,7 @@ use ILIAS\UI\Renderer;
 use ILIAS\Data\URI;
 use ILIAS\Refinery\Factory as Refinery;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * Class ilObjPhotoGalleryTableGUI
@@ -44,10 +45,11 @@ class srObjAlbumTableGUI implements DataRetrieval
     private ilCtrlInterface $ctrl;
     private Refinery $refinery;
     private ResourceStorage $irss;
+    private PreviewGenerator $previews;
 
     public function __construct()
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
         $this->ctrl = $DIC->ctrl();
         $this->data_factory = new DataFactory();
         $this->http = $DIC->http();
@@ -57,6 +59,7 @@ class srObjAlbumTableGUI implements DataRetrieval
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
         $this->refinery = $DIC->refinery();
+        $this->previews = $xphoDIC[PreviewGenerator::class];
     }
 
     public function getTableForRepresentation(): string
@@ -88,7 +91,7 @@ class srObjAlbumTableGUI implements DataRetrieval
         $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->request()->getQueryParams()['album_id'] : 0;
         $album = srObjAlbum::find($album_id);
         $album_title = $this->lng->txt('unknown');
-        if($album !== null){
+        if($album !== null) {
             $album_title = $album->getTitle();
         }
         $table = $this->ui_factory->table()->data(
@@ -121,7 +124,7 @@ class srObjAlbumTableGUI implements DataRetrieval
             $picture_rid = $picture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
-                $src_preview = $this->irss->consume()->src($picture_identifier)->getSrc();
+                $src_preview = $this->previews->getURL($picture_identifier, 96);
             }
             $record['image'] = $this->ui_factory->symbol()->icon()->custom($src_preview, $record['title'], "large");
             yield $row_builder->buildDataRow($picture_id, $record);

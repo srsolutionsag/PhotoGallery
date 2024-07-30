@@ -8,7 +8,8 @@
  *
  *********************************************************************/
 
-use ILIAS\DI\UIServices;
+use srag\Plugins\PhotoGallery\DIC;
+use srag\Plugins\PhotoGallery\Init;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 
@@ -16,6 +17,7 @@ require_once(__DIR__ . '/../vendor/autoload.php');
  * PhotoGallery repository object plugin
  * @author  Martin Studer <ms@studer-raimann.ch>
  * @author  Fabian Schmid <fs@studer-raimann.ch>
+
  */
 class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 {
@@ -23,35 +25,32 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
     public const PLUGIN_NAME = 'PhotoGallery';
     private static UIServices $ui;
 
-    protected static \ilDBInterface $database;
-    protected static \ilComponentRepositoryWrite $component_repo;
-    /**
-     * @var ilPhotoGalleryPlugin
-     */
     protected static $instance;
+    private DIC $container;
 
     public function __construct(
         ilDBInterface $db,
         ilComponentRepositoryWrite $component_repository,
         string $id
     ) {
-        global $DIC;
-        self::$ui = $DIC->ui();
-        self::$database = $db;
-        self::$component_repo = $component_repository;
+        global $xphoDIC;
         parent::__construct($db, $component_repository, $id);
+        $this->container = $xphoDIC = Init::init($this, $this->getLanguageHandler());
     }
 
     /**
      * @return ilPhotoGalleryPlugin
+     * @deprecated use \srag\Plugins\PhotoGallery\DIC instead to access plugin
      */
-    public static function getInstance()
+    public static function getInstance(): ilPhotoGalleryPlugin
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new self(self::$database, self::$component_repo, self::PLUGIN_ID);
-        }
+        global $DIC;
+        return self::$instance = $DIC['component.factory']->getPlugin(self::PLUGIN_ID);
+    }
 
-        return self::$instance;
+    public function txt(string $a_var): string
+    {
+        return $this->container->translator()->txt($a_var);
     }
 
     public function getPluginName(): string

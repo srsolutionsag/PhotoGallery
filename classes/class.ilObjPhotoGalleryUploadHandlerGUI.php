@@ -17,6 +17,7 @@ use ILIAS\FileUpload\Handler\BasicHandlerResult;
 use ILIAS\FileUpload\Handler\FileInfoResult;
 use ILIAS\FileUpload\Handler\HandlerResult as HandlerResultInterface;
 use ILIAS\ResourceStorage\Services as ResourceStorage;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * @author            Lukas Zehnder <lukas@sr.solutions>
@@ -27,13 +28,15 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
 {
     private ResourceStorage $storage;
     private ilObjPhotoGalleryStakeholder $stakeholder;
+    private PreviewGenerator $previews;
 
     public function __construct()
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
         parent::__construct();
         $this->storage = $DIC['resource_storage'];
         $this->stakeholder = new ilObjPhotoGalleryStakeholder();
+        $this->previews = $xphoDIC[PreviewGenerator::class];
     }
 
     protected function getUploadResult(): HandlerResultInterface
@@ -46,6 +49,11 @@ class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
         $result = end($array);
         if ($result instanceof UploadResult && $result->isOK()) {
             $i = $this->storage->manage()->upload($result, $this->stakeholder);
+
+            // ensure previews
+            $this->previews->generate($i, 512);
+            $this->previews->generate($i, 96);
+
             $status = HandlerResultInterface::STATUS_OK;
             $identifier = $i->serialize();
             $message = 'Upload ok';
