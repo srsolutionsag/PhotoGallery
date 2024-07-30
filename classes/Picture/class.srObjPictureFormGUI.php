@@ -90,7 +90,7 @@ class srObjPictureFormGUI
         $hidden_input = $this->ui_factory->input()->field()->hidden()->withValue(0);
         $upload_input = $this->ui_factory->input()->field()->file(
             $this->upload_handler,
-            $this->pl->txt('upload_files')
+            $this->lng->txt('upload_files')
         )->withAcceptedMimeTypes(
             [MimeType::IMAGE__JPEG, MimeType::IMAGE__PNG, MimeType::IMAGE__GIF]
         )->withMaxFiles(100)->withRequired(true);
