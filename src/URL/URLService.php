@@ -24,8 +24,8 @@ class URLService
         if (version_compare(ILIAS_VERSION_NUMERIC, '9.0', '>=')) {
             $this->builder = new URLBuilderTokenDelivery();
         } else {
+            $this->builder = new URLBuilderPluginDelivery();
         }
-        $this->builder = new URLBuilderPluginDelivery();
     }
 
     public function get(): URLBuilder

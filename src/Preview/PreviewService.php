@@ -26,8 +26,8 @@ class PreviewService
         if (version_compare(ILIAS_VERSION_NUMERIC, '9.0', '>=')) {
             $this->generator = new PreviewGeneratorFlavour();
         } else {
+            $this->generator = new PreviewGeneratorIRSS($url_builder);
         }
-        $this->generator = new PreviewGeneratorIRSS($url_builder);
     }
 
     public function get(): PreviewGenerator
