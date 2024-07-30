@@ -308,7 +308,7 @@ class srObjPictureGUI
         $nr_elements_before_target = 0;
         $pictures = $album->getPictureArrays();
         $pictures = $this->sortPictures($pictures, $album->getSortType(), $album->getSortDirection());
-        $key_of_target_picture = array_search($srObjPicture->asArray(), $pictures);
+        $key_of_target_picture = array_search($picture_id, array_column($pictures, 'id'));
         foreach ($pictures as $picture_key => $picture) {
             $pic_id = $this->irss->manage()->find($picture['picture_rid']);
             $picture_src = $this->irss->consume()->src($pic_id)->getSrc();
