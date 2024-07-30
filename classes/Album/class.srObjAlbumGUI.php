@@ -335,7 +335,7 @@ class srObjAlbumGUI
             if ($album === null) {
                 continue;
             }
-            $items[] = $this->ui->factory()->modal()->interruptiveItem()->standard(
+            $items[] = $this->ui->factory()->modal()->interruptiveItem(
                 $album_id,
                 $album->getTitle()
             );
