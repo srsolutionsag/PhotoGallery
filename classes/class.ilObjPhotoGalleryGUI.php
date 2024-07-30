@@ -347,7 +347,7 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             // image for the card
             $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.svg';
             if ($srObjAlbum->getPreviewId() > 0) {
-                $preview_rid = $srObjAlbum->getPreviewPictureRid();
+                $preview_rid = $srObjAlbum->getPreviewPictureRid() ?? "";
                 $preview_identifier = $this->irss->manage()->find($preview_rid);
                 if ($preview_identifier !== null) {
                     $preview_flavour = new ilObjPhotoGalleryCropToSquare(512, 75);
