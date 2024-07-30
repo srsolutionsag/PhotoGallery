@@ -20,7 +20,7 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 interface PreviewGenerator
 {
     /**
-     * @return string an URL to the Preview iMage in the given size
+     * @return string an URL to the Preview Image in the given size
      */
     public function getURL(ResourceIdentification $rid, int $max_size): string;
 

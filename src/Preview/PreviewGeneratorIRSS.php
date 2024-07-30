@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace srag\Plugins\PhotoGallery\Preview;
 
+use ILIAS\ResourceStorage\Services;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use srag\Plugins\PhotoGallery\URL\URLBuilder;
 use ILIAS\Filesystem\Stream\Streams;
@@ -23,7 +24,7 @@ class PreviewGeneratorIRSS implements PreviewGenerator
 {
     private URLBuilder $url_builder;
     private \ilDBInterface $db;
-    private \ILIAS\ResourceStorage\Services $irss;
+    private Services $irss;
 
     public function __construct(URLBuilder $url_builder)
     {
@@ -50,7 +51,7 @@ class PreviewGeneratorIRSS implements PreviewGenerator
 
     public function getURL(ResourceIdentification $rid, int $max_size): string
     {
-        if ($flavour_rid = $this->exists($rid, $max_size)) {
+        if (($flavour_rid = $this->exists($rid, $max_size)) !== null) {
             return $this->url_builder->getForRid($flavour_rid);
         }
         // otherwise we generate the preview image, store it to the IRSS and deliver that
@@ -61,7 +62,7 @@ class PreviewGeneratorIRSS implements PreviewGenerator
 
     public function generate(ResourceIdentification $rid, int $max_size): string
     {
-        if ($existing = $this->exists($rid, $max_size)) {
+        if (($existing = $this->exists($rid, $max_size)) !== null) {
             return $existing->serialize();
         }
 

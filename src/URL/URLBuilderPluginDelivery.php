@@ -41,7 +41,5 @@ class URLBuilderPluginDelivery implements URLBuilder
             \ilUIPluginRouterGUI::class,
             \ilPhotoGalleryDeliveryGUI::class
         ]);
-
-        return $this->irss->consume()->src($rid)->getSrc();
     }
 }
