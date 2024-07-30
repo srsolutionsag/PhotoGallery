@@ -339,14 +339,10 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
          */
         foreach ($this->object->getAlbumObjects() as $srObjAlbum) {
             $content = [];
-            $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["0", $srObjAlbum->getDescription(), false]
-            ]);
-            $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["1", date('d.m.Y', strtotime((string) $srObjAlbum->getCreateDate())), false]
-            ]);
-            $content[] = $this->ui->factory()->listing()->property()->withItems([
-                ["2", $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'), false]
+            $content[] = $this->ui->factory()->listing()->descriptive([
+                "" => $srObjAlbum->getDescription(),
+                " " => date('d.m.Y', strtotime($srObjAlbum->getCreateDate())),
+                "  " => $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics')
             ]);
             // image for the card
             $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.svg';
