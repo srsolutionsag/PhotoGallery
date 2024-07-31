@@ -10,9 +10,6 @@
 
 use srag\Plugins\PhotoGallery\DIC;
 use srag\Plugins\PhotoGallery\Init;
-use ILIAS\DI\UIServices;
-
-use ILIAS\DI\UIServices;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 
@@ -26,7 +23,6 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 {
     public const PLUGIN_ID = 'xpho';
     public const PLUGIN_NAME = 'PhotoGallery';
-    private static UIServices $ui;
 
     protected static $instance;
     private DIC $container;
@@ -37,10 +33,6 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
         string $id
     ) {
         global $xphoDIC;
-        global $DIC;
-        self::$ui = $DIC->ui();
-        self::$database = $db;
-        self::$component_repo = $component_repository;
         parent::__construct($db, $component_repository, $id);
         $this->container = $xphoDIC = Init::init($this, $this->getLanguageHandler());
     }
