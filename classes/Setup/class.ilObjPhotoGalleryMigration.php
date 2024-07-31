@@ -97,16 +97,19 @@ class ilObjPhotoGalleryMigration implements Migration
             foreach ($picture_dataset as $picture_entry) {
                 $picture_owner_id = (int)$picture_entry['picture_owner_id'];
                 $picture_id = (int)$picture_entry['picture_id'];
-                $file_path = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id );
+
                 // copy original picture file to irss but leave the directory and files there in case something goes wrong
                 // TODO: remove old files and directories in a future version (once this migration has proven itself)
-                $resource_identification = $this->helper->movePathToStorage(
-                    $file_path,
-                    $picture_owner_id,
-                    null,
-                    null,
-                    true
-                );
+                $file_path_original = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id );
+                $file_path_duplicate_for_irss = $this->buildAbsolutePathToDuplicatePicture($album_id, $picture_id);
+                $copy_successful = $this->createDuplicateOfOriginalFileForIRSS($file_path_original, $file_path_duplicate_for_irss);
+                $resource_identification = null;
+                if($copy_successful) {
+                    $resource_identification = $this->helper->movePathToStorage(
+                        $file_path_duplicate_for_irss,
+                        $picture_owner_id
+                    );
+                }
                 if ($resource_identification !== null) {
                     // change the title of the newly created revision from 'original' to the actual title of the picture
                     $current_revision = $irss_manager->getCurrentRevision($resource_identification);
@@ -186,12 +189,25 @@ class ilObjPhotoGalleryMigration implements Migration
         return (int) $d->amount;
     }
 
+    /*
+     * needed under ILIAS 8 as the migration to IRSS does not support copying instead of moving yet.
+     */
+    public function createDuplicateOfOriginalFileForIRSS(string $from_path, string $to_path): bool
+    {
+        return @file_exists($from_path) && @copy($from_path, $to_path);
+    }
+
     /**
      * only original picture files are relevant for the migration to the irss (other files - mosaic.png, presentation.png, preview.png - are no longer needed)
      */
     protected function buildAbsolutePathToOriginalPicture(int $album_id, int $picture_id): string
     {
         return CLIENT_DATA_DIR . '/xpho/album_' . $album_id . '/picture_' . $picture_id . "/original.png";
+    }
+
+    protected function buildAbsolutePathToDuplicatePicture(int $album_id, int $picture_id): string
+    {
+        return CLIENT_DATA_DIR . '/xpho/album_' . $album_id . '/picture_' . $picture_id . "/duplicate_for_irss.png";
     }
 
 }
