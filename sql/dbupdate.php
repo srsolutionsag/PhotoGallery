@@ -1,6 +1,7 @@
 <#1>
 <?php
-if (!$ilDB->tableExists('rep_robj_xpho_data')) {
+global $DIC;
+if (!$DIC->database()->tableExists('rep_robj_xpho_data')) {
     $fields = array(
         'id' => array(
             'type' => 'integer',
@@ -14,8 +15,8 @@ if (!$ilDB->tableExists('rep_robj_xpho_data')) {
         ),
     );
 
-    $ilDB->createTable('rep_robj_xpho_data', $fields);
-    $ilDB->addPrimaryKey('rep_robj_xpho_data', array("id"));
+    $DIC->database()->createTable('rep_robj_xpho_data', $fields);
+    $DIC->database()->addPrimaryKey('rep_robj_xpho_data', array("id"));
 }
 ?>
 
@@ -54,10 +55,10 @@ global $DIC;
 require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php";
 srObjAlbum::updateDB();
 $DIC->database()->manipulate(
-    "UPDATE " . srObjAlbum::TABLE_NAME . " SET sort_type = " . $ilDB->quote(
+    "UPDATE " . srObjAlbum::TABLE_NAME . " SET sort_type = " . $DIC->database()->quote(
         srObjAlbum::SORT_TYPE_CREATE_DATE,
         'text'
-    ) . ", sort_direction = " . $ilDB->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text')
+    ) . ", sort_direction = " . $DIC->database()->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text')
 );
 ?>
 <#6>
@@ -114,7 +115,7 @@ if (!$DIC->database()->tableColumnExists('sr_obj_pg_pic', 'picture_rid')) {
 <#9>
 <?php
 // Create a table to use for fake flavours
-global $DIC;
+global $DIC, $xphoDIC;
 if (!$DIC->database()->tableExists('sr_obj_pg_flavour')) {
     $fields = [
         'rid' => [

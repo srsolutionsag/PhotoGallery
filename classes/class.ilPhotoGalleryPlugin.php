@@ -10,6 +10,7 @@
 
 use srag\Plugins\PhotoGallery\DIC;
 use srag\Plugins\PhotoGallery\Init;
+use ILIAS\DI\UIServices;
 
 use ILIAS\DI\UIServices;
 
@@ -74,6 +75,7 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
 
     protected function afterUpdate(): void
     {
+        global $DIC;
 
         parent::afterUpdate();
         if (PHP_SAPI === 'cli') {
@@ -82,16 +84,16 @@ class ilPhotoGalleryPlugin extends ilRepositoryObjectPlugin
         if ($this->getNumberOfUnmigratedAlbums() <= 0) {
             return;
         }
-        self::$ui->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
+        $DIC->ui()->mainTemplate()->setOnScreenMessage("info", $this->txt('after_update_migration_info'), true);
     }
 
     private function getNumberOfUnmigratedAlbums(): int
     {
-        $query = self::$database->query(
+        $query = $this->db->query(
             "SELECT COUNT(DISTINCT(a.id)) AS amount FROM sr_obj_pg_album AS a"
             ." WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '';"
         );
-        $result = self::$database->fetchObject($query);
+        $result = $this->db->fetchObject($query);
 
         return (int) $result->amount;
     }
