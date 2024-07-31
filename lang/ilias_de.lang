@@ -83,3 +83,4 @@ migration_of_albums_not_completed#:#Einige der ausgewählten Alben wurden noch n
 after_update_migration_info#:#Wichtig: Aufgrund eines Dateisystem-Wechsels müssen alle Alben und Bilder dieses Plugins migriert werden. Bitte führen Sie die Migration wie in der Readme-Datei des Plugins beschrieben durch.
 manage_albums#:#Alben der Gallerie "%s" verwalten
 manage_pictures#:#Bilder des Albums "%s" verwalten
+success_picture_set_as_preview#:#Das Bild "%s" wurde als Vorschaubild gesetzt.
