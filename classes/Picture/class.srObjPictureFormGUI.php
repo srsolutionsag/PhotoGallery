@@ -87,6 +87,7 @@ class srObjPictureFormGUI
         $form_title = $this->pl->txt('upload_pictures');
 
         // create input fields
+        $this->lng->loadLanguageModule('file');
         $hidden_input = $this->ui_factory->input()->field()->hidden()->withValue(0);
         $upload_input = $this->ui_factory->input()->field()->file(
             $this->upload_handler,
