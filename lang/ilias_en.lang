@@ -83,3 +83,4 @@ migration_of_albums_not_completed#:#Some of the selected albums have not yet bee
 after_update_migration_info#:#Important: Due to a file system change, all albums and images of this plugin must be migrated. Please carry out the migration as described in the readme file of the plugin.
 manage_albums#:#Manage Albums of Gallery "%s"
 manage_pictures#:#Manage Pictures of Album "%s"
+success_picture_set_as_preview#:#Picture "%s" has been set as preview picture.

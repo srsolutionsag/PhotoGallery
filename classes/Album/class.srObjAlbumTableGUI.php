@@ -87,6 +87,11 @@ class srObjAlbumTableGUI implements DataRetrieval
                 $url_builder->withURI($this->buildURI(srObjPictureGUI::class, self::CMD_CONFIRM_DELETE)),
                 $id_token
             )->withAsync(),
+            'set_as_preview' => $this->ui_factory->table()->action()->single(
+                $this->pl->txt('select_preview'),
+                $url_builder->withURI($this->buildURI(srObjPictureGUI::class, srObjPictureGUI::CMD_SET_AS_PREVIEW)),
+                $id_token
+            )
         ];
         $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->request()->getQueryParams()['album_id'] : 0;
         $album = srObjAlbum::find($album_id);

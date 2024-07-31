@@ -30,6 +30,7 @@ class srObjPictureGUI
     public const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
     public const CMD_UPLOAD = 'upload';
     public const CMD_SEND_FILE = 'sendFile';
+    public const CMD_SET_AS_PREVIEW = 'setAsPreview';
 
     protected ilAccessHandler $access;
     protected ilTabsGUI $tabs_gui;
@@ -93,6 +94,7 @@ class srObjPictureGUI
                         break;
                     case self::CMD_SEND_FILE:
                     case self::CMD_UPLOAD:
+                    case self::CMD_SET_AS_PREVIEW:
                     case atTableGUI::CMD_ADD:
                     case atTableGUI::CMD_CREATE:
                     case atTableGUI::CMD_EDIT:
@@ -276,6 +278,42 @@ class srObjPictureGUI
     public function download(): void
     {
         ilObjPhotoGalleryGUI::executeDownload($this->retrievePictureIDs());
+    }
+
+    public function setAsPreview(): void
+    {
+        $picture_ids = $this->retrievePictureIDs();
+        $picture_id = $picture_ids[0];
+
+        /**
+         * @var $picture srObjPicture
+         */
+        $picture = srObjPicture::find($picture_id);
+        if($picture === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+        }
+
+        $album_id = $picture->getAlbumId();
+        /**
+         * @var $album srObjAlbum
+         */
+        $album = srObjAlbum::find($album_id);
+        if($album === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+        }
+
+        $picture_rid = $picture->getPictureRID();
+        $album->setPreviewId($picture_id);
+        $album->setPreviewPictureRID($picture_rid);
+        $album->update();
+
+        $this->ui->mainTemplate()->setOnScreenMessage("success",
+            sprintf($this->pl->txt('success_picture_set_as_preview'),$picture->getTitle()),
+            true
+        );
+        $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
     }
 
     protected function sendFile(): void
