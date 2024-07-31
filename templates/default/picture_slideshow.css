@@ -1,36 +1,24 @@
 @keyframes fadeOut {
-    from {
-        opacity: 1;
+    0% {
+        opacity: 0.75;
     }
-    to {
+    75% {
+        opacity: 0.75;
+    }
+    100% {
         opacity: 0;
     }
 }
 
 @-webkit-keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
+    0% {
         opacity: 0.75;
     }
-}
-
-@-webkit-keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
+    75% {
         opacity: 0.75;
+    }
+    100% {
+        opacity: 0;
     }
 }
 
@@ -68,20 +56,19 @@
     bottom: 0;
     left: 50px;
     right: 50px;
-    height: 33%;
+    height: 200px;
     width: calc(100% - 10px);
 }
 
 .xpho_slideshow_slide_label_wrapper:hover {
     .xpho_slideshow_slide_label {
-        animation: fadeIn 0.5s 1;
-        -webkit-animation: fadeIn 0.5s 1;
-        animation-fill-mode: forwards;
+        background-color: #000;
+        opacity: 0.75;
     }
 }
 
 .xpho_slideshow_slide_label {
-    z-index: 1030;
+    z-index: 1040;
     position: relative;
     left: 0;
     right: 0;
@@ -94,38 +81,36 @@
     line-height: 50px;
     border-color: transparent;
     border-radius: 50px 50px 0 0;
-    background-color: #000;
+    background-color: #242424;
     color: #fff;
-    opacity: 0.75;
+    opacity: 0;
 
-    animation: fadeOut 0.5s 1;
-    -webkit-animation: fadeOut 0.5s 1;
-    animation-fill-mode: forwards;
+    animation: fadeOut 2s 1;
+    -webkit-animation: fadeOut 2s 1;
+    animation-fill-mode: none;
 
-    animation-delay: 2s;
-    -webkit-animation-delay: 2s; /* Safari and Chrome */
-    -webkit-animation-fill-mode: forwards;
+    animation-delay: 0s;
+    -webkit-animation-delay: 0s; /* Safari and Chrome */
+    -webkit-animation-fill-mode: none;
 }
 
 .xpho_slideshow_btn_wrapper {
-    z-index: 1040;
+    z-index: 1030;
     position: absolute;
     top: 50px;
     bottom: 50px;
     height: calc(100% - 100px);
-    width: 33%;
+    width: 200px;
 }
 
 .xpho_slideshow_btn_wrapper:hover {
     .xpho_slideshow_btn {
-        animation: fadeIn 0.5s 1;
-        -webkit-animation: fadeIn 0.5s 1;
-        animation-fill-mode: forwards;
+        opacity: 0.75;
     }
 }
 
 .xpho_slideshow_btn {
-    z-index: 1040;
+    z-index: 1050;
     position: relative;
     top: 0;
     bottom: 0;
@@ -133,17 +118,21 @@
     width: 50px;
     font-size: 64px;
     border-color: transparent;
-    background-color: #000;
+    background-color: #242424;
     color: #fff;
-    opacity: 0.5;
+    opacity: 0;
 
-    animation: fadeOut 0.5s 1;
-    -webkit-animation: fadeOut 0.5s 1;
-    animation-fill-mode: forwards;
+    animation: fadeOut 2s 1;
+    -webkit-animation: fadeOut 2s 1;
+    animation-fill-mode: none;
 
-    animation-delay: 2s;
-    -webkit-animation-delay: 2s; /* Safari and Chrome */
-    -webkit-animation-fill-mode: forwards;
+    animation-delay: 0s;
+    -webkit-animation-delay: 0s; /* Safari and Chrome */
+    -webkit-animation-fill-mode: none;
+}
+
+.xpho_slideshow_btn:hover {
+    background-color: #000;
 }
 
 
@@ -167,20 +156,18 @@
 }
 
 .xpho_slideshow_btn_wrapper_close {
-    z-index: 1050;
+    z-index: 1030;
     position: absolute;
     top: 0;
     left: 50px;
     right: 50px;
-    height: 33%;
+    height: 200px;
     width: calc(100% - 100px);
 }
 
 .xpho_slideshow_btn_wrapper_close:hover {
     .xpho_slideshow_btn_close {
-        animation: fadeIn 0.5s 1;
-        -webkit-animation: fadeIn 0.5s 1;
-        animation-fill-mode: forwards;
+        opacity: 0.75;
     }
 }
 
@@ -194,19 +181,19 @@
     font-size: 24px;
     border-color: transparent;
     border-radius: 0 0 50px 50px;
-    background-color: #000;
+    background-color: #242424;
     color: #fff;
-    opacity: 0.5;
+    opacity: 0;
 
-    animation: fadeOut 0.5s 1;
-    -webkit-animation: fadeOut 0.5s 1;
-    animation-fill-mode: forwards;
+    animation: fadeOut 2s 1;
+    -webkit-animation: fadeOut 2s 1;
+    animation-fill-mode: none;
 
-    animation-delay: 2s;
-    -webkit-animation-delay: 2s; /* Safari and Chrome */
-    -webkit-animation-fill-mode: forwards;
+    animation-delay: 0s;
+    -webkit-animation-delay: 0s; /* Safari and Chrome */
+    -webkit-animation-fill-mode: none;
 }
 
 .xpho_slideshow_btn_close:hover {
-    opacity: 0.75;
+    background-color: #000;
 }
