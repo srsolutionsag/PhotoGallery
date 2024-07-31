@@ -103,8 +103,7 @@ class srObjAlbumGUI
             case self::CMD_LIST_PICTURES:
                 $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
                 if(!$this->isMigrationOfAlbumCompleted($album_id)) {
-                    $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_not_completed'), true);
-                    $this->ctrl->redirect($this->parent_gui, '');
+                    $this->showMigrationErrorAndRedirect(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_LIST_ALBUMS);
                 }
                 self::setLocator($album_id);
                 $this->setTabs();
@@ -115,8 +114,7 @@ class srObjAlbumGUI
             case self::CMD_MANAGE_PICTURES:
                 $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
                 if(!$this->isMigrationOfAlbumCompleted($album_id)) {
-                    $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_not_completed'), true);
-                    $this->ctrl->redirect($this->parent_gui, '');
+                    $this->showMigrationErrorAndRedirect(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_LIST_ALBUMS);
                 }
                 self::setLocator($album_id);
                 $this->setTabs();
@@ -281,6 +279,9 @@ class srObjAlbumGUI
     {
         $album_ids = $this->retrieveAlbumIDs();
         $album_id = $album_ids[0];
+        if (!$this->isMigrationOfAlbumCompleted($album_id)) {
+            $this->showMigrationErrorAndRedirect(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
+        }
         $this->ctrl->setParameterByClass(srObjAlbumFormGUI::class, 'album_id', $album_id);
         $this->ctrl->setParameter($this, 'album_id', $album_id);
         /**
@@ -324,10 +325,14 @@ class srObjAlbumGUI
     {
         $album_ids = $this->retrieveAlbumIDs();
         $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_ids', implode(',', $album_ids));
-        $delete_action = $this->ctrl->getLinkTarget($this, 'delete');
         $this->ctrl->clearParameterByClass(srObjAlbumGUI::class, 'album_ids');
         $items = [];
+        $has_unmigrated_album = false;
         foreach ($album_ids as $album_id) {
+            if (!$this->isMigrationOfAlbumCompleted($album_id)) {
+                $has_unmigrated_album = true;
+                break;
+            }
             /**
              * @var $album srObjAlbum
              */
@@ -340,12 +345,22 @@ class srObjAlbumGUI
                 $album->getTitle()
             );
         }
-        $interruptive_modal = $this->ui->factory()->modal()->interruptive(
-            $this->lng->txt('delete'),
-            $this->pl->txt('delete_album'),
-            $delete_action
-        )->withAffectedItems($items);
-        echo($this->ui->renderer()->renderAsync([$interruptive_modal]));
+
+        if (!$has_unmigrated_album) {
+            $modal = $this->ui->factory()->modal()->interruptive(
+                $this->lng->txt('delete'),
+                $this->pl->txt('delete_album'),
+                $this->ctrl->getLinkTarget($this, 'delete')
+            )->withAffectedItems($items);
+        } else {
+            $error_msg = (count($album_ids) > 1) ? $this->pl->txt('migration_of_albums_not_completed') : $this->pl->txt('migration_of_album_not_completed');
+            $modal = $this->ui->factory()->modal()->roundtrip(
+                $this->lng->txt('error'),
+                [$this->ui->factory()->messageBox()->failure($error_msg)],
+            );
+        }
+
+        echo($this->ui->renderer()->renderAsync([$modal]));
         exit();
     }
 
@@ -390,6 +405,13 @@ class srObjAlbumGUI
         $album_ids = $this->retrieveAlbumIDs();
         $picture_ids = [];
         foreach ($album_ids as $album_id) {
+            if (!$this->isMigrationOfAlbumCompleted($album_id)) {
+                $this->showMigrationErrorAndRedirect(
+                    ilObjPhotoGalleryGUI::class,
+                    ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS,
+                    (count($album_ids) > 1)
+                );
+            }
             /**
              * @var $album srObjAlbum
              */
@@ -433,12 +455,6 @@ class srObjAlbumGUI
         } else {
             $album_ids = array_map('intval', $album_ids);
         }
-        foreach ($album_ids as $album_id) {
-            if(!$this->isMigrationOfAlbumCompleted($album_id)) {
-                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_not_completed'), true);
-                $this->ctrl->redirect($this->parent_gui, '');
-            }
-        }
         return $album_ids;
     }
 
@@ -466,5 +482,15 @@ class srObjAlbumGUI
         $has_unmigrated_pictures = $result_pictures['amount'] > 0;
 
         return !($han_no_collection || $has_unmigrated_pictures);
+    }
+
+    protected function showMigrationErrorAndRedirect($redirect_class, $redirect_cmd, $affects_group_selection = false): void
+    {
+        if($affects_group_selection) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_of_albums_not_completed'), true);
+        } else {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('migration_of_album_not_completed'), true);
+        }
+        $this->ctrl->redirectByClass($redirect_class, $redirect_cmd);
     }
 }
