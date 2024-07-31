@@ -74,7 +74,7 @@ class ilObjPhotoGalleryMigration implements Migration
         $album_entry = $this->helper->getDatabase()->fetchAssoc($album_query);
 
         // build empty collection for album which will be filled later (if the album has any pictures)
-        $album_id = (int)$album_entry[0]['album_id'];
+        $album_id = (int)$album_entry['album_id'];
         $album_collection = $this->helper->getCollectionBuilder()->new(ResourceCollection::NO_SPECIFIC_OWNER);
 
         // get the albums pictures - if there are any
@@ -90,12 +90,15 @@ class ilObjPhotoGalleryMigration implements Migration
             $migrated_pictures = [];
             $preview_picture_rid = null;
             // iterate through the albums pictures and migrate them to the irss
+            $i=0;
             foreach ($picture_dataset as $picture_entry) {
                 $picture_owner_id = (int)$picture_entry['picture_owner_id'];
                 $picture_id = (int)$picture_entry['picture_id'];
-                $file_path = $this->buildAbsolutePathToOriginalPicture($album_id, $picture_id );
                 // copy original picture file to irss but leave the directory and files there in case something goes wrong
                 // TODO: remove old files and directories in a future version (once this migration has proven itself)
+                $path_to_file_dir = $this->buildPathToPictureDir($album_id, $picture_id);
+                $file_extension = $this->getFileExtensionOfOriginalPicture($path_to_file_dir);
+                $file_path = $this->buildAbsolutePathToPicture($path_to_file_dir, 'original', $file_extension);
                 $resource_identification = $this->helper->movePathToStorage(
                     $file_path,
                     $picture_owner_id,
@@ -110,8 +113,8 @@ class ilObjPhotoGalleryMigration implements Migration
                     $irss_manager->updateRevision($current_revision);
                     $album_collection->add($resource_identification);
                     $picture_rid = $resource_identification->serialize();
-                    $migrated_pictures[]['picture_rid'] = $picture_rid;
-                    $migrated_pictures[]['picture_id'] = $picture_id;
+                    $migrated_pictures[$i]['picture_rid'] = $picture_rid;
+                    $migrated_pictures[$i]['picture_id'] = $picture_id;
                     //check if the current picture is the preview picture of the album, if so remember this for the db update later on
                     if ((int)$album_entry['preview_id'] === $picture_id) {
                         $preview_picture_rid = $picture_rid;
@@ -119,6 +122,7 @@ class ilObjPhotoGalleryMigration implements Migration
                 } else {
                     throw new ilException("Could not move file with picture id " . $picture_id . " to storage");
                 }
+                $i++;
             }
         }
 
@@ -180,11 +184,31 @@ class ilObjPhotoGalleryMigration implements Migration
     }
 
     /**
-     * only original picture files are relevant for the migration to the irss (other files - mosaic.png, presentation.png, preview.png - are not needed as the irss can now handle that through flavours)
+     * only original picture files are relevant for the migration to the irss (other files - mosaic.png, presentation.png, preview.png - are no longer needed)
      */
-    protected function buildAbsolutePathToOriginalPicture(int $album_id, int $picture_id): string
+    protected function buildAbsolutePathToPicture(string $path, string $filename, string $extension): string
     {
-        return CLIENT_DATA_DIR . '/xpho/album_' . $album_id . '/picture_' . $picture_id . "/original.png";
+        return $path . '/' . $filename . '.' . $extension;
+    }
+
+    protected function buildPathToPictureDir(int $album_id, int $picture_id): string
+    {
+        return CLIENT_DATA_DIR . '/xpho/album_' . $album_id . '/picture_' . $picture_id;
+    }
+
+    protected function  getFileExtensionOfOriginalPicture($absolute_path_to_picture_dir): ?string
+    {
+        $extension = null;
+        $files = scandir($absolute_path_to_picture_dir);
+        foreach ($files as $file) {
+            if (is_file($absolute_path_to_picture_dir . '/' . $file)) {
+                $path_parts = pathinfo($absolute_path_to_picture_dir . '/' . $file);
+                if ($path_parts['filename'] === 'original') {
+                    return $path_parts['extension'];
+                }
+            }
+        }
+        return null;
     }
 
 }
