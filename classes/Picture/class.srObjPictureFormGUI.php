@@ -83,8 +83,8 @@ class srObjPictureFormGUI
     private function getCreateForm(): Standard
     {
         $form_action = $this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_CREATE);
-        $form_submit_label = $this->pl->txt('upload_pic');
-        $form_title = $this->pl->txt('upload_pic');
+        $form_submit_label = $this->lng->txt('upload');
+        $form_title = $this->pl->txt('upload_pictures');
 
         // create input fields
         $hidden_input = $this->ui_factory->input()->field()->hidden()->withValue(0);
@@ -114,7 +114,6 @@ class srObjPictureFormGUI
     private function getUpdateForm(): Standard
     {
         $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_UPDATE);
-        $form_submit_label = $this->pl->txt('edit_pic');
         $form_title = $this->pl->txt('edit_pic');
 
         // create input fields
@@ -157,7 +156,7 @@ class srObjPictureFormGUI
         return $this->ui_factory->input()->container()->form()->standard(
             $form_action,
             [$section]
-        )->withSubmitCaption($form_submit_label);
+        );
     }
 
     public function saveData($data): bool

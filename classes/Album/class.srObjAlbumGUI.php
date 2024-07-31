@@ -183,7 +183,7 @@ class srObjAlbumGUI
 
         // create add picture button and add it to toolbar
         $add_picture_button = $this->ui->factory()->button()->primary(
-            $this->pl->txt('upload_pic'),
+            $this->pl->txt('upload_pictures'),
             $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD)
         );
         $this->toolbar->addComponent($add_picture_button);
@@ -223,7 +223,7 @@ class srObjAlbumGUI
         }
         $add_new_picture_image = $this->ui->factory()->image()->responsive(
             $this->pl->getDirectory() . '/templates/images/addnew.svg',
-            $this->pl->txt('upload_pic')
+            $this->pl->txt('upload_pictures')
         );
         $add_new_picture_action = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD);
         $add_new_picture_card = $this->ui->factory()->card()->standard(
