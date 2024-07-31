@@ -29,8 +29,11 @@ class srObjPictureGUI
     public const CMD_REDIRECT_TO_ALBUM_LIST_PICTURES = 'redirectToAlbumListPictures';
     public const CMD_REDIRECT_TO_ALBUM_MANAGE_PICTURES = 'redirectToAlbumManagePictures';
     public const CMD_UPLOAD = 'upload';
-    public const CMD_SEND_FILE = 'sendFile';
     public const CMD_SET_AS_PREVIEW = 'setAsPreview';
+
+    public const CMD_SHOW_PICTURE = 'showPicture';
+    public const CMD_SHOW_PREVIOUS_PICTURE = 'showPreviousPicture';
+    public const CMD_SHOW_NEXT_PICTURE = 'showNextPicture';
 
     protected ilAccessHandler $access;
     protected ilTabsGUI $tabs_gui;
@@ -92,9 +95,11 @@ class srObjPictureGUI
                         $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $_GET['album_id']);
                         $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
                         break;
-                    case self::CMD_SEND_FILE:
                     case self::CMD_UPLOAD:
                     case self::CMD_SET_AS_PREVIEW:
+                    case self::CMD_SHOW_PICTURE:
+                    case self::CMD_SHOW_PREVIOUS_PICTURE:
+                    case self::CMD_SHOW_NEXT_PICTURE:
                     case atTableGUI::CMD_ADD:
                     case atTableGUI::CMD_CREATE:
                     case atTableGUI::CMD_EDIT:
@@ -316,26 +321,21 @@ class srObjPictureGUI
         $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
     }
 
-    protected function sendFile(): void
+
+    protected function showPicture()
     {
-        if (!$this->access->checkAccess('read', '', $this->parent->getRefId())) {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this, '');
-        }
-        if (!$this->http->wrapper()->query()->has('picture_id')) {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture_id'), true);
-            $this->ctrl->redirect($this, '');
-        }
+        $picture_id = $this->retrievePictureID();
 
-        $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
-
-        // get data for image elements
-        $picture_id = $this->http->wrapper()->query()->retrieve('picture_id', $this->refinery->kindlyTo()->int());
+        // get objects which are needed for data / image retrieval
         /**
-         * @var $srObjPicture srObjPicture
+         * @var $picture srObjPicture
          */
-        $srObjPicture = srObjPicture::find($picture_id);
-        $picture_rid = $srObjPicture->getPictureRID();
+        $picture = srObjPicture::find($picture_id);
+        if($picture === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        }
+        $picture_rid = $picture->getPictureRID();
         $picture_identifier = $this->irss->manage()->find($picture_rid);
         if ($picture_identifier === null) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
@@ -344,50 +344,105 @@ class srObjPictureGUI
         /**
          * @var $album srObjAlbum
          */
-        $album = srObjAlbum::find($srObjPicture->getAlbumId());
+        $album = srObjAlbum::find($picture->getAlbumId());
+        if($album === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        }
         $gallery_obj_id = $album->getObjectId();
         $gallery = ilObjectFactory::getInstanceByObjId($gallery_obj_id);
-
-        // create image elements for slideshow
-        $nr_elements_before_target = 0;
-        $pictures = $album->getPictureArrays();
-        $pictures = $this->sortPictures($pictures, $album->getSortType(), $album->getSortDirection());
-        $key_of_target_picture = array_search($picture_id, array_column($pictures, 'id'));
-        foreach ($pictures as $picture_key => $picture) {
-            $pic_id = $this->irss->manage()->find($picture['picture_rid']);
-            $picture_src = $this->url_builder->getForRid($pic_id);
-            $description = $picture['description'];
-            $optional_description_info = ($description !== "") ? ($this->pl->txt(
-                'description'
-            ) . ': ' . $description . ' | ') : "";
-            $picture_infos = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
-                . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
-                . $this->pl->txt('picture') . ': ' . $picture['title'] . ' | '
-                . $optional_description_info
-                . $this->lng->txt('date') . ': ' . $picture['create_date'];
-            $img_element = '<div class="xpho_slideshow_slide_container"><img class="xpho_slideshow_slide_image" src="' . $picture_src . '"/>'
-                . '<div class="xpho_slideshow_slide_label_wrapper"><div class="xpho_slideshow_slide_label">' . $picture_infos . '</div></div>'
-                . '</div>';
-            $img_elements[] = $img_element;
-            if ($picture_key < $key_of_target_picture) {
-                $nr_elements_before_target++;
-            }
+        if ($gallery === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_gallery'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
         }
-        // order image elements
-        $elements_before = array_slice($img_elements, 0, $nr_elements_before_target);
-        $target_element = $img_elements[$nr_elements_before_target];
-        $elements_after = array_slice($img_elements, $nr_elements_before_target + 1);
-        $img_elements = array_merge([$target_element], $elements_after, $elements_before);
-        // add image elements to template
-        $tpl->setVariable('IMAGE_ELEMENTS', implode("      ", $img_elements));
+
+        // assemble data for image label
+        $description = $picture->getDescription();
+        $optional_description_info = ($description !== "") ? ($this->pl->txt(
+            'description'
+        ) . ': ' . $description . ' | ') : "";
+        $img_text = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
+            . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
+            . $this->pl->txt('picture') . ': ' . $picture->getTitle() . ' | '
+            . $optional_description_info
+            . $this->lng->txt('date') . ': ' . $picture->getCreateDate();
+
+        // get image URL
+        $img_src = $this->url_builder->getForRid($picture_identifier);
+
+        $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
+        // add image src and text to template
+        $tpl->setVariable('IMG_SRC', $img_src);
+        $tpl->setVariable('IMG_TEXT', $img_text);
         // add back button to template
         $back_target = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
         $tpl->setVariable('BACK_BUTTON_TARGET', $back_target);
         $tpl->setVariable('BACK_BUTTON_TEXT', $this->pl->txt('back_to_album'));
+        // add previous and next button targets to template
+        $this->ctrl->saveParameterByClass(srObjPictureGUI::class, 'picture_id');
+        $target_prev = $this->ctrl->getLinkTarget($this, self::CMD_SHOW_PREVIOUS_PICTURE);
+        $target_next = $this->ctrl->getLinkTarget($this, self::CMD_SHOW_NEXT_PICTURE);
+        $tpl->setVariable('PREV_BUTTON_TARGET', $target_prev);
+        $tpl->setVariable('NEXT_BUTTON_TARGET', $target_next);
 
         $this->tpl->addCss($this->pl->getStyleSheetLocation('default/picture_slideshow.css'));
         $this->tpl->setContent($tpl->get());
     }
+
+    protected function showPreviousPicture()
+    {
+        $picture_id = $this->retrievePictureID();
+        $previous_picture_id = $this->getAdjacentPictureId($picture_id, 'previous');
+        $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $previous_picture_id);
+        $this->ctrl->redirect($this, self::CMD_SHOW_PICTURE);
+    }
+
+    protected function showNextPicture()
+    {
+        $picture_id = $this->retrievePictureID();
+        $next_picture_id = $this->getAdjacentPictureId($picture_id, 'next');
+        $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $next_picture_id);
+        $this->ctrl->redirect($this, self::CMD_SHOW_PICTURE);
+    }
+
+    protected function getAdjacentPictureId(int $picture_id, string $direction): int
+    {
+        /**
+         * @var $picture srObjPicture
+         */
+        $picture = srObjPicture::find($picture_id);
+        if($picture === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
+            $this->ctrl->redirect($this, '');
+        }
+        /**
+         * @var $album srObjAlbum
+         */
+        $album = srObjAlbum::find($picture->getAlbumId());
+        if($album === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        }
+
+        $pictures_array = $album->getPictureArrays();
+        $pictures_array = $this->sortPictures($pictures_array, $album->getSortType(), $album->getSortDirection());
+
+        $key_of_target_picture = array_search($picture_id, array_column($pictures_array, 'id'));
+
+        if($direction === 'previous') {
+            $key_of_adjacent_picture = $key_of_target_picture - 1;
+            if ($key_of_adjacent_picture < 0) {
+                $key_of_adjacent_picture = count($pictures_array) - 1;
+            }
+        } else {
+            $key_of_adjacent_picture = $key_of_target_picture + 1;
+            if ($key_of_adjacent_picture >= count($pictures_array)) {
+                $key_of_adjacent_picture = 0;
+            }
+        }
+        return $pictures_array[$key_of_adjacent_picture]['id'];
+    }
+
 
     protected function retrievePictureIDs(): array
     {
@@ -444,6 +499,23 @@ class srObjPictureGUI
         }
 
         return $album_id;
+    }
+
+
+    protected function retrievePictureID(): int
+    {
+        if (!$this->http->wrapper()->query()->has('picture_id')) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture_id'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        }
+        $to_int = $this->refinery->kindlyTo()->string();
+        $picture_id = $this->http->wrapper()->query()->retrieve('picture_id', $to_int);
+        if (empty($picture_id)) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture_id'), true);
+            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+        }
+
+        return $picture_id;
     }
 
     private function sortPictures(array $pictures, string $sort_type, string $sort_direction): array

@@ -2,31 +2,28 @@
 <div class="xpho_slideshow_container">
     <div class="xpho_slideshow_btn_wrapper_close"><button class="xpho_slideshow_btn_close" onclick="returnToAlbum()">{BACK_BUTTON_TEXT}</button></div>
 
-    {IMAGE_ELEMENTS}
+    <div class="xpho_slideshow_slide_container">
+        <img class="xpho_slideshow_slide_image" src="{IMG_SRC}"/>
+        <div class="xpho_slideshow_slide_label_wrapper">
+            <div class="xpho_slideshow_slide_label">
+                {IMG_TEXT}
+            </div>
+        </div>
+    </div>
 
-    <div class="xpho_slideshow_btn_wrapper xpho_slideshow_btn_wrapper_prev"><button class="xpho_slideshow_btn xpho_slideshow_btn_prev" onclick="plusDivs(-1)">&#10094; </button></div>
-    <div class="xpho_slideshow_btn_wrapper xpho_slideshow_btn_wrapper_next"><button class="xpho_slideshow_btn xpho_slideshow_btn_next" onclick="plusDivs(1)"> &#10095;</button></div>
+    <div class="xpho_slideshow_btn_wrapper xpho_slideshow_btn_wrapper_prev"><button class="xpho_slideshow_btn xpho_slideshow_btn_prev" onclick="prevPicture()">&#10094; </button></div>
+    <div class="xpho_slideshow_btn_wrapper xpho_slideshow_btn_wrapper_next"><button class="xpho_slideshow_btn xpho_slideshow_btn_next" onclick="nextPicture()"> &#10095;</button></div>
 
 </div>
 
 <!--JavaScript code for changing image via the slideshow buttons-->
 <script>
-    var slideIndex = 1;
-    showDivs(slideIndex);
-
-    function plusDivs(n) {
-        showDivs(slideIndex += n);
+    function prevPicture() {
+        location.href = "{PREV_BUTTON_TARGET}";
     }
 
-    function showDivs(n) {
-        var i;
-        var x = document.getElementsByClassName("xpho_slideshow_slide_container");
-        if (n > x.length) {slideIndex = 1}
-        if (n < 1) {slideIndex = x.length}
-        for (i = 0; i < x.length; i++) {
-            x[i].style.display = "none";
-        }
-        x[slideIndex-1].style.display = "block";
+    function nextPicture() {
+        location.href = "{NEXT_BUTTON_TARGET}";
     }
 
     function returnToAlbum() {

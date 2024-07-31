@@ -213,7 +213,7 @@ class srObjAlbumGUI
             );
             $src_presentation = $this->ctrl->getLinkTargetByClass(
                 srObjPictureGUI::class,
-                srObjPictureGUI::CMD_SEND_FILE
+                srObjPictureGUI::CMD_SHOW_PICTURE
             );
             $card = $this->ui->factory()->card()->standard(
                 "",
