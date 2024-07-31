@@ -13,12 +13,16 @@ declare(strict_types=1);
 use ILIAS\Setup\Migration;
 use ILIAS\Setup\Environment;
 use ILIAS\ResourceStorage\Collection\ResourceCollection;
+use srag\Plugins\PhotoGallery\Preview\PreviewService;
+use srag\Plugins\PhotoGallery\URL\URLService;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * @author Lukas Zehnder <lukas@sr.solutions>
  */
 class ilObjPhotoGalleryMigration implements Migration
 {
+    private PreviewGenerator $flavour_generator;
     protected \ilResourceStorageMigrationHelper $helper;
 
 
@@ -46,6 +50,10 @@ class ilObjPhotoGalleryMigration implements Migration
             new \ilObjPhotoGalleryStakeholder(),
             $environment
         );
+        $url_service = new URLService();
+        $url_bulder = $url_service->get();
+        $preview_service = new PreviewService($url_bulder);
+        $this->flavour_generator = $preview_service->get();
     }
 
 
@@ -112,6 +120,9 @@ class ilObjPhotoGalleryMigration implements Migration
                     if ((int)$album_entry['preview_id'] === $picture_id) {
                         $preview_picture_rid = $picture_rid;
                     }
+                    // ensure previews
+                    $this->flavour_generator->generate($resource_identification, 512);
+                    $this->flavour_generator->generate($resource_identification, 96);
                 } else {
                     throw new ilException("Could not move file with picture id " . $picture_id . " to storage");
                 }
