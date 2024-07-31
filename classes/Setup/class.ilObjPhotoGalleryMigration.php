@@ -50,10 +50,6 @@ class ilObjPhotoGalleryMigration implements Migration
             new \ilObjPhotoGalleryStakeholder(),
             $environment
         );
-        $url_service = new URLService();
-        $url_bulder = $url_service->get();
-        $preview_service = new PreviewService($url_bulder);
-        $this->flavour_generator = $preview_service->get();
     }
 
 
@@ -123,9 +119,6 @@ class ilObjPhotoGalleryMigration implements Migration
                     if ((int)$album_entry['preview_id'] === $picture_id) {
                         $preview_picture_rid = $picture_rid;
                     }
-                    // ensure previews
-                    $this->flavour_generator->generate($resource_identification, 512);
-                    $this->flavour_generator->generate($resource_identification, 96);
                 } else {
                     throw new ilException("Could not move file with picture id " . $picture_id . " to storage");
                 }
