@@ -1,0 +1,32 @@
+<!--HTML template for creating a slideshow of the images of an album.-->
+<div class="xpho_slideshow_container">
+    <div class="xpho_slideshow_btn_wrapper_close"><button class="xpho_slideshow_btn_close" onclick="returnToAlbum()">{BACK_BUTTON_TEXT}</button></div>
+
+    <div class="xpho_slideshow_slide_container">
+        <img class="xpho_slideshow_slide_image" src="{IMG_SRC}"/>
+        <div class="xpho_slideshow_slide_label_wrapper">
+            <div class="xpho_slideshow_slide_label">
+                {IMG_TEXT}
+            </div>
+        </div>
+    </div>
+
+    <div class="xpho_slideshow_btn_wrapper xpho_slideshow_btn_wrapper_prev"><button class="xpho_slideshow_btn xpho_slideshow_btn_prev" onclick="prevPicture()">&#10094; </button></div>
+    <div class="xpho_slideshow_btn_wrapper xpho_slideshow_btn_wrapper_next"><button class="xpho_slideshow_btn xpho_slideshow_btn_next" onclick="nextPicture()"> &#10095;</button></div>
+
+</div>
+
+<!--JavaScript code for changing image via the slideshow buttons-->
+<script>
+    function prevPicture() {
+        location.href = "{PREV_BUTTON_TARGET}";
+    }
+
+    function nextPicture() {
+        location.href = "{NEXT_BUTTON_TARGET}";
+    }
+
+    function returnToAlbum() {
+        window.location.href = "{BACK_BUTTON_TARGET}";
+    }
+</script>

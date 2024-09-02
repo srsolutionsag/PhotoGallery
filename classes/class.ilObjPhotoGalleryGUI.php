@@ -1,40 +1,32 @@
 <?php
-/*
-    +-----------------------------------------------------------------------------+
-    | ILIAS open source                                                           |
-    +-----------------------------------------------------------------------------+
-    | Copyright (c) 1998-2009 ILIAS open source, University of Cologne            |
-    |                                                                             |
-    | This program is free software; you can redistribute it and/or               |
-    | modify it under the terms of the GNU General Public License                 |
-    | as published by the Free Software Foundation; either version 2              |
-    | of the License, or (at your option) any later version.                      |
-    |                                                                             |
-    | This program is distributed in the hope that it will be useful,             |
-    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
-    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
-    | GNU General Public License for more details.                                |
-    |                                                                             |
-    | You should have received a copy of the GNU General Public License           |
-    | along with this program; if not, write to the Free Software                 |
-    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
-    +-----------------------------------------------------------------------------+
-*/
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
+use ILIAS\DI\UIServices;
+use ILIAS\HTTP\Services as HttpService;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
+use ILIAS\UI\Component\Input\Container\Form\Standard;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
- * User Interface class for example repository object.
- * @author            Fabian Schmid <fs@studer-raimann.ch>
+ * @author            Lukas Zehnder <lukas@sr.solutions>
+ * @author            Fabian Schmid <fabian@sr.solutions>
  * @author            Zeynep Karahan <zk@studer-raimann.ch>
  * @author            Martin Studer <ms@studer-raimann.ch>
  * @author            Gabriel Comte <gc@studer-raimann.ch>
- * $Id$
+ *
  * @ilCtrl_isCalledBy ilObjPhotoGalleryGUI: ilRepositoryGUI, ilObjPluginDispatchGUI, ilAdministrationGUI
  * @ilCtrl_Calls      ilObjPhotoGalleryGUI: ilPermissionGUI, ilInfoScreenGUI, ilObjectCopyGUI, ilCommonActionDispatcherGUI
- * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI, srObjExifGUI
+ * @ilCtrl_Calls      ilObjPhotoGalleryGUI: srObjAlbumGUI, srObjPictureGUI
  */
 class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 {
-    public $parent;
+    protected object $parent; // TODO this is currently unknown and never set, problably remove it
     public const CMD_INFO_SCREEN = 'infoScreen';
     public const CMD_EDIT_PROPERTIES = 'editProperties';
     public const CMD_LIST_ALBUMS = 'list_albums';
@@ -48,36 +40,31 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     public const TAB_MANAGE_ALBUMS = 'manage_albums';
     public const TAB_PERMISSIONS = 'permissions';
     public const TAB_SETTINGS = 'settings';
-    /**
-     * @var ilPhotoGalleryPlugin
-     */
-    protected $pl;
-    /**
-     * @var ilPropertyFormGUI
-     */
-    protected $form;
-    /**
-     * @var ilNavigationHistory
-     */
-    protected $history;
-    /**
-     * @var ilAppEventHandler
-     */
-    protected $event;
-    public ILIAS\DI\UIServices $ui;
+    protected ilPhotoGalleryPlugin $pl;
+    protected ?ilPropertyFormGUI $form = null;
+    protected ilNavigationHistory $history;
+    protected ilAppEventHandler $event;
+    protected UIServices $ui;
+    protected HttpService $http;
+    protected ResourceStorage $irss;
+    protected PreviewGenerator $previews;
 
     protected function afterConstructor(): void
     {
-        global $DIC;
+        global $DIC, $xphoDIC;
 
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->history = $DIC["ilNavigationHistory"];
         $this->access = $DIC->access();
         $this->ctrl = $DIC->ctrl();
         $this->tabs_gui = $DIC->tabs();
+        $this->toolbar = $DIC->toolbar();
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->event = $DIC->event();
         $this->ui = $DIC->ui();
+        $this->http = $DIC->http();
+        $this->irss = $DIC->resourceStorage();
+        $this->previews = $xphoDIC[PreviewGenerator::class];
 
         // add a link pointing to this object in footer [The "Permanent Link" in the footer]
         if ($this->object instanceof \ilObject) {
@@ -105,8 +92,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
         $this->setTitleAndDescription();
         $this->setLocator();
 
-        //        $this->tpl->setTitleIcon($this->pl->getImagePath('icon_' . $this->getType() . '.svg'), $this->pl->txt('icon') . ' ' . $this->pl->txt('obj_'
-        //                . $this->getType()));
         switch ($next_class) {
             case 'ilpermissiongui':
                 $this->setTabs();
@@ -122,20 +107,19 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 $this->ctrl->forwardCommand($info_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'srobjalbumgui':
+            case strtolower(srObjAlbumGUI::class):
                 $this->setTabs();
                 $this->tabs_gui->activateTab(self::TAB_CONTENT);
                 $album_gui = new srObjAlbumGUI($this);
                 $this->ctrl->forwardCommand($album_gui);
                 $this->tpl->printToStdout();
                 break;
-            case 'srobjpicturegui':
+            case strtolower(srObjPictureGUI::class):
                 $picture_gui = new srObjPictureGUI($this);
                 $this->ctrl->forwardCommand($picture_gui);
                 $this->tpl->printToStdout();
                 break;
             case 'ilcommonactiondispatchergui':
-                include_once(__DIR__ . "/Services/Object/classes/class.ilCommonActionDispatcherGUI.php");
                 $gui = ilCommonActionDispatcherGUI::getInstanceFromAjaxCall();
                 $this->ctrl->forwardCommand($gui);
                 break;
@@ -200,12 +184,14 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     public function edit(): void
     {
         $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+//        $this->tpl->setContent($this->ui->renderer()->render($this->getEditForm()));
         $this->tpl->setContent($this->initEditForm()->getHTML());
     }
 
     public function editObject(): void
     {
         $this->tabs_gui->activateTab(self::TAB_SETTINGS);
+//        $this->tpl->setContent($this->ui->renderer()->render($this->getEditForm()));
         $this->tpl->setContent($this->initEditForm()->getHTML());
     }
 
@@ -326,48 +312,64 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 
     public function listAlbums(): void
     {
-        $this->tpl->addCss($this->pl->getDirectory() . '/templates/default/clearing.css');
-        $tpl = $this->pl->getTemplate('default/Album/tpl.clearing.html');
+        if (!$this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirect($this->parent, '');
+        }
+        // create add album button and add it to toolbar
+        $add_album_button = $this->ui->factory()->button()->primary(
+            $this->pl->txt('add_album'),
+            $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD)
+        );
+        $this->toolbar->addComponent($add_album_button);
 
+        // album cards
+        $cards = [];
         /**
          * @var $srObjAlbum srObjAlbum
          */
-        if ($this->access->checkAccess('read', '', $this->object->getRefId())) {
-            foreach ($this->object->getAlbumObjects() as $srObjAlbum) {
-                $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $srObjAlbum->getId());
-                $tpl->setCurrentBlock('picture');
-                $tpl->setVariable('TITLE', $srObjAlbum->getTitle());
-                $tpl->setVariable('DATE', date('d.m.Y', strtotime($srObjAlbum->getCreateDate())));
-                $tpl->setVariable('COUNT', $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics'));
-                $tpl->setVariable('LINK', $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class));
-
-                if ($srObjAlbum->getPreviewId() > 0) {
-                    $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'album_id', $srObjAlbum->getId());
-                    $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $srObjAlbum->getPreviewId());
-                    $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_type', srObjPicture::TITLE_MOSAIC);
-                    $src_mosaic = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, srObjPictureGUI::CMD_SEND_FILE);
-                } else {
-                    //TODO Refactor
-                    $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.jpg';
+        foreach ($this->object->getAlbumObjects() as $srObjAlbum) {
+            $content = [];
+            $content[] = $this->ui->factory()->listing()->descriptive([
+                "" => $srObjAlbum->getDescription(),
+                " " => date('d.m.Y', strtotime($srObjAlbum->getCreateDate())),
+                "  " => $srObjAlbum->getPictureCount() . ' ' . $this->pl->txt('pics')
+            ]);
+            // image for the card
+            $src_mosaic = $this->pl->getDirectory() . '/templates/images/nopreview.svg';
+            if ($srObjAlbum->getPreviewId() > 0) {
+                $preview_rid = $srObjAlbum->getPreviewPictureRid() ?? "";
+                $preview_identifier = $this->irss->manage()->find($preview_rid);
+                if ($preview_identifier !== null) {
+                    $src_mosaic = $this->previews->getURL($preview_identifier, 512);
                 }
-
-                $tpl->setVariable('SRC_PREVIEW', $src_mosaic);
-                $tpl->parseCurrentBlock();
             }
-            if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
-                $tpl->setCurrentBlock('add_new');
-                $tpl->setVariable('SRC_ADDNEW', $this->pl->getDirectory() . '/templates/images/addnew.jpg');
-                $tpl->setVariable(
-                    'LINK_ADDNEW',
-                    $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD)
-                );
-                $tpl->parseCurrentBlock();
-            }
-        } else {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirectByClass(ilRepositoryGUI::class, "view");
+            $image = $this->ui->factory()->image()->responsive(
+                $src_mosaic,
+                $srObjAlbum->getTitle()
+            );
+            $this->ctrl->setParameterByClass(srObjAlbumGUI::class, 'album_id', $srObjAlbum->getId());
+            $open_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class);
+            $card = $this->ui->factory()->card()->standard(
+                $srObjAlbum->getTitle(),
+                $image->withAction($open_album_action)
+            )->withTitleAction(
+                $open_album_action
+            )->withSections($content);
+            $cards[] = $card;
         }
-        $this->tpl->setContent($tpl->get());
+        $add_new_album_image = $this->ui->factory()->image()->responsive(
+            $this->pl->getDirectory() . '/templates/images/addnew.svg',
+            $this->pl->txt('add_album')
+        );
+        $add_new_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD);
+        $add_new_album_card = $this->ui->factory()->card()->standard(
+            "",
+            $add_new_album_image->withAction($add_new_album_action)
+        );
+        $cards[] = $add_new_album_card;
+        $deck = $this->ui->factory()->deck($cards);
+        $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
 
     public function manageAlbums(): void
@@ -376,68 +378,33 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirect($this, '');
         } else {
-            $tableGui = new ilObjPhotoGalleryTableGUI($this, self::CMD_MANAGE_ALBUMS . '');
-            $this->tpl->setContent($tableGui->getHTML());
+            $table_gui = new ilObjPhotoGalleryTableGUI();
+            $this->tpl->setContent($table_gui->getTableForRepresentation());
         }
     }
 
-    /**
-     * @param $arr_picture_ids
-     * @throws ilFileException
-     */
-    public static function executeDownload($arr_picture_ids)
+    public static function executeDownload(array $picture_ids): void
     {
         global $DIC;
-        $ilCtrl = $DIC->ctrl();
-        $pl = ilPhotoGalleryPlugin::getInstance();
-        //TODO bringen wir hier das GET weg?
-        if (!$DIC->access()->checkAccess('read', '', $_GET['ref_id'])) {
-            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $pl->txt('permission_denied'), true);
-            $ilCtrl->redirectByClass(self::class, '');
-        }
-        if ((is_countable($arr_picture_ids) ? count($arr_picture_ids) : 0) === 0) {
-            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $pl->txt('no_checkbox'), true);
-            $ilCtrl->redirectByClass(self::class, '');
-        } elseif ((is_countable($arr_picture_ids) ? count($arr_picture_ids) : 0) == 1) {
-            // only one picture ==> do not make a .zip !
-            $picture_id = $arr_picture_ids[0];
+        $irss = $DIC->resourceStorage();
+
+        $picture_identifiers = [];
+        foreach ($picture_ids as $picture_id) {
+            /**
+             * @var $picture srObjPicture
+             */
             $picture = srObjPicture::find($picture_id);
-            $title = $picture->getTitle();
-            $oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-            try {
-                ilFileDelivery::deliverFileLegacy($oldPictureFilename, $title);
-            } catch (ilFileException $e) {
-                $DIC->ui()->mainTemplate()->setOnScreenMessage("info", $e->getMessage(), true);
+            if ($picture === null) {
+                continue;
             }
-        } else {
-            $tmpdir = ilFileUtils::ilTempnam();
-            ilFileUtils::makeDir($tmpdir);
-            $zipbasedir = $tmpdir . DIRECTORY_SEPARATOR . 'pictures';
-            ilFileUtils::makeDir($zipbasedir);
-            $tmpzipfile = $tmpdir . DIRECTORY_SEPARATOR . 'pictures.zip';
-            foreach ($arr_picture_ids as $picture_id) {
-                $picture = srObjPicture::find($picture_id);
-                $title = $picture->getTitle();
-                $oldPictureFilename = $picture->getPicturePath() . '/original.' . $picture->getSuffix();
-                $newPictureFilename = $zipbasedir . DIRECTORY_SEPARATOR . ilFileUtils::getASCIIFilename(
-                    $title . '_' . $picture->getId() . '.'
-                        . $picture->getSuffix()
-                );
-                // copy to temporal directory
-                if (!copy($oldPictureFilename, $newPictureFilename)) {
-                    throw new ilFileException('Could not copy ' . $oldPictureFilename . ' to ' . $newPictureFilename);
-                }
-                touch($newPictureFilename, filectime($oldPictureFilename));
+            $picture_rid = $picture->getPictureRid();
+            $picture_identifier = $irss->manage()->find($picture_rid);
+            if ($picture_identifier === null) {
+                continue;
             }
-            try {
-                ilFileUtils::zip($zipbasedir, $tmpzipfile);
-                rename($tmpzipfile, $zipfile = ilFileUtils::ilTempnam());
-                ilFileUtils::delDir($tmpdir);
-                ilFileDelivery::deliverFileLegacy($zipfile, 'pictures.zip');
-            } catch (ilFileException $e) {
-                $DIC->ui()->mainTemplate()->setOnScreenMessage("info", $e->getMessage(), true);
-            }
+            $picture_identifiers[] = $picture_identifier;
         }
+        $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
     }
 
     protected function afterSave(ilObject $new_object): void

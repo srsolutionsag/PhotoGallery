@@ -16,6 +16,7 @@ actions#:#Aktionen
 edit#:#Bearbeiten
 title#:#Titel
 description#:#Beschreibung
+add_album#:#Album hinzufügen
 create_album#:#Album erstellen
 edit_album#:#Album bearbeiten
 enter_date#:#Datum angeben
@@ -24,6 +25,7 @@ save#:#Speichern
 cancel#:#Abbrechen
 success_edit#:#Änderung(en) gespeichert!
 upload_pic#:#Foto hochladen
+upload_pictures#:#Fotos hochladen
 edit_pic#:#Foto bearbeiten
 pic_title#:#Fototitel
 pic#:#Foto
@@ -73,3 +75,13 @@ sort_direction#:#Sortierungs-Reihenfolge
 sort_direction_asc#:#Aufsteigend
 sort_direction_desc#:#Absteigend
 album_sort_direction_info#:#Die Sortierung wird aufsteigend oder absteigend vorgenommen
+back_to_album#:#Zurück zum Album
+album#:#Album
+gallery#:#Galerie
+picture#:#Bild
+migration_of_album_not_completed#:#Dieses Album wurde noch nicht in den neuen ILIAS Resource Storage migriert. Bitte wenden Sie sich an Ihre Sytemadministration.
+migration_of_albums_not_completed#:#Einige der ausgewählten Alben wurden noch nicht in den neuen ILIAS Resource Storage migriert. Bitte wenden Sie sich an Ihre Sytemadministration.
+after_update_migration_info#:#Wichtig: Aufgrund eines Dateisystem-Wechsels müssen alle Alben und Bilder dieses Plugins migriert werden. Bitte führen Sie die Migration wie in der Readme-Datei des Plugins beschrieben durch.
+manage_albums#:#Alben der Gallerie "%s" verwalten
+manage_pictures#:#Bilder des Albums "%s" verwalten
+success_picture_set_as_preview#:#Das Bild "%s" wurde als Vorschaubild gesetzt.

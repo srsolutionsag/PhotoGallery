@@ -1,7 +1,7 @@
 <#1>
 <?php
-require_once 'Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Picture/class.srObjPhotoData.php';
-if (!$ilDB->tableExists(srObjPhotoData::TABLE_NAME)) {
+global $DIC;
+if (!$DIC->database()->tableExists('rep_robj_xpho_data')) {
     $fields = array(
         'id' => array(
             'type' => 'integer',
@@ -15,8 +15,8 @@ if (!$ilDB->tableExists(srObjPhotoData::TABLE_NAME)) {
         ),
     );
 
-    $ilDB->createTable(srObjPhotoData::TABLE_NAME, $fields);
-    $ilDB->addPrimaryKey(srObjPhotoData::TABLE_NAME, array("id"));
+    $DIC->database()->createTable('rep_robj_xpho_data', $fields);
+    $DIC->database()->addPrimaryKey('rep_robj_xpho_data', array("id"));
 }
 ?>
 
@@ -55,9 +55,89 @@ global $DIC;
 require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/PhotoGallery/classes/Album/class.srObjAlbum.php";
 srObjAlbum::updateDB();
 $DIC->database()->manipulate(
-    "UPDATE " . srObjAlbum::TABLE_NAME . " SET sort_type = " . $ilDB->quote(
+    "UPDATE " . srObjAlbum::TABLE_NAME . " SET sort_type = " . $DIC->database()->quote(
         srObjAlbum::SORT_TYPE_CREATE_DATE,
         'text'
-    ) . ", sort_direction = " . $ilDB->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text')
+    ) . ", sort_direction = " . $DIC->database()->quote(srObjAlbum::SORT_TYPE_DIRECTION_ASC, 'text')
 );
 ?>
+<#6>
+<?php
+// Add a new column which will store the album's collection resource id after the irss migration
+global $DIC;
+if (!$DIC->database()->tableColumnExists('sr_obj_pg_album', 'album_collection_rid')) {
+    $DIC->database()->addTableColumn(
+        'sr_obj_pg_album',
+        'album_collection_rid',
+        [
+            'type' => 'text',
+            'notnull' => false,
+            'length' => 64,
+            'default' => ''
+        ]
+    );
+}
+?>
+<#7>
+<?php
+// Add a new column which will store the resource id of the album's of preview picture after the irss migration
+global $DIC;
+if (!$DIC->database()->tableColumnExists('sr_obj_pg_album', 'preview_picture_rid')) {
+    $DIC->database()->addTableColumn(
+        'sr_obj_pg_album',
+        'preview_picture_rid',
+        [
+            'type' => 'text',
+            'notnull' => false,
+            'length' => 64,
+            'default' => ''
+        ]
+    );
+}
+?>
+<#8>
+<?php
+// Add a new column which will store the picture's resource id after the irss migration
+global $DIC;
+if (!$DIC->database()->tableColumnExists('sr_obj_pg_pic', 'picture_rid')) {
+    $DIC->database()->addTableColumn(
+        'sr_obj_pg_pic',
+        'picture_rid',
+        [
+            'type' => 'text',
+            'notnull' => false,
+            'length' => 64,
+            'default' => ''
+        ]
+    );
+}
+?>
+<#9>
+<?php
+// Create a table to use for fake flavours
+global $DIC, $xphoDIC;
+if (!$DIC->database()->tableExists('sr_obj_pg_flavour')) {
+    $fields = [
+        'rid' => [
+            'type' => 'text',
+            'length' => 64,
+            'notnull' => true
+        ],
+        'max_size' => [
+            'type' => 'integer',
+            'length' => 8,
+            'notnull' => true
+        ],
+        'flavour_rid' => [
+            'type' => 'text',
+            'length' => 64,
+            'notnull' => true
+        ],
+    ];
+
+    $DIC->database()->createTable('sr_obj_pg_flavour', $fields);
+    $DIC->database()->addPrimaryKey('sr_obj_pg_flavour', ['rid', 'max_size', 'flavour_rid']);
+}
+?>
+
+

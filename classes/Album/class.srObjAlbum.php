@@ -1,5 +1,13 @@
 <?php
 
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
 /**
  * srObjAlbum
  * @author  Fabian Schmid <fs@studer-raimann.ch>
@@ -84,6 +92,21 @@ class srObjAlbum extends ActiveRecord
      * @db_is_notnull true
      */
     protected $sort_direction = self::SORT_TYPE_DIRECTION_ASC;
+    /**
+     * @var string
+     * @db_has_field  true
+     * @db_fieldtype  text
+     * @db_length     64
+     */
+    protected $album_collection_rid;
+    /**
+     * @var string
+     * @db_has_field  true
+     * @db_fieldtype  text
+     * @db_length     64
+     */
+    protected $preview_picture_rid;
+
     /**
      * @var array
      */
@@ -171,9 +194,8 @@ class srObjAlbum extends ActiveRecord
             $srObjPicture = srObjPicture::find($this->getPreviewId());
 
             return $srObjPicture->getMosaicWebSrc();
-        } else {
-            return $pl->getDirectory() . '/templates/images/nopreview.jpg';
         }
+        return $pl->getDirectory() . '/templates/images/nopreview.svg';
     }
 
     /**
@@ -185,6 +207,14 @@ class srObjAlbum extends ActiveRecord
             $this->getSortType(),
             $this->getSortDirection()
         )->get();
+    }
+
+    public function getPictureArrays(): array
+    {
+        return srObjPicture::where(['album_id' => $this->getId()])->orderBy(
+            $this->getSortType(),
+            $this->getSortDirection()
+        )->getArray();
     }
 
     public function getPictureCount(): int
@@ -215,6 +245,26 @@ class srObjAlbum extends ActiveRecord
     public function setSortDirection(string $sort_direction): void
     {
         $this->sort_direction = $sort_direction;
+    }
+
+    public function getAlbumCollectionRID(): string
+    {
+        return $this->album_collection_rid;
+    }
+
+    public function setAlbumCollectionRID(string $album_collection_rid): void
+    {
+        $this->album_collection_rid = $album_collection_rid;
+    }
+
+    public function getPreviewPictureRID(): ?string
+    {
+        return $this->preview_picture_rid;
+    }
+
+    public function setPreviewPictureRID(string $preview_picture_rid): void
+    {
+        $this->preview_picture_rid = $preview_picture_rid;
     }
 
     public function delete(): void

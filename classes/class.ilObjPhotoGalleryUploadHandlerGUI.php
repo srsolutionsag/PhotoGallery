@@ -1,0 +1,128 @@
+<?php
+
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+use ILIAS\FileUpload\DTO\UploadResult;
+use ILIAS\FileUpload\Handler\AbstractCtrlAwareUploadHandler;
+use ILIAS\FileUpload\Handler\BasicFileInfoResult;
+use ILIAS\FileUpload\Handler\BasicHandlerResult;
+use ILIAS\FileUpload\Handler\FileInfoResult;
+use ILIAS\FileUpload\Handler\HandlerResult as HandlerResultInterface;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
+use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
+
+/**
+ * @author            Lukas Zehnder <lukas@sr.solutions>
+ *
+ * @ilCtrl_isCalledBy ilObjPhotoGalleryUploadHandlerGUI : srObjPictureGUI
+ */
+class ilObjPhotoGalleryUploadHandlerGUI extends AbstractCtrlAwareUploadHandler
+{
+    private ResourceStorage $storage;
+    private ilObjPhotoGalleryStakeholder $stakeholder;
+    private PreviewGenerator $previews;
+
+    public function __construct()
+    {
+        global $DIC, $xphoDIC;
+        parent::__construct();
+        $this->storage = $DIC['resource_storage'];
+        $this->stakeholder = new ilObjPhotoGalleryStakeholder();
+        $this->previews = $xphoDIC[PreviewGenerator::class];
+    }
+
+    protected function getUploadResult(): HandlerResultInterface
+    {
+        $this->upload->process();
+        /**
+         * @var $result UploadResult
+         */
+        $array = $this->upload->getResults();
+        $result = end($array);
+        if ($result instanceof UploadResult && $result->isOK()) {
+            $i = $this->storage->manage()->upload($result, $this->stakeholder);
+
+            // ensure previews
+            $this->previews->generate($i, 512);
+            $this->previews->generate($i, 96);
+
+            $status = HandlerResultInterface::STATUS_OK;
+            $identifier = $i->serialize();
+            $message = 'Upload ok';
+        } else {
+            $status = HandlerResultInterface::STATUS_FAILED;
+            $identifier = '';
+            $message = $result->getStatus()->getMessage();
+        }
+
+        return new BasicHandlerResult($this->getFileIdentifierParameterName(), $status, $identifier, $message);
+    }
+
+    protected function getRemoveResult(string $identifier): HandlerResultInterface
+    {
+        $id = $this->storage->manage()->find($identifier);
+        if ($id !== null) {
+            $this->storage->manage()->remove($id, $this->stakeholder);
+
+            return new BasicHandlerResult(
+                $this->getFileIdentifierParameterName(),
+                HandlerResultInterface::STATUS_OK,
+                $identifier,
+                'file deleted'
+            );
+        }
+        return new BasicHandlerResult(
+            $this->getFileIdentifierParameterName(),
+            HandlerResultInterface::STATUS_FAILED,
+            $identifier,
+            'file not found'
+        );
+    }
+
+    public function getInfoResult(string $identifier): ?FileInfoResult
+    {
+        $id = $this->storage->manage()->find($identifier);
+        if ($id === null) {
+            return new BasicFileInfoResult($this->getFileIdentifierParameterName(), 'unknown', 'unknown', 0, 'unknown');
+        }
+        $r = $this->storage->manage()->getCurrentRevision($id)->getInformation();
+
+        return new BasicFileInfoResult(
+            $this->getFileIdentifierParameterName(),
+            $identifier,
+            $r->getTitle(),
+            $r->getSize(),
+            $r->getMimeType()
+        );
+    }
+
+    public function getInfoForExistingFiles(array $file_ids): array
+    {
+        $infos = [];
+        foreach ($file_ids as $file_id) {
+            $id = $this->storage->manage()->find($file_id);
+            if ($id === null) {
+                continue;
+            }
+            $r = $this->storage->manage()->getCurrentRevision($id)->getInformation();
+
+            $infos[] = new BasicFileInfoResult(
+                $this->getFileIdentifierParameterName(),
+                $file_id,
+                $r->getTitle(),
+                $r->getSize(),
+                $r->getMimeType()
+            );
+        }
+
+        return $infos;
+    }
+}

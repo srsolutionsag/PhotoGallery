@@ -1,177 +1,245 @@
 <?php
 
-/**
- * Class srObjPictureFormGUI
- * @author              Zeynep Karahan <zk@studer-raimann.ch>
- * @author              Martin Studer <ms@studer-raimann.ch>
- */
-class srObjPictureFormGUI extends ilPropertyFormGUI
-{
-    protected \srObjPicture $picture;
-    /**
-     * @var srObjPictureGUI
-     */
-    protected $parent_gui;
-    /**
-     * @var ilLog
-     */
-    protected $log;
-    protected \ilPhotoGalleryPlugin $pl;
-    protected \srObjAlbum $album;
+/*********************************************************************
+ * This Code is licensed under the GPL-3.0 License and is Part of a
+ * ILIAS Plugin developed by sr solutions ag in Switzerland.
+ *
+ * https://sr.solutions
+ *
+ *********************************************************************/
 
-    /**
-     * @param              $parent_gui
-     */
-    public function __construct($parent_gui, srObjPicture $picture)
+use ILIAS\UI\Component\Input\Container\Form\Standard;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+use ILIAS\HTTP\Services as HttpServices;
+use ILIAS\Refinery\Factory as Refinery;
+use ILIAS\UI\Component\Input\Field\UploadHandler;
+use ILIAS\FileUpload\MimeType;
+use ILIAS\ResourceStorage\Services as ResourceStorage;
+
+/**
+ * GUI-Class srObjPictureFormGUI
+ * @author            Lukas Zehnder <lukas@sr.solutions>
+ * @author            Zeynep Karahan <zk@studer-raimann.ch>
+ * @author            Martin Studer <ms@studer-raimann.ch>
+ */
+class srObjPictureFormGUI
+{
+    private ilCtrlInterface $ctrl;
+    private ilDBInterface $db;
+    private ilLanguage $lng;
+    private Factory $ui_factory;
+    private Renderer $ui_renderer;
+    private UploadHandler $upload_handler;
+    private ilObjUser $user;
+    private HttpServices $http;
+    private Refinery $refinery;
+    private ResourceStorage $irss;
+    protected srObjPicture $picture;
+    protected srObjAlbum $album;
+    protected srObjPictureGUI $parent_gui;
+    protected ilPhotoGalleryPlugin $pl;
+
+    public function __construct(srObjPictureGUI $parent_gui, srObjPicture $picture)
     {
-        parent::__construct();
         global $DIC;
         $this->ctrl = $DIC->ctrl();
+        $this->db = $DIC->database();
+        $this->http = $DIC->http();
+        $this->irss = $DIC->resourceStorage();
+        $this->lng = $DIC->language();
         $this->user = $DIC->user();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
+        $this->upload_handler = new ilObjPhotoGalleryUploadHandlerGUI();
+        $this->refinery = $DIC->refinery();
         $this->picture = $picture;
+        $album_id = $this->http->wrapper()->query()->has('album_id') ? $this->http->wrapper()->query()->retrieve(
+            'album_id',
+            $this->refinery->kindlyTo()->int()
+        ) : 0;
+        $this->album = new srObjAlbum($album_id);
         $this->parent_gui = $parent_gui;
         $this->pl = ilPhotoGalleryPlugin::getInstance();
+        $this->ctrl->saveParameter($parent_gui, 'album_id');
         $this->ctrl->saveParameter($parent_gui, 'picture_id');
-        $this->album = new srObjAlbum($_GET['album_id']);
-        $this->initForm();
-        $this->log = $DIC["ilLog"];
     }
 
-    private function initForm(): void
+    public function getForm(): Standard
     {
-        $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        if ($this->picture->getId() == 0) {
-            $this->setTitle($this->pl->txt('upload_pic'));
-        } else {
-            $this->setTitle($this->pl->txt('edit_pic'));
-        }
-        $cmd = ($this->ctrl->getCmd() == 'post') ? $_GET['fallbackCmd'] : $this->ctrl->getCmd();
+        $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
-            //			case atTableGUI::CMD_UPDATE:
             case atTableGUI::CMD_EDIT:
             case atTableGUI::CMD_UPDATE:
-                $title = new ilTextInputGUI($this->pl->txt('pic_title'), 'title');
-                $title->setRequired(true);
-                $this->addItem($title);
-                $desc = new ilTextAreaInputGUI($this->pl->txt('description'), 'description');
-                $this->addItem($desc);
-                $date_input = new ilDateTimeInputGUI($this->pl->txt('date'), 'create_date');
-                $date_input->setDate(new ilDate($this->picture->getCreateDate(), IL_CAL_DATE));
-                $this->addItem($date_input);
-                $vorschau = new ilCheckboxInputGUI($this->pl->txt('select_preview'), 'preview');
-                $vorschau->setValue(1);
-                $this->addItem($vorschau);
-                $this->addCommandButton(atTableGUI::CMD_UPDATE, $this->pl->txt('save'));
-                $this->addCommandButton(srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES, $this->pl->txt('cancel'));
-                $this->setFormAction($this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_UPDATE));
-                break;
+                return $this->getUpdateForm();
             case atTableGUI::CMD_ADD:
             case atTableGUI::CMD_CREATE:
-                $this->setMultipart(true);
-                // TODO image type is missed
-                $file_input = new ilFileInputGUI($this->pl->txt('pic'), 'upload_files');
-                $file_input->setRequired(true);
-                $file_input->setSuffixes(['jpg', 'jpeg', 'png', 'gif']);
-                //$file_input->setCommandButtonNames(atTableGUI::CMD_CREATE, srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
-                $this->addItem($file_input);
-                $this->addCommandButton(atTableGUI::CMD_CREATE, $this->pl->txt('add_pic'));
-                $this->addCommandButton(srObjPictureGUI::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES, $this->pl->txt('cancel'));
-                $this->setFormAction($this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_CREATE));
-                break;
+                return $this->getCreateForm();
+            default:
+                throw new Exception("Unknown command $cmd");
         }
     }
 
-    public function fillForm(): void
+    private function getCreateForm(): Standard
     {
-        $array = [
-            'title' => $this->picture->getTitle(),
-            'description' => $this->picture->getDescription(),
-            'preview' => $this->album->getPreviewId() === $this->picture->getId(),
-            'suffix' => $this->picture->getSuffix()
-        ];
-        $this->setValuesByArray($array, true);
+        $form_action = $this->ctrl->getFormActionByClass(srObjPictureGUI::class, atTableGUI::CMD_CREATE);
+        $form_submit_label = $this->lng->txt('upload');
+        $form_title = $this->pl->txt('upload_pictures');
+
+        // create input fields
+        $hidden_input = $this->ui_factory->input()->field()->hidden()->withValue(0);
+        $upload_input = $this->ui_factory->input()->field()->file(
+            $this->upload_handler,
+            $this->lng->txt('upload_files')
+        )->withAcceptedMimeTypes(
+            [MimeType::IMAGE__JPEG, MimeType::IMAGE__PNG, MimeType::IMAGE__GIF]
+        )->withMaxFiles(100)->withRequired(true);
+
+        // create section and assign fields
+        $section = $this->ui_factory->input()->field()->section(
+            [
+                "picture_id" => $hidden_input,
+                "picture_files" => $upload_input
+            ],
+            $form_title
+        );
+
+        // create form and assign section
+        return $this->ui_factory->input()->container()->form()->standard(
+            $form_action,
+            [$section]
+        )->withSubmitCaption($form_submit_label);
     }
 
-    /**
-     * @description returns whether checkinput was successful or not.
-     */
-    public function fillObject(): bool
+    private function getUpdateForm(): Standard
     {
-        if (!$this->checkInput()) {
+        $form_action = $this->ctrl->getFormAction($this->parent_gui, atTableGUI::CMD_UPDATE);
+        $form_title = $this->pl->txt('edit_pic');
+
+        // create input fields
+        $hidden_id_input = $this->ui_factory->input()->field()->hidden();
+        $title_input = $this->ui_factory->input()->field()->text(
+            $this->pl->txt('pic_title')
+        )->withRequired(true);
+        $description_input = $this->ui_factory->input()->field()->text(
+            $this->pl->txt('description')
+        );
+        $date_input = $this->ui_factory->input()->field()->dateTime(
+            $this->pl->txt('date')
+        );
+        $is_preview_input = $this->ui_factory->input()->field()->checkbox(
+            $this->pl->txt('select_preview')
+        );
+
+        // fill the input fields
+        $hidden_id_input = $hidden_id_input->withValue($this->picture->getId());
+        $title_input = $title_input->withValue($this->picture->getTitle());
+        $description_input = $description_input->withValue($this->picture->getDescription());
+        $date_input = $date_input->withValue(new DateTimeImmutable($this->picture->getCreateDate()));
+        $is_preview_input = $is_preview_input->withValue(
+            $this->album->getPreviewId() === $this->picture->getId()
+        );
+
+        // create section and assign fields
+        $section = $this->ui_factory->input()->field()->section(
+            [
+                "picture_id" => $hidden_id_input,
+                "title" => $title_input,
+                "description" => $description_input,
+                "create_date" => $date_input,
+                "preview" => $is_preview_input
+            ],
+            $form_title
+        );
+
+        // create form and assign section
+        return $this->ui_factory->input()->container()->form()->standard(
+            $form_action,
+            [$section]
+        );
+    }
+
+    public function saveData($data): bool
+    {
+        if (empty($data)) {
             return false;
         }
-        $this->picture->setTitle($this->getInput('title'));
-        $this->picture->setDescription($this->getInput('description'));
-        if ($this->picture->getId() === 0) {
-            $this->picture->setAlbumId($_GET['album_id']);
+        if ((int) $data[0]['picture_id'] === 0) {
+            return $this->storeUploadedPicture($data);
         }
-        $this->picture->setUserId($this->user->getId());
-        $date_array = $this->getInput('create_date');
-        $date = is_array($date_array) ? $date_array['date'] : date('Y-m-d', strtotime($date_array));
-        $this->picture->setCreateDate($date); // TODO bei MultipleFileUpload Exif-Daten verwenden
-        if ($this->getInput('preview') == 1) {
-            $this->album->setPreviewId($_GET['picture_id']);
+        return $this->updatePictureData($data);
+    }
+
+    private function storeUploadedPicture($data): bool
+    {
+        if (empty($data) || empty($data[0]['picture_files']) || !$this->http->wrapper()->query()->has('album_id')) {
+            return false;
         }
-        // remove preview image if current picture is preview and checkbox has been unselected
-        if ($this->picture->getId() === $this->album->getPreviewId() && $this->getInput('preview') == "") {
+        $album_id = $this->http->wrapper()->query()->retrieve('album_id', $this->refinery->kindlyTo()->int());
+        /**
+         * @var srObjAlbum $album
+         */
+        $album = srObjAlbum::find($album_id);
+        if ($album === null) {
+            return false;
+        }
+        $collection_identification = $this->irss->collection()->id($album->getAlbumCollectionRID());
+        $album_collection = $this->irss->collection()->get($collection_identification, $album->getUserId());
+
+        $file_rids = $data[0]['picture_files'];
+        foreach ($file_rids as $file_rid) {
+            $file_identification = $this->irss->manage()->find($file_rid);
+            if ($file_identification === null) {
+                return false;
+            }
+            $file_revision = $this->irss->manage()->getCurrentRevision($file_identification);
+            $picture = new srObjPicture();
+            $picture->setTitle($file_revision->getInformation()->getTitle());
+            $picture->setDescription('');
+            $picture->setCreateDate($file_revision->getInformation()->getCreationDate()->format('Y-m-d'));
+            $picture->setSuffix($file_revision->getInformation()->getSuffix());
+            $picture->setUserId($this->user->getId());
+            $picture->setAlbumId($album_id);
+            $picture->setPictureRID($file_rid);
+            $picture->create();
+            $album_collection->add($file_identification);
+        }
+        $this->irss->collection()->store($album_collection);
+
+        return true;
+    }
+
+    private function updatePictureData($data): bool
+    {
+        $picture_id = $data[0]['picture_id'];
+        /**
+         * @var srObjPicture $picture
+         */
+        $picture = srObjPicture::find($picture_id);
+        if ($picture === null) {
+            return false;
+        }
+        $picture->setTitle($data[0]['title']);
+        $picture->setDescription($data[0]['description']);
+        /**
+         * @var DateTimeImmutable $create_date
+         */
+        $create_date = $data[0]['create_date'];
+        $picture->setCreateDate($create_date->format('Y-m-d'));
+        $picture->update();
+
+        $is_preview = $data[0]['preview'];
+        if ($is_preview) {
+            $picture_rid = $picture->getPictureRID();
+            $this->album->setPreviewId($picture_id);
+            $this->album->setPreviewPictureRID($picture_rid);
+        }
+        if (!$is_preview && ((int) $picture->getId() === $this->album->getPreviewId())) {
             $this->album->setPreviewId(0);
+            $this->album->setPreviewPictureRID('');
         }
+        $this->album->update();
 
         return true;
-    }
-
-    public function saveObject()
-    {
-        $exif = [];
-        if (!$this->fillObject()) {
-            return false;
-        }
-        if ($this->picture->getId() !== 0) {
-            if (isset($_FILES['upload_files']['tmp_name'])) {
-                $this->picture->uploadPicture($_FILES['upload_files']['tmp_name']);
-                $explode = explode('.', $_FILES['upload_files']['name']);
-                $ext = strtolower(end($explode));
-                $this->picture->setSuffix($ext);
-            }
-            $this->picture->update();
-            $this->album->update();
-        } else {
-            $explode2 = explode('.', $_FILES['upload_files']['name']);
-            $ext = strtolower(end($explode2));
-            $this->picture->setSuffix($ext);
-            if (function_exists('exif_read_data')) {
-                $exif = @exif_read_data($_FILES['upload_files']['tmp_name'], 0, true);
-            }
-            if (isset($exif["EXIF"]["DateTimeOriginal"])) {
-                //TODO Refactoring
-                $exifPieces = explode(" ", $exif["EXIF"]["DateTimeOriginal"]);
-                $this->picture->setCreateDate(str_replace(":", "-", $exifPieces[0]));
-            } else {
-                $this->picture->setCreateDate(date('Y-m-d'));
-            }
-            $this->picture->setTitle($this->getFilenameWithoutSuffix($_FILES['upload_files']['name']));
-            $this->picture->create();
-            $this->picture->uploadPicture($_FILES['upload_files']['tmp_name']);
-            // create answer object
-            $response = new stdClass();
-            $response->fileName = $_FILES['upload_files']['name'];
-            $response->fileSize = (int) $_FILES['upload_files']['size'];
-            $response->fileType = $_FILES['upload_files']['type'];
-            $response->fileUnzipped = '';
-            $response->error = null;
-
-            return $response;
-        }
-
-        return true;
-    }
-
-    protected function getFilenameWithoutSuffix(string $filename): string
-    {
-        $suffix = $this->picture->getSuffix();
-        if(!empty($suffix)) {
-            return str_replace("." . $suffix, "", $filename);
-        }
-        return $filename;
     }
 }
