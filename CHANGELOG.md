@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 3.1.2
+- Fixed download permission check
+
 ## Version 3.1.1
 - Fixed permission check and redirect issues
 
