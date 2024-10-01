@@ -410,7 +410,7 @@ class srObjAlbumGUI
 
     public function download(): void
     {
-        if (!$this->access->checkAccess('download', '', $this->parent_gui->getObject()->getRefId())) {
+        if (!$this->access->checkAccess('rep_robj_xpho_download_images', '', $this->parent_gui->getObject()->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
             $this->ctrl->redirectByClass(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
         }
