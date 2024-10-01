@@ -259,11 +259,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
     {
         if (!$this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this->parent, '');
+            $this->ctrl->redirectByClass(ilRepositoryGUI::class, "view");
         } else {
             $this->object->update();
         }
-        $this->ctrl->redirect($this->parent, '');
+        $this->ctrl->redirectByClass(ilRepositoryGUI::class, "view");
     }
 
     public function getAfterCreationCmd(): string
@@ -324,16 +324,10 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
 
     public function listAlbums(): void
     {
-        if (!$this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
+        if (!$this->access_handler->checkAccess('read', '', $this->object->getRefId())) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
-            $this->ctrl->redirect($this->parent, '');
+            $this->ctrl->redirectByClass(ilRepositoryGUI::class, "view");
         }
-        // create add album button and add it to toolbar
-        $add_album_button = $this->ui->factory()->button()->primary(
-            $this->pl->txt('add_album'),
-            $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD)
-        );
-        $this->toolbar->addComponent($add_album_button);
 
         // album cards
         $cards = [];
@@ -374,16 +368,25 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             )->withSections($content);
             $cards[] = $card;
         }
-        $add_new_album_image = $this->ui->factory()->image()->responsive(
-            $this->pl->getDirectory() . '/templates/images/addnew.svg',
-            $this->pl->txt('add_album')
-        );
-        $add_new_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD);
-        $add_new_album_card = $this->ui->factory()->card()->standard(
-            "",
-            $add_new_album_image->withAction($add_new_album_action)
-        );
-        $cards[] = $add_new_album_card;
+
+        if($this->access_handler->checkAccess('write', '', $this->object->getRefId())) {
+            $add_new_album_image = $this->ui->factory()->image()->responsive(
+                $this->pl->getDirectory() . '/templates/images/addnew.svg',
+                $this->pl->txt('add_album')
+            );
+            $add_new_album_action = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD);
+            $add_new_album_card = $this->ui->factory()->card()->standard(
+                "",
+                $add_new_album_image->withAction($add_new_album_action)
+            );
+            $cards[] = $add_new_album_card;
+            // create add album button and add it to toolbar
+            $add_album_button = $this->ui->factory()->button()->primary(
+                $this->pl->txt('add_album'),
+                $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, atTableGUI::CMD_ADD)
+            );
+            $this->toolbar->addComponent($add_album_button);
+        }
         $deck = $this->ui->factory()->deck($cards);
         $this->tpl->setContent($this->ui->renderer()->render($deck));
     }

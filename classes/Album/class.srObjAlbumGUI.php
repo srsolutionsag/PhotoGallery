@@ -181,13 +181,6 @@ class srObjAlbumGUI
             $this->ctrl->redirect($this, '');
         }
 
-        // create add picture button and add it to toolbar
-        $add_picture_button = $this->ui->factory()->button()->primary(
-            $this->pl->txt('upload_pictures'),
-            $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD)
-        );
-        $this->toolbar->addComponent($add_picture_button);
-
         // picture cards
         $cards = [];
         /**
@@ -221,16 +214,25 @@ class srObjAlbumGUI
             );
             $cards[] = $card;
         }
-        $add_new_picture_image = $this->ui->factory()->image()->responsive(
-            $this->pl->getDirectory() . '/templates/images/addnew.svg',
-            $this->pl->txt('upload_pictures')
-        );
-        $add_new_picture_action = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD);
-        $add_new_picture_card = $this->ui->factory()->card()->standard(
-            "",
-            $add_new_picture_image->withAction($add_new_picture_action)
-        );
-        $cards[] = $add_new_picture_card;
+        if ($this->access->checkAccess('write', '', $this->parent_gui->getObject()->getRefId())) {
+            $add_new_picture_image = $this->ui->factory()->image()->responsive(
+                $this->pl->getDirectory() . '/templates/images/addnew.svg',
+                $this->pl->txt('upload_pictures')
+            );
+            $add_new_picture_action = $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD);
+            $add_new_picture_card = $this->ui->factory()->card()->standard(
+                "",
+                $add_new_picture_image->withAction($add_new_picture_action)
+            );
+            $cards[] = $add_new_picture_card;
+            // create add picture button and add it to toolbar
+            $add_picture_button = $this->ui->factory()->button()->primary(
+                $this->pl->txt('upload_pictures'),
+                $this->ctrl->getLinkTargetByClass(srObjPictureGUI::class, atTableGUI::CMD_ADD)
+            );
+            $this->toolbar->addComponent($add_picture_button);
+        }
+
         $deck = $this->ui->factory()->deck($cards);
         $this->tpl->setContent($this->ui->renderer()->render($deck));
     }
@@ -367,6 +369,11 @@ class srObjAlbumGUI
 
     public function delete(): void
     {
+        if (!$this->access->checkAccess('delete', '', $this->parent_gui->getObject()->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirectByClass(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
+        }
+
         $album_ids = array_map('intval', $this->http->request()->getParsedBody()['interruptive_items']);
         if ((is_countable($album_ids) ? count($album_ids) : 0) > 0) {
             // delete all selected items
@@ -403,6 +410,11 @@ class srObjAlbumGUI
 
     public function download(): void
     {
+        if (!$this->access->checkAccess('rep_robj_xpho_download_images', '', $this->parent_gui->getObject()->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirectByClass(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
+        }
+
         $album_ids = $this->retrieveAlbumIDs();
         $picture_ids = [];
         foreach ($album_ids as $album_id) {
