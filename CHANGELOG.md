@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 4.0.1
+- Fixed permission check and redirect issues
+
 ## Version 4.0.0
 - Implemented ILIAS 9 support.
 - Changed file storage from a deprecated older implementation to the new ILIAS Resource Storage Service (IRSS).
