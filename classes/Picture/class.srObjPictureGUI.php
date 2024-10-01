@@ -233,6 +233,11 @@ class srObjPictureGUI
 
     public function delete(): void
     {
+        if (!$this->access->checkAccess('delete', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+        }
+
         $picture_ids = array_map('intval', $this->http->request()->getParsedBody()['interruptive_items']);
         if ((is_countable($picture_ids) ? count($picture_ids) : 0) > 0) {
             // delete all selected items
@@ -282,6 +287,10 @@ class srObjPictureGUI
 
     public function download(): void
     {
+        if (!$this->access->checkAccess('download', '', $this->parent->getRefId())) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('permission_denied'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+        }
         ilObjPhotoGalleryGUI::executeDownload($this->retrievePictureIDs());
     }
 
