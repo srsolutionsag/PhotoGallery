@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 3.1.1
+- Fixed permission check and redirect issues
+
 ## Version 3.1.0
 - Increased minimum ILIAS version to 8.12
 - Changed file storage from a deprecated older implementation to the new ILIAS Resource Storage Service (IRSS).
