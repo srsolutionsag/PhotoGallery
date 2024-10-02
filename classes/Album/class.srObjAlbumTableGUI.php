@@ -127,11 +127,15 @@ class srObjAlbumTableGUI implements DataRetrieval
              */
             $picture = srObjPicture::find($picture_id);
             $picture_rid = $picture->getPictureRID();
-            $picture_identifier = $this->irss->manage()->find($picture_rid);
-            if ($picture_identifier !== null) {
-                $src_preview = $this->previews->getURL($picture_identifier, 96);
+            if ($picture_rid !== "failed") {
+                $picture_identifier = $this->irss->manage()->find($picture_rid);
+                if ($picture_identifier !== null) {
+                    $src_preview = $this->previews->getURL($picture_identifier, 96);
+                }
+                $record['image'] = $this->ui_factory->symbol()->icon()->custom($src_preview, $record['title'], "large");
+            } else {
+                $record['image'] = $this->ui_factory->symbol()->icon()->custom("", $this->lng->txt('file_not_found'), "large");
             }
-            $record['image'] = $this->ui_factory->symbol()->icon()->custom($src_preview, $record['title'], "large");
             yield $row_builder->buildDataRow($picture_id, $record);
         }
     }

@@ -401,13 +401,20 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 continue;
             }
             $picture_rid = $picture->getPictureRid();
+            if ($picture_rid === "failed") {
+                continue;
+            }
             $picture_identifier = $irss->manage()->find($picture_rid);
             if ($picture_identifier === null) {
                 continue;
             }
             $picture_identifiers[] = $picture_identifier;
         }
-        $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
+        if (!empty($picture_identifiers)) {
+            $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
+        } else {
+            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $DIC->language()->txt('msg_obj_no_download'), true);
+        }
     }
 
     protected function afterSave(ilObject $new_object): void
