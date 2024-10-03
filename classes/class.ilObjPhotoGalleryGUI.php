@@ -405,9 +405,33 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             if ($picture_identifier === null) {
                 continue;
             }
+            $picture_resource = $irss->manage()->getResource($picture_identifier);
+            $picture_revision = $picture_resource->getCurrentRevision();
+            $picture_revision_infos = $picture_revision->getInformation();
+            $picture_filename = $picture_revision_infos->getTitle();
+            // This special case is needed as the first version of the irss migration did name all files "duplicate_for_irss."
+            if (str_contains($picture_filename, "duplicate_for_irss")) {
+                $picture_suffix = $picture_revision->getInformation()->getSuffix();
+                if(empty($picture_suffix)) {
+                    $picture_suffix = $picture->getSuffix();
+                }
+                $new_filename = $picture->getTitle() . '.' . $picture_suffix;
+                $new_revision_infos = new ILIAS\ResourceStorage\Information\FileInformation();
+                $new_revision_infos->setTitle($new_filename);
+                $new_revision_infos->setSuffix($picture_revision_infos->getSuffix());
+                $new_revision_infos->setMimeType($picture_revision_infos->getMimeType());
+                $new_revision_infos->setSize($picture_revision_infos->getSize());
+                $new_revision_infos->setCreationDate($picture_revision_infos->getCreationDate());
+                $picture_revision->setInformation($new_revision_infos);
+                $picture_resource->replaceRevision($picture_revision);
+            }
             $picture_identifiers[] = $picture_identifier;
         }
-        $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
+        if (!empty($picture_identifiers)) {
+            $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
+        } else {
+            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $DIC->language()->txt('msg_obj_no_download'), true);
+        }
     }
 
     protected function afterSave(ilObject $new_object): void

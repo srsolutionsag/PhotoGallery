@@ -190,9 +190,10 @@ class srObjAlbumGUI
             // image for the card
             $picture_rid = $srObjPicture->getPictureRID();
             $picture_identifier = $this->irss->manage()->find($picture_rid);
-            if ($picture_identifier !== null) {
-                $src_preview = $this->previews->getURL($picture_identifier, 512);
+            if ($picture_identifier === null) {
+                continue;
             }
+            $src_preview = $this->previews->getURL($picture_identifier, 512);
             $image = $this->ui->factory()->image()->responsive(
                 $src_preview,
                 $srObjPicture->getTitle()
@@ -435,6 +436,7 @@ class srObjAlbumGUI
         }
         // download array
         ilObjPhotoGalleryGUI::executeDownload($picture_ids);
+        $this->ctrl->redirectByClass(ilObjPhotoGalleryGUI::class, ilObjPhotoGalleryGUI::CMD_MANAGE_ALBUMS);
     }
 
     protected function retrieveAlbumIDs(): array

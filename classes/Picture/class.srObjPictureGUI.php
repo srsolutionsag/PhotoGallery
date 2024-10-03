@@ -159,6 +159,12 @@ class srObjPictureGUI
          * @var $picture srObjPicture
          */
         $picture = srObjPicture::find($picture_id);
+        $picture_rid = $picture->getPictureRID();
+        $picture_identifier = $this->irss->manage()->find($picture_rid);
+        if($picture_identifier === null) {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->lng->txt('file_not_found'), true);
+            $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
+        }
         $form_gui = new srObjPictureFormGUI($this, $picture);
         $this->tpl->setContent($this->ui->renderer()->render([$form_gui->getForm()]));
     }
@@ -214,8 +220,10 @@ class srObjPictureGUI
             $picture_identifier = $this->irss->manage()->find($picture_rid);
             if ($picture_identifier !== null) {
                 $src_preview = $this->previews->getURL($picture_identifier, 96);
+                $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
+            } else {
+                $image = $this->ui->factory()->image()->standard("", $this->lng->txt('file_not_found'));
             }
-            $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
             $items[] = $this->ui->factory()->modal()->interruptiveItem(
                 $picture_id,
                 $picture_title,
@@ -257,24 +265,23 @@ class srObjPictureGUI
                  */
                 $album = srObjAlbum::find($album_id);
                 if ($album !== null && ((int) $picture->getId() === $album->getPreviewId(
-                ) || $picture_rid === $album->getPreviewPictureRID())) {
+                        ) || $picture_rid === $album->getPreviewPictureRID())) {
                     $album->setPreviewId(0);
                     $album->setPreviewPictureRID('');
                     $album->update();
                 }
-                // delete picture in IRSS
                 $picture_identifier = $this->irss->manage()->find($picture_rid);
-                $album_collection_rid = $album->getAlbumCollectionRID();
-                $collection_identifier = $this->irss->collection()->id($album_collection_rid);
-                if ($picture_identifier === null && $collection_identifier === null) {
-                    continue;
+                if ($picture_identifier !== null) {
+                    // delete picture in IRSS
+                    $album_collection_rid = $album->getAlbumCollectionRID();
+                    $collection_identifier = $this->irss->collection()->id($album_collection_rid);
+                    $collection = $this->irss->collection()->get($collection_identifier, $album->getUserId());
+                    $collection->remove($picture_identifier);
+                    $this->irss->manage()->remove(
+                        $picture_identifier,
+                        new ilObjPhotoGalleryStakeholder($picture->getUserId())
+                    );
                 }
-                $collection = $this->irss->collection()->get($collection_identifier, $album->getUserId());
-                $collection->remove($picture_identifier);
-                $this->irss->manage()->remove(
-                    $picture_identifier,
-                    new ilObjPhotoGalleryStakeholder($picture->getUserId())
-                );
                 // delete picture in DB
                 $picture->delete();
             }
@@ -292,6 +299,7 @@ class srObjPictureGUI
             $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
         }
         ilObjPhotoGalleryGUI::executeDownload($this->retrievePictureIDs());
+        $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
     }
 
     public function setAsPreview(): void
@@ -319,14 +327,22 @@ class srObjPictureGUI
         }
 
         $picture_rid = $picture->getPictureRID();
-        $album->setPreviewId($picture_id);
-        $album->setPreviewPictureRID($picture_rid);
-        $album->update();
+        $picture_identifier = $this->irss->manage()->find($picture_rid);
+        if ($picture_identifier !== null) {
+            $album->setPreviewId($picture_id);
+            $album->setPreviewPictureRID($picture_rid);
+            $album->update();
 
-        $this->ui->mainTemplate()->setOnScreenMessage("success",
-            sprintf($this->pl->txt('success_picture_set_as_preview'),$picture->getTitle()),
-            true
-        );
+            $this->ui->mainTemplate()->setOnScreenMessage("success",
+                sprintf($this->pl->txt('success_picture_set_as_preview'),$picture->getTitle()),
+                true
+            );
+        } else {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure",
+                $this->lng->txt('file_not_found'),
+                true
+            );
+        }
         $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
     }
 
@@ -346,62 +362,69 @@ class srObjPictureGUI
         }
         $picture_rid = $picture->getPictureRID();
         $picture_identifier = $this->irss->manage()->find($picture_rid);
-        if ($picture_identifier === null) {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
-            $this->ctrl->redirect($this, '');
-        }
-        /**
-         * @var $album srObjAlbum
-         */
-        $album = srObjAlbum::find($picture->getAlbumId());
-        if($album === null) {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album'), true);
+        if ($picture_identifier !== null) {
+            /**
+             * @var $album srObjAlbum
+             */
+            $album = srObjAlbum::find($picture->getAlbumId());
+            if($album === null) {
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_album'), true);
+                $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+            }
+            $gallery_obj_id = $album->getObjectId();
+            $gallery = ilObjectFactory::getInstanceByObjId($gallery_obj_id);
+            if ($gallery === null) {
+                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_gallery'), true);
+                $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
+            }
+
+            // assemble data for image label
+            $description = $picture->getDescription();
+            $optional_description_info = ($description !== "") ? ($this->pl->txt(
+                    'description'
+                ) . ': ' . $description . ' | ') : "";
+            $img_text = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
+                . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
+                . $this->pl->txt('picture') . ': ' . $picture->getTitle() . ' | '
+                . $optional_description_info
+                . $this->lng->txt('date') . ': ' . $picture->getCreateDate();
+
+            // get image URL
+            $img_src = $this->url_builder->getForRid($picture_identifier);
+
+            $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
+            // add image src and text to template
+            $tpl->setVariable('IMG_SRC', $img_src);
+            $tpl->setVariable('IMG_TEXT', $img_text);
+            // add back button to template
+            $back_target = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
+            $tpl->setVariable('BACK_BUTTON_TARGET', $back_target);
+            $tpl->setVariable('BACK_BUTTON_TEXT', $this->pl->txt('back_to_album'));
+            // add previous and next button targets to template
+            $this->ctrl->saveParameterByClass(srObjPictureGUI::class, 'picture_id');
+            $target_prev = $this->ctrl->getLinkTarget($this, self::CMD_SHOW_PREVIOUS_PICTURE);
+            $target_next = $this->ctrl->getLinkTarget($this, self::CMD_SHOW_NEXT_PICTURE);
+            $tpl->setVariable('PREV_BUTTON_TARGET', $target_prev);
+            $tpl->setVariable('NEXT_BUTTON_TARGET', $target_next);
+
+            $this->tpl->addCss($this->pl->getStyleSheetLocation('default/picture_slideshow.css'));
+            $this->tpl->setContent($tpl->get());
+        } else {
+            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->lng->txt('file_not_found'), true);
             $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
         }
-        $gallery_obj_id = $album->getObjectId();
-        $gallery = ilObjectFactory::getInstanceByObjId($gallery_obj_id);
-        if ($gallery === null) {
-            $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_gallery'), true);
-            $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
-        }
-
-        // assemble data for image label
-        $description = $picture->getDescription();
-        $optional_description_info = ($description !== "") ? ($this->pl->txt(
-            'description'
-        ) . ': ' . $description . ' | ') : "";
-        $img_text = $this->pl->txt('gallery') . ': ' . $gallery->getTitle() . ' | '
-            . $this->pl->txt('album') . ': ' . $album->getTitle() . ' | '
-            . $this->pl->txt('picture') . ': ' . $picture->getTitle() . ' | '
-            . $optional_description_info
-            . $this->lng->txt('date') . ': ' . $picture->getCreateDate();
-
-        // get image URL
-        $img_src = $this->url_builder->getForRid($picture_identifier);
-
-        $tpl = $this->pl->getTemplate('default/tpl.picture_slideshow.html', false);
-        // add image src and text to template
-        $tpl->setVariable('IMG_SRC', $img_src);
-        $tpl->setVariable('IMG_TEXT', $img_text);
-        // add back button to template
-        $back_target = $this->ctrl->getLinkTargetByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_LIST_PICTURES);
-        $tpl->setVariable('BACK_BUTTON_TARGET', $back_target);
-        $tpl->setVariable('BACK_BUTTON_TEXT', $this->pl->txt('back_to_album'));
-        // add previous and next button targets to template
-        $this->ctrl->saveParameterByClass(srObjPictureGUI::class, 'picture_id');
-        $target_prev = $this->ctrl->getLinkTarget($this, self::CMD_SHOW_PREVIOUS_PICTURE);
-        $target_next = $this->ctrl->getLinkTarget($this, self::CMD_SHOW_NEXT_PICTURE);
-        $tpl->setVariable('PREV_BUTTON_TARGET', $target_prev);
-        $tpl->setVariable('NEXT_BUTTON_TARGET', $target_next);
-
-        $this->tpl->addCss($this->pl->getStyleSheetLocation('default/picture_slideshow.css'));
-        $this->tpl->setContent($tpl->get());
     }
 
     protected function showPreviousPicture()
     {
         $picture_id = $this->retrievePictureID();
         $previous_picture_id = $this->getAdjacentPictureId($picture_id, 'previous');
+        $previous_picture_rid = srObjPicture::find($previous_picture_id)->getPictureRID();
+        $previous_picture_identifier = $this->irss->manage()->find($previous_picture_rid);
+        if ($previous_picture_identifier === null) {
+            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $previous_picture_id);
+            $this->ctrl->redirect($this, self::CMD_SHOW_PREVIOUS_PICTURE);
+        }
         $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $previous_picture_id);
         $this->ctrl->redirect($this, self::CMD_SHOW_PICTURE);
     }
@@ -410,6 +433,12 @@ class srObjPictureGUI
     {
         $picture_id = $this->retrievePictureID();
         $next_picture_id = $this->getAdjacentPictureId($picture_id, 'next');
+        $next_picture_rid = srObjPicture::find($next_picture_id)->getPictureRID();
+        $next_picture_identifier = $this->irss->manage()->find($next_picture_rid);
+        if ($next_picture_identifier === null) {
+            $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $next_picture_id);
+            $this->ctrl->redirect($this, self::CMD_SHOW_NEXT_PICTURE);
+        }
         $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $next_picture_id);
         $this->ctrl->redirect($this, self::CMD_SHOW_PICTURE);
     }
