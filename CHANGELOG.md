@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 3.1.3
+-  Fixed issues that were caused by missing files during and after migration and fixed naming of migrated files
+
 ## Version 3.1.2
 - Fixed download permission check
 
