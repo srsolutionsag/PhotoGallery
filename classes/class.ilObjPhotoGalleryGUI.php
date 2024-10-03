@@ -401,9 +401,6 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
                 continue;
             }
             $picture_rid = $picture->getPictureRid();
-            if ($picture_rid === "failed") {
-                continue;
-            }
             $picture_identifier = $irss->manage()->find($picture_rid);
             if ($picture_identifier === null) {
                 continue;

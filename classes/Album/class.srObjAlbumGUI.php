@@ -189,13 +189,11 @@ class srObjAlbumGUI
         foreach ($this->obj_album->getPictureObjects() as $srObjPicture) {
             // image for the card
             $picture_rid = $srObjPicture->getPictureRID();
-            if ($picture_rid === "failed") {
+            $picture_identifier = $this->irss->manage()->find($picture_rid);
+            if ($picture_identifier === null) {
                 continue;
             }
-            $picture_identifier = $this->irss->manage()->find($picture_rid);
-            if ($picture_identifier !== null) {
-                $src_preview = $this->previews->getURL($picture_identifier, 512);
-            }
+            $src_preview = $this->previews->getURL($picture_identifier, 512);
             $image = $this->ui->factory()->image()->responsive(
                 $src_preview,
                 $srObjPicture->getTitle()

@@ -159,7 +159,9 @@ class srObjPictureGUI
          * @var $picture srObjPicture
          */
         $picture = srObjPicture::find($picture_id);
-        if($picture->getPictureRID() === "failed") {
+        $picture_rid = $picture->getPictureRID();
+        $picture_identifier = $this->irss->manage()->find($picture_rid);
+        if($picture_identifier === null) {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->lng->txt('file_not_found'), true);
             $this->ctrl->redirectByClass(srObjAlbumGUI::class, srObjAlbumGUI::CMD_MANAGE_PICTURES);
         }
@@ -215,11 +217,9 @@ class srObjPictureGUI
              * @var srObjPicture $picture
              */
             $picture_rid = $picture->getPictureRID();
-            if ($picture_rid !== "failed") {
-                $picture_identifier = $this->irss->manage()->find($picture_rid);
-                if ($picture_identifier !== null) {
-                    $src_preview = $this->previews->getURL($picture_identifier, 96);
-                }
+            $picture_identifier = $this->irss->manage()->find($picture_rid);
+            if ($picture_identifier !== null) {
+                $src_preview = $this->previews->getURL($picture_identifier, 96);
                 $image = $this->ui->factory()->image()->standard($src_preview, $picture_title);
             } else {
                 $image = $this->ui->factory()->image()->standard("", $this->lng->txt('file_not_found'));
@@ -270,14 +270,11 @@ class srObjPictureGUI
                     $album->setPreviewPictureRID('');
                     $album->update();
                 }
-                if ($picture_rid !== "failed") {
+                $picture_identifier = $this->irss->manage()->find($picture_rid);
+                if ($picture_identifier !== null) {
                     // delete picture in IRSS
-                    $picture_identifier = $this->irss->manage()->find($picture_rid);
                     $album_collection_rid = $album->getAlbumCollectionRID();
                     $collection_identifier = $this->irss->collection()->id($album_collection_rid);
-                    if ($picture_identifier === null && $collection_identifier === null) {
-                        continue;
-                    }
                     $collection = $this->irss->collection()->get($collection_identifier, $album->getUserId());
                     $collection->remove($picture_identifier);
                     $this->irss->manage()->remove(
@@ -330,7 +327,8 @@ class srObjPictureGUI
         }
 
         $picture_rid = $picture->getPictureRID();
-        if ($picture_rid !== "failed") {
+        $picture_identifier = $this->irss->manage()->find($picture_rid);
+        if ($picture_identifier !== null) {
             $album->setPreviewId($picture_id);
             $album->setPreviewPictureRID($picture_rid);
             $album->update();
@@ -363,12 +361,8 @@ class srObjPictureGUI
             $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
         }
         $picture_rid = $picture->getPictureRID();
-        if ($picture_rid !== "failed") {
-            $picture_identifier = $this->irss->manage()->find($picture_rid);
-            if ($picture_identifier === null) {
-                $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_picture'), true);
-                $this->ctrl->redirect($this, '');
-            }
+        $picture_identifier = $this->irss->manage()->find($picture_rid);
+        if ($picture_identifier !== null) {
             /**
              * @var $album srObjAlbum
              */
@@ -426,7 +420,8 @@ class srObjPictureGUI
         $picture_id = $this->retrievePictureID();
         $previous_picture_id = $this->getAdjacentPictureId($picture_id, 'previous');
         $previous_picture_rid = srObjPicture::find($previous_picture_id)->getPictureRID();
-        if ($previous_picture_rid === "failed") {
+        $previous_picture_identifier = $this->irss->manage()->find($previous_picture_rid);
+        if ($previous_picture_identifier === null) {
             $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $previous_picture_id);
             $this->ctrl->redirect($this, self::CMD_SHOW_PREVIOUS_PICTURE);
         }
@@ -439,7 +434,8 @@ class srObjPictureGUI
         $picture_id = $this->retrievePictureID();
         $next_picture_id = $this->getAdjacentPictureId($picture_id, 'next');
         $next_picture_rid = srObjPicture::find($next_picture_id)->getPictureRID();
-        if ($next_picture_rid === "failed") {
+        $next_picture_identifier = $this->irss->manage()->find($next_picture_rid);
+        if ($next_picture_identifier === null) {
             $this->ctrl->setParameterByClass(srObjPictureGUI::class, 'picture_id', $next_picture_id);
             $this->ctrl->redirect($this, self::CMD_SHOW_NEXT_PICTURE);
         }
