@@ -423,7 +423,11 @@ class ilObjPhotoGalleryGUI extends ilObjectPluginGUI
             }
             $picture_identifiers[] = $picture_identifier;
         }
-        $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
+        if (!empty($picture_identifiers)) {
+            $irss->consume()->downloadResources($picture_identifiers, 'pictures.zip')->run();
+        } else {
+            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $DIC->language()->txt('msg_obj_no_download'), true);
+        }
     }
 
     protected function afterSave(ilObject $new_object): void
