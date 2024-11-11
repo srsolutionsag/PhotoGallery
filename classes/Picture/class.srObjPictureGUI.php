@@ -142,7 +142,7 @@ class srObjPictureGUI
         $form = $form->withRequest($this->http->request());
         $data = $form->getData();
         if ($form_gui->saveData($data)) {
-            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success'), true);
+            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('success_pic'), true);
             $this->ctrl->redirect($this, self::CMD_REDIRECT_TO_ALBUM_LIST_PICTURES);
         } else {
             $this->tpl->setContent($this->ui->renderer()->render([$form]));
@@ -285,7 +285,7 @@ class srObjPictureGUI
                 // delete picture in DB
                 $picture->delete();
             }
-            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_album'), true);
+            $this->ui->mainTemplate()->setOnScreenMessage("success", $this->pl->txt('msg_removed_pic'), true);
         } else {
             $this->ui->mainTemplate()->setOnScreenMessage("failure", $this->pl->txt('no_checkbox'), true);
         }
