@@ -65,18 +65,18 @@ class ilObjPhotoGalleryMigration implements Migration
         // get one album which has not been migrated yet (the one amongst the unmigrated albums who has the lowest id)
         $album_query = $this->helper->getDatabase()->query(
             "SELECT album.id AS album_id, album.preview_id, album.user_id AS album_owner_id FROM sr_obj_pg_album AS album"
-            ." JOIN (SELECT MIN(a.id) AS min_id FROM sr_obj_pg_album AS a WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '') AS calc ON calc.min_id = album.id;"
+            . " JOIN (SELECT MIN(a.id) AS min_id FROM sr_obj_pg_album AS a WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '') AS calc ON calc.min_id = album.id;"
         );
         $album_entry = $this->helper->getDatabase()->fetchAssoc($album_query);
 
         // build empty collection for album which will be filled later (if the album has any pictures)
-        $album_id = (int)$album_entry['album_id'];
+        $album_id = (int) $album_entry['album_id'];
         $album_collection = $this->helper->getCollectionBuilder()->new(ResourceCollection::NO_SPECIFIC_OWNER);
 
         // get the albums pictures - if there are any
         $pictures_query = $this->helper->getDatabase()->queryF(
             "SELECT picture.id AS picture_id, picture.title AS picture_title, picture.user_id AS picture_owner_id FROM sr_obj_pg_pic AS picture"
-            ." JOIN sr_obj_pg_album AS album ON picture.album_id = album.id WHERE album.id = %s;",
+            . " JOIN sr_obj_pg_album AS album ON picture.album_id = album.id WHERE album.id = %s;",
             ['integer'],
             [$album_id]
         );
@@ -87,7 +87,7 @@ class ilObjPhotoGalleryMigration implements Migration
             $missing_files = [];
             $preview_picture_rid = null;
             // iterate through the albums pictures and migrate them to the irss
-            $i=0;
+            $i = 0;
             foreach ($picture_dataset as $picture_entry) {
                 $picture_owner_id = (int)$picture_entry['picture_owner_id'];
                 $picture_id = (int)$picture_entry['picture_id'];
@@ -117,7 +117,7 @@ class ilObjPhotoGalleryMigration implements Migration
                     $migrated_pictures[$i]['picture_rid'] = $picture_rid;
                     $migrated_pictures[$i]['picture_id'] = $picture_id;
                     //check if the current picture is the preview picture of the album, if so remember this for the db update later on
-                    if ((int)$album_entry['preview_id'] === $picture_id) {
+                    if ((int) $album_entry['preview_id'] === $picture_id) {
                         $preview_picture_rid = $picture_rid;
                     }
                 } else {
@@ -189,9 +189,13 @@ class ilObjPhotoGalleryMigration implements Migration
 
     public function getRemainingAmountOfSteps(): int
     {
+        if (!$this->helper->getDatabase()->tableExists('sr_obj_pg_album')) {
+            return 0;
+        }
+
         $r = $this->helper->getDatabase()->query(
             "SELECT COUNT(DISTINCT(a.id)) AS amount FROM sr_obj_pg_album AS a"
-            ." WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '';"
+            . " WHERE a.album_collection_rid IS NULL OR a.album_collection_rid = '';"
         );
         $d = $this->helper->getDatabase()->fetchObject($r);
 
