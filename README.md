@@ -26,7 +26,7 @@ php setup/setup.php migrate
 
 Start the PhotoGallery migrations:
 ```bash
-php setup/setup.php migrate --run ilObjPhotoGallerySetupAgent.ilObjPhotoGalleryMigration
+php setup/setup.php migrate --run PhotoGallery.ilObjPhotoGalleryMigration
 ```
 
 Confirm the migration by entering the name of the PhotoGallery migration:
@@ -36,7 +36,7 @@ ilObjPhotoGalleryMigration
 
 You can also run the migrations without a confirmation request by appending `--yes` to the command:
 ```bash
-php setup/setup.php migrate --run ilObjPhotoGallerySetupAgent.ilObjPhotoGalleryMigration --yes
+php setup/setup.php migrate --run PhotoGallery.ilObjPhotoGalleryMigration --yes
 ```
 
 One run of the PhotoGallery migration will migarte 1000 albums.
@@ -45,7 +45,7 @@ Repeat the migration until there are no more albums left to migrate (the command
 
 Alternatively you can change the number of albums moved in one run by specifying `--steps=...` in the run command (in this case 5000):
 ```bash
-php setup/setup.php migrate --run ilObjPhotoGallerySetupAgent.ilObjPhotoGalleryMigration --steps=5000
+php setup/setup.php migrate --run PhotoGallery.ilObjPhotoGalleryMigration --steps=5000
 ```
 
 
