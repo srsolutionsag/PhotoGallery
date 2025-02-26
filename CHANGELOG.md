@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 4.0.2
+- Updated migration section in readme
+- Fixed further migration issues and removed commented out parts
+- Fixed some language issues
+- Fixed naming-issue when downloading files which were migrated pre-migration-fix
+- Fixed file-related pre- & post-migration issues and fixed naming of migrated files
+
 ## Version 4.0.1
 - Fixed permission check and redirect issues
 
