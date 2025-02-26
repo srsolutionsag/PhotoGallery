@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 3.1.5
+- Check in migration if possible
+
 ## Version 3.1.4
 - Fixed some language issues
 
