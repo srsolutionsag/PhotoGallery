@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 4.0.3
+- Check in migration if possible
+
 ## Version 4.0.2
 - Updated migration section in readme
 - Fixed further migration issues and removed commented out parts
