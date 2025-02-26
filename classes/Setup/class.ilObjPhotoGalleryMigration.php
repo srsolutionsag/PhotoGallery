@@ -13,16 +13,12 @@ declare(strict_types=1);
 use ILIAS\Setup\Migration;
 use ILIAS\Setup\Environment;
 use ILIAS\ResourceStorage\Collection\ResourceCollection;
-use srag\Plugins\PhotoGallery\Preview\PreviewService;
-use srag\Plugins\PhotoGallery\URL\URLService;
-use srag\Plugins\PhotoGallery\Preview\PreviewGenerator;
 
 /**
  * @author Lukas Zehnder <lukas@sr.solutions>
  */
 class ilObjPhotoGalleryMigration implements Migration
 {
-    private PreviewGenerator $flavour_generator;
     protected \ilResourceStorageMigrationHelper $helper;
 
 
@@ -88,6 +84,7 @@ class ilObjPhotoGalleryMigration implements Migration
 
         if (!empty($picture_dataset)) {
             $migrated_pictures = [];
+            $missing_files = [];
             $preview_picture_rid = null;
             // iterate through the albums pictures and migrate them to the irss
             $i=0;
@@ -97,10 +94,14 @@ class ilObjPhotoGalleryMigration implements Migration
                 // copy original picture file to irss but leave the directory and files there in case something goes wrong
                 // TODO: remove old files and directories in a future version (once this migration has proven itself)
                 $path_to_file_dir = $this->buildPathToPictureDir($album_id, $picture_id);
-                $file_extension = $this->getFileExtensionOfOriginalPicture($path_to_file_dir);
-                $file_path = $this->buildAbsolutePathToPicture($path_to_file_dir, 'original', $file_extension);
+                $absolute_path_to_original_file = glob($path_to_file_dir . '/original.*');
+                if (!$absolute_path_to_original_file || !is_file($absolute_path_to_original_file[0])) {
+                    $missing_files[$i]['picture_id'] = $picture_id;
+                    $i++;
+                    continue;
+                }
                 $resource_identification = $this->helper->movePathToStorage(
-                    $file_path,
+                    $absolute_path_to_original_file[0],
                     $picture_owner_id,
                     null,
                     null,
@@ -169,6 +170,20 @@ class ilObjPhotoGalleryMigration implements Migration
                 );
             }
         }
+        // update the picture's db table with a "failed" rid value for any missing files
+        if (!empty($missing_files)) {
+            foreach ($missing_files as $missing_file) {
+                $this->helper->getDatabase()->update(
+                    'sr_obj_pg_pic',
+                    [
+                        'picture_rid' => ['text', "failed"]
+                    ],
+                    [
+                        'id' => ['integer', $missing_file['picture_id']]
+                    ]
+                );
+            }
+        }
     }
 
 
@@ -183,32 +198,8 @@ class ilObjPhotoGalleryMigration implements Migration
         return (int) $d->amount;
     }
 
-    /**
-     * only original picture files are relevant for the migration to the irss (other files - mosaic.png, presentation.png, preview.png - are no longer needed)
-     */
-    protected function buildAbsolutePathToPicture(string $path, string $filename, string $extension): string
-    {
-        return $path . '/' . $filename . '.' . $extension;
-    }
-
     protected function buildPathToPictureDir(int $album_id, int $picture_id): string
     {
         return CLIENT_DATA_DIR . '/xpho/album_' . $album_id . '/picture_' . $picture_id;
     }
-
-    protected function  getFileExtensionOfOriginalPicture($absolute_path_to_picture_dir): ?string
-    {
-        $extension = null;
-        $files = scandir($absolute_path_to_picture_dir);
-        foreach ($files as $file) {
-            if (is_file($absolute_path_to_picture_dir . '/' . $file)) {
-                $path_parts = pathinfo($absolute_path_to_picture_dir . '/' . $file);
-                if ($path_parts['filename'] === 'original') {
-                    return $path_parts['extension'];
-                }
-            }
-        }
-        return null;
-    }
-
 }

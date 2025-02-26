@@ -32,9 +32,9 @@ pic#:#Picture
 select_preview#:#Set as preview picture
 add_pic#:#Upload
 back_to_gallery#:#Back to Gallery
-success_pic#:#Picture is created!
+success_pic#:#Picture(s) uploaded!
 delete_pic#:#Delete object(s)?
-msg_removed_pic#:#Object(s) is deleted!
+msg_removed_pic#:#Object(s) deleted!
 add_new_pic#:#Add New Picture
 back_to_pictures#:#Back to Pictures
 exif_data#:#Exif data
