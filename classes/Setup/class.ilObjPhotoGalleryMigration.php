@@ -89,8 +89,8 @@ class ilObjPhotoGalleryMigration implements Migration
             // iterate through the albums pictures and migrate them to the irss
             $i = 0;
             foreach ($picture_dataset as $picture_entry) {
-                $picture_owner_id = (int)$picture_entry['picture_owner_id'];
-                $picture_id = (int)$picture_entry['picture_id'];
+                $picture_owner_id = (int) $picture_entry['picture_owner_id'];
+                $picture_id = (int) $picture_entry['picture_id'];
                 // copy original picture file to irss but leave the directory and files there in case something goes wrong
                 // TODO: remove old files and directories in a future version (once this migration has proven itself)
                 $path_to_file_dir = $this->buildPathToPictureDir($album_id, $picture_id);
@@ -100,18 +100,19 @@ class ilObjPhotoGalleryMigration implements Migration
                     $i++;
                     continue;
                 }
+
+                $revision_title = function (string $b) use ($picture_entry): string {
+                    return $picture_entry['picture_title'] ?? $b;
+                };
+
                 $resource_identification = $this->helper->movePathToStorage(
                     $absolute_path_to_original_file[0],
                     $picture_owner_id,
                     null,
-                    null,
+                    $revision_title,
                     true
                 );
                 if ($resource_identification !== null) {
-                    // change the title of the newly created revision from 'original' to the actual title of the picture
-                    $current_revision = $irss_manager->getCurrentRevision($resource_identification);
-                    $current_revision->setTitle($picture_entry['picture_title']);
-                    $irss_manager->updateRevision($current_revision);
                     $album_collection->add($resource_identification);
                     $picture_rid = $resource_identification->serialize();
                     $migrated_pictures[$i]['picture_rid'] = $picture_rid;
