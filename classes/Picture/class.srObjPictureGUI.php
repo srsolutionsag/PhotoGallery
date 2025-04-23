@@ -44,7 +44,6 @@ class srObjPictureGUI
     protected ilLanguage $lng;
     protected Refinery $refinery;
     protected ilGlobalTemplateInterface $tpl;
-    protected ?srObjPicture $obj_picture = null;
     protected UIServices $ui;
     protected \ILIAS\ResourceStorage\Services $irss;
 
@@ -63,7 +62,6 @@ class srObjPictureGUI
         $this->refinery = $DIC->refinery();
         $this->toolbar = $DIC->toolbar();
         $this->tabs_gui = $DIC->tabs();
-        $this->obj_picture = srObjPicture::find($_GET['picture_id']);
         $this->pl = ilPhotoGalleryPlugin::getInstance();
         $this->ui = $DIC->ui();
         $this->irss = $DIC->resourceStorage();
