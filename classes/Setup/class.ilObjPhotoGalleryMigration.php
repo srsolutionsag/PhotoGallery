@@ -103,6 +103,11 @@ class ilObjPhotoGalleryMigration implements Migration
                     $i++;
                     continue;
                 }
+
+                $revision_title = function (string $b) use ($picture_entry): string {
+                    return $picture_entry['picture_title'] ?? $b;
+                };
+
                 $picture_title = $picture_entry['picture_title'];
                 $file_extension = pathinfo($absolute_path_to_original_file[0], PATHINFO_EXTENSION);
                 $file_path_duplicate_for_irss = $path_to_file_dir . '/' . $picture_title . '.' . $file_extension;
@@ -111,14 +116,12 @@ class ilObjPhotoGalleryMigration implements Migration
                 if ($copy_successful) {
                     $resource_identification = $this->helper->movePathToStorage(
                         $file_path_duplicate_for_irss,
-                        $picture_owner_id
+                        $picture_owner_id,
+                        null,
+                        $revision_title
                     );
                 }
                 if ($resource_identification !== null) {
-                    // change the title of the newly created revision from 'original' to the actual title of the picture
-                    $current_revision = $irss_manager->getCurrentRevision($resource_identification);
-                    $current_revision->setTitle($picture_title);
-                    $irss_manager->updateRevision($current_revision);
                     $album_collection->add($resource_identification);
                     $picture_rid = $resource_identification->serialize();
                     $migrated_pictures[$i]['picture_rid'] = $picture_rid;
