@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.1.6
+- Fixed error 'Undefined array key picture_id' when trying to add a picture in a new gallery on an installation which prevents super global replacement 
+- Fixed migration-issue regarding missing title by replacing the title with basename in such cases
+
 ## Version 3.1.5
 - Check in migration if possible
 

@@ -1,7 +1,7 @@
 <?php
 
 $id = 'xpho';
-$version = '3.1.5';
+$version = '3.1.6';
 $ilias_min_version = '8.12';
 $ilias_max_version = '8.999';
 $responsible = 'sr.solutions';
